@@ -1,0 +1,580 @@
+ecompcdcp: LEMMA
+FORALL (a: action_id, d: device, p: patient, st: state):
+LET stx = c_fun_act(a, d, p, st), psx = stx`pdb(p) IN
+    (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     (psx`p_disp_top`devs(d) = infusion_pump OR
+     (psx`p_disp_top`devs(d) = vital_signs_device)
+IMPLIES
+((psx`p_disp_top`devs(d) = vital_signs_device) IMPLIES
+  next_pan_pm(psx`nde,
+      tick_pan_device(d, p, stx)`nde_state)`current_pan_msg
+         =
+         (# mhdr := updmsg,
+            pat_nd := psx`nde,
+            msg_nd
+              := IF psx`p_disp_top`devs(d) = infusion_pump
+                   THEN psx`ip_state(d)`nde
+                 ELSE psx`vital_signs`nde
+                 ENDIF,
+            pan
+              := available_act(tick((psx`ip_state(d)))`pan,
+                               tick((psx`ip_state(d)))) #)) AND
+   ((psx`p_disp_top`devs(d) = vital_signs_device)
+        IMPLIES
+        next_pan_pm(psx`nde,
+               tick_pan_device(d, p, psx)`nde_state)`current_pan_msg
+         =
+         (# mhdr := updmsg,
+            pat_nd := stx`nde,
+            msg_nd
+              := IF (psx`p_disp_top`devs(d) = infusion_pump)
+                   THEN psx`ip_state(d)`nde
+                 ELSE psx`vital_signs`nde
+                 ENDIF,
+            pan
+              := available_act(tick_vs((psx`vital_signs))`pan,
+                               tick_vs((psx`vital_signs))) #))
+ ((psx`p_disp_top`devs(d) = infusion_pump)
+        IMPLIES
+        (tick_pan_patient(p,
+                          tick_pan_device(d,
+                                          p,
+                                          c_fun_act
+                                          (a!1, d!1, p!1, st!1)))`pdb
+             (p!1)`patient_panels
+             (d!1)
+          =
+          available_act(tick((psx`ip_state(d)))`pan,
+                        tick((psx`ip_state
+                                  (d)))))) AND
+   ((psx`p_disp_top`devs(d) = vital_signs_device)
+        IMPLIES
+        (tick_pan_patient(p,
+               tick_pan_device(d, p, psx`patient_panels(d)
+          =
+          available_act(tick_vs((psx`vital_signs))`pan,
+                        tick_vs((psx`vital_signs))))) AND
+((psx`p_disp_top`devs(d) = infusion_pump)
+        IMPLIES
+        next_cm(tick_pan_patient(p,
+                  tick_pan_device(d, p, stx))`nde_state)`current_pan_msg
+         =
+         (# mhdr := updmsg,
+            pat_nd := psx`nde,
+            msg_nd
+              := IF (psx`p_disp_top`devs(d) = infusion_pump)
+                   THEN (psx`ip_state(d))`nde
+                 ELSE (psx`vital_signs)`nde
+                 ENDIF,
+            pan
+              := available_act(tick((psx`ip_state(d)))`pan,
+                               tick((psx`ip_state(d)))) #)) AND
+((psx`p_disp_top`devs(d) = vital_signs_device)
+        IMPLIES
+        next_cm(tick_pan_patient(p,
+                  tick_pan_device(d, p, psx))`nde_state)`current_pan_msg
+         =
+         (# mhdr := updmsg,
+            pat_nd := psx`nde,
+            msg_nd
+              := IF (psx`p_disp_top`devs(d) = infusion_pump)
+                   THEN (psx`ip_state(d))`nde
+                 ELSE (psx`vital_signs)`nde
+                 ENDIF,
+            pan
+              := available_act(tick_vs((psx`vital_signs))`pan,
+                               tick_vs((psx`vital_signs))) #)) AND
+ ((psx`p_disp_top`devs(d) = infusion_pump)
+        IMPLIES
+        tick_pan_coordinator(tick_pan_patient(p, tick_pan_device
+                                              (d!1,
+                                               p!1,
+                                               stx)))`coord_st`coord_db
+            (p)`coord_devices
+            (d)
+         =
+         filter_panel(available_act(tick
+                                    ((psx`ip_state(d)))`pan,
+                                    tick
+                                    ((psx`ip_state(d)))),
+                      stx`coord_st`coord_db(p)`coord_devices(d)`pars,
+                      stx`coord_st`coord_db(p)`d_available_actions
+                          (d))) AND
+((psx`p_disp_top`devs(d) = vital_signs_device)
+        IMPLIES
+        tick_pan_coordinator(tick_pan_patient(p,
+                   tick_pan_device(d, p, stx)))`coord_st`coord_db
+            (p)`coord_devices
+            (d)
+         =
+         filter_panel(available_act(tick_vs
+                                    ((c_fun_act(a!1, d!1, p!1, st!1)`pdb
+                                      (p!1)`vital_signs))`pan,
+                                    tick_vs
+                                    ((c_fun_act(a!1, d!1, p!1, st!1)`pdb
+                                      (p!1)`vital_signs))),
+                     stx`coord_st`coord_db
+                          (p!1)`coord_devices
+                          (d!1)`pars,
+                      stx`coord_st`coord_db(p)`d_available_actions
+                          (d))) AND
+tick_pan_device(d, p, stx)`coord_st = stx`coord_st AND
+tick_pan_patient(p, tick_pan_device(d, p ,stx))`coord_st
+       = tick_pan_device(d, p, stx)`coord_st AND
+tick_pan_device(d, p, stx)`pdb(p)`filter_device_panels
+       = psx`filter_device_panels AND
+tick_pan_device(d, p, stx)`pdb(p)`patient_panels
+       =psx`patient_panels AND
+tick_pan_device(d, p, stx)`pdb(p)`p_disp_main
+       = psx`p_disp_main AND
+ ((psx`p_disp_top)`devs(d) = infusion_pump
+        IMPLIES
+        nde
+          (tick_pan_device(d, p, stx)`pdb(p)`ip_state(d))
+         = nde(c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`ip_state(d!1)))
+[-15]   ((c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_top)`devs(d!1) =
+        infusion_pump
+        IMPLIES
+        nde
+          (tick_pan_patient(p!1,
+                            tick_pan_device(d!1,
+                                            p!1,
+                                            c_fun_act
+                                            (a!1, d!1, p!1, st!1)))`pdb
+               (p!1)`ip_state
+               (d!1))
+         =
+         nde
+           (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+                (p!1)`ip_state
+                (d!1)))
+[-16]   ((c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_top)`devs(d!1) =
+        infusion_pump
+        IMPLIES
+        nde
+          (tick_pan_coordinator(tick_pan_patient(p!1,
+                                                 tick_pan_device
+                                                 (d!1,
+                                                  p!1,
+                                                  c_fun_act
+                                                  (a!1,
+                                                   d!1,
+                                                   p!1,
+                                                   st!1))))`pdb
+               (p!1)`ip_state
+               (d!1))
+         =
+         nde
+           (tick_pan_patient(p!1,
+                             tick_pan_device(d!1,
+                                             p!1,
+                                             c_fun_act
+                                             (a!1, d!1, p!1, st!1)))`pdb
+                (p!1)`ip_state
+                (d!1)))
+[-17]   ((c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_top)`devs(d!1) =
+        vital_signs_device
+        IMPLIES
+        nde
+          (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+               (p!1)`vital_signs)
+         = nde(c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`vital_signs))
+[-18]   ((c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_top)`devs(d!1) =
+        vital_signs_device
+        IMPLIES
+        nde
+          (tick_pan_patient(p!1,
+                            tick_pan_device(d!1,
+                                            p!1,
+                                            c_fun_act
+                                            (a!1, d!1, p!1, st!1)))`pdb
+               (p!1)`vital_signs)
+         =
+         nde
+           (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+                (p!1)`vital_signs))
+[-19]   ((c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_top)`devs(d!1) =
+        vital_signs_device
+        IMPLIES
+        nde
+          (tick_pan_coordinator(tick_pan_patient(p!1,
+                                                 tick_pan_device
+                                                 (d!1,
+                                                  p!1,
+                                                  c_fun_act
+                                                  (a!1,
+                                                   d!1,
+                                                   p!1,
+                                                   st!1))))`pdb
+               (p!1)`vital_signs)
+         =
+         nde
+           (tick_pan_patient(p!1,
+                             tick_pan_device(d!1,
+                                             p!1,
+                                             c_fun_act
+                                             (a!1, d!1, p!1, st!1)))`pdb
+                (p!1)`vital_signs))
+[-20]   (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+           (p!1)`pmode
+        = c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`pmode)
+[-21]   (tick_pan_patient(p!1,
+                        tick_pan_device(d!1,
+                                        p!1,
+                                        c_fun_act(a!1, d!1, p!1, st!1)))`pdb
+           (p!1)`pmode
+        =
+        tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+            (p!1)`pmode)
+[-22]   (tick_pan_coordinator(tick_pan_patient(p!1,
+                                             tick_pan_device
+                                             (d!1,
+                                              p!1,
+                                              c_fun_act
+                                              (a!1, d!1, p!1, st!1))))`pdb
+           (p!1)`pmode
+        =
+        tick_pan_patient(p!1,
+                         tick_pan_device(d!1,
+                                         p!1,
+                                         c_fun_act
+                                         (a!1, d!1, p!1, st!1)))`pdb
+            (p!1)`pmode)
+[-23]   (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+           (p!1)`p_disp_top`sel_device
+        = c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_top`sel_device)
+[-24]   (tick_pan_patient(p!1,
+                        tick_pan_device(d!1,
+                                        p!1,
+                                        c_fun_act(a!1, d!1, p!1, st!1)))`pdb
+           (p!1)`p_disp_top`sel_device
+        =
+        tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+            (p!1)`p_disp_top`sel_device)
+[-25]   (tick_pan_coordinator(tick_pan_patient(p!1,
+                                             tick_pan_device
+                                             (d!1,
+                                              p!1,
+                                              c_fun_act
+                                              (a!1, d!1, p!1, st!1))))`pdb
+           (p!1)`p_disp_top`sel_device
+        =
+        tick_pan_patient(p!1,
+                         tick_pan_device(d!1,
+                                         p!1,
+                                         c_fun_act
+                                         (a!1, d!1, p!1, st!1)))`pdb
+            (p!1)`p_disp_top`sel_device)
+[-26]   (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+           (p!1)`emode
+        = c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`emode)
+[-27]   (tick_pan_patient(p!1,
+                        tick_pan_device(d!1,
+                                        p!1,
+                                        c_fun_act(a!1, d!1, p!1, st!1)))`pdb
+           (p!1)`emode
+        =
+        tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+            (p!1)`emode)
+[-28]   (tick_pan_coordinator(tick_pan_patient(p!1,
+                                             tick_pan_device
+                                             (d!1,
+                                              p!1,
+                                              c_fun_act
+                                              (a!1, d!1, p!1, st!1))))`pdb
+           (p!1)`emode
+        =
+        tick_pan_patient(p!1,
+                         tick_pan_device(d!1,
+                                         p!1,
+                                         c_fun_act
+                                         (a!1, d!1, p!1, st!1)))`pdb
+            (p!1)`emode)
+[-29]   (tick_pan_device(d!1, p!1,
+                       c_fun_act(a!1, d!1, p!1, st!1))`nde_state`n_links
+        = c_fun_act(a!1, d!1, p!1, st!1)`nde_state`n_links)
+[-30]   (tick_pan_patient(p!1,
+                        tick_pan_device(d!1,
+                                        p!1,
+                                        c_fun_act
+                                        (a!1,
+                                         d!1,
+                                         p!1,
+                                         st!1)))`nde_state`n_links
+        =
+        tick_pan_device(d!1, p!1,
+                        c_fun_act(a!1, d!1, p!1, st!1))`nde_state`n_links)
+[-31]   (tick_pan_coordinator(tick_pan_patient(p!1,
+                                             tick_pan_device
+                                             (d!1,
+                                              p!1,
+                                              c_fun_act
+                                              (a!1,
+                                               d!1,
+                                               p!1,
+                                               st!1))))`nde_state`n_links
+        =
+        tick_pan_patient(p!1,
+                         tick_pan_device(d!1,
+                                         p!1,
+                                         c_fun_act
+                                         (a!1,
+                                          d!1,
+                                          p!1,
+                                          st!1)))`nde_state`n_links)
+[-32]   nde
+        (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+             (p!1))
+       = nde(c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1))
+[-33]   nde
+        (tick_pan_patient(p!1,
+                          tick_pan_device(d!1,
+                                          p!1,
+                                          c_fun_act
+                                          (a!1, d!1, p!1, st!1)))`pdb
+             (p!1))
+       =
+       nde
+         (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+              (p!1))
+[-34]   nde
+        (tick_pan_coordinator(tick_pan_patient(p!1,
+                                               tick_pan_device
+                                               (d!1,
+                                                p!1,
+                                                c_fun_act
+                                                (a!1, d!1, p!1, st!1))))`pdb
+             (p!1))
+       =
+       nde
+         (tick_pan_patient(p!1,
+                           tick_pan_device(d!1,
+                                           p!1,
+                                           c_fun_act
+                                           (a!1, d!1, p!1, st!1)))`pdb
+              (p!1))
+[-35]   (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+           (p!1)`p_disp_top)`devs
+       = (c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_top)`devs
+[-36]   (tick_pan_patient(p!1,
+                        tick_pan_device(d!1,
+                                        p!1,
+                                        c_fun_act(a!1, d!1, p!1, st!1)))`pdb
+           (p!1)`p_disp_top)`devs
+       =
+       (tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`pdb
+            (p!1)`p_disp_top)`devs
+[-37]   tick_pan_coordinator(tick_pan_patient(p!1,
+                                            tick_pan_device
+                                            (d!1,
+                                             p!1,
+                                             c_fun_act
+                                             (a!1, d!1, p!1, st!1))))`pdb
+          (p!1)`p_disp_top`devs
+       =
+       (tick_pan_patient(p!1,
+                         tick_pan_device(d!1,
+                                         p!1,
+                                         c_fun_act
+                                         (a!1, d!1, p!1, st!1)))`pdb
+            (p!1)`p_disp_top)`devs
+[-38]   tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`d_nodes =
+       c_fun_act(a!1, d!1, p!1, st!1)`d_nodes
+[-39]   tick_pan_patient(p!1,
+                       tick_pan_device(d!1,
+                                       p!1,
+                                       c_fun_act
+                                       (a!1, d!1, p!1, st!1)))`d_nodes
+       = tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`d_nodes
+[-40]   tick_pan_coordinator(tick_pan_patient(p!1,
+                                            tick_pan_device
+                                            (d!1,
+                                             p!1,
+                                             c_fun_act
+                                             (a!1,
+                                              d!1,
+                                              p!1,
+                                              st!1))))`d_nodes
+       =
+       tick_pan_patient(p!1,
+                        tick_pan_device(d!1,
+                                        p!1,
+                                        c_fun_act
+                                        (a!1, d!1, p!1, st!1)))`d_nodes
+[-41]   tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`p_nodes =
+       c_fun_act(a!1, d!1, p!1, st!1)`p_nodes
+[-42]   tick_pan_patient(p!1,
+                       tick_pan_device(d!1,
+                                       p!1,
+                                       c_fun_act
+                                       (a!1, d!1, p!1, st!1)))`p_nodes
+       = tick_pan_device(d!1, p!1, c_fun_act(a!1, d!1, p!1, st!1))`p_nodes
+[-43]   tick_pan_coordinator(tick_pan_patient(p!1,
+                                            tick_pan_device
+                                            (d!1,
+                                             p!1,
+                                             c_fun_act
+                                             (a!1,
+                                              d!1,
+                                              p!1,
+                                              st!1))))`p_nodes
+       =
+       tick_pan_patient(p!1,
+                        tick_pan_device(d!1,
+                                        p!1,
+                                        c_fun_act
+                                        (a!1, d!1, p!1, st!1)))`p_nodes
+[-44]   tick_pan_device(d!1, p!1,
+                      c_fun_act(a!1, d!1, p!1, st!1))`coord_st`coord_db
+          (p!1)`p_devices
+       = c_fun_act(a!1, d!1, p!1, st!1)`coord_st`coord_db(p!1)`p_devices
+[-45]   tick_pan_patient(p!1,
+                       tick_pan_device(d!1,
+                                       p!1,
+                                       c_fun_act
+                                       (a!1,
+                                        d!1,
+                                        p!1,
+                                        st!1)))`coord_st`coord_db
+          (p!1)`p_devices
+       =
+       tick_pan_device(d!1, p!1,
+                       c_fun_act(a!1, d!1, p!1, st!1))`coord_st`coord_db
+           (p!1)`p_devices
+[-46]   tick_pan_coordinator(tick_pan_patient(p!1,
+                                            tick_pan_device
+                                            (d!1,
+                                             p!1,
+                                             c_fun_act
+                                             (a!1,
+                                              d!1,
+                                              p!1,
+                                              st!1))))`coord_st`coord_db
+          (p!1)`p_devices
+       =
+       tick_pan_patient(p!1,
+                        tick_pan_device(d!1,
+                                        p!1,
+                                        c_fun_act
+                                        (a!1,
+                                         d!1,
+                                         p!1,
+                                         st!1)))`coord_st`coord_db
+           (p!1)`p_devices
+[-47]   consistent_coordinator_d(d!1, p!1,
+                               reflect_device_to_coordinator(d!1,
+                                                             p!1,
+                                                             c_fun_act
+                                                             (a!1,
+                                                              d!1,
+                                                              p!1,
+                                                              st!1)))
+[-48]   c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_main =
+       st!1`pdb(p!1)`p_disp_main
+[-49]   c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`filter_device_panels =
+       st!1`pdb(p!1)`filter_device_panels
+[-50]   c_fun_act(a!1, d!1, p!1, st!1)`p_nodes = st!1`p_nodes
+[-51]   c_fun_act(a!1, d!1, p!1, st!1)`d_nodes = st!1`d_nodes
+[-52]   nde(c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)) = nde(st!1`pdb(p!1))
+[-53]   c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`pmode = st!1`pdb(p!1)`pmode
+[-54]   c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_top`sel_device =
+       (st!1`pdb(p!1)`p_disp_top)`sel_device
+[-55]   c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`emode = st!1`pdb(p!1)`emode
+[-56]   c_fun_act(a!1, d!1, p!1, st!1)`nde_state`n_links =
+       st!1`nde_state`n_links
+[-57]   c_fun_act(a!1, d!1, p!1, st!1)`ps = st!1`ps
+[-58]   c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`p_disp_top`devs =
+       (st!1`pdb(p!1)`p_disp_top)`devs
+[-59]   (((st!1`pdb(p!1)`p_disp_top)`devs(d!1) = infusion_pump) IMPLIES
+        (nde(c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`ip_state(d!1)) =
+          nde(st!1`pdb(p!1)`ip_state(d!1))))
+[-60]   ((st!1`pdb(p!1)`p_disp_top)`devs(d!1) = vital_signs_device IMPLIES
+        (nde(c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`vital_signs) =
+          nde(st!1`pdb(p!1)`vital_signs)))
+[-61]   c_fun_act(a!1, d!1, p!1, st!1)`coord_st`coord_db(p!1)`p_devices =
+       (st!1`coord_st`coord_db)(p!1)`p_devices
+[-62]   c_fun_act(a!1, d!1, p!1, st!1)`coord_st`disp_top`patients =
+       st!1`coord_st`disp_top`patients
+[-63]   c_fun_act(a!1, d!1, p!1, st!1)`coord_st`mode = st!1`coord_st`mode
+[-64]   c_fun_act(a!1, d!1, p!1, st!1)`coord_st`disp_focus =
+       st!1`coord_st`disp_focus
+[-65]   c_fun_act(a!1, d!1, p!1, st!1)`coord_st`disp_patient`current_patient
+       = st!1`coord_st`disp_patient`current_patient
+[-66]   c_fun_act(a!1, d!1, p!1, st!1)`coord_st`disp_device`current_device =
+       st!1`coord_st`disp_device`current_device
+[-67]   c_fun_act(a!1, d!1, p!1, st!1)`coord_st`coord_db =
+       (st!1`coord_st`coord_db)
+[-68]   ((c_d_per_actionx(a!1, d!1, p!1, st!1`coord_st) AND
+         ((st!1`pdb(p!1)`p_disp_top)`devs(d!1) = infusion_pump))
+        IMPLIES
+        c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`ip_state(d!1) =
+         execute_ip(a!1, st!1`pdb(p!1)`ip_state(d!1)))
+[-69]   ((c_p_per_actionx(a!1, d!1, p!1, st!1`coord_st) AND
+         ((st!1`pdb(p!1)`p_disp_top)`devs(d!1) = infusion_pump))
+        IMPLIES
+        c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`ip_state(d!1) =
+         execute_ip(a!1, st!1`pdb(p!1)`ip_state(d!1)))
+[-70]   ((c_d_per_actionx(a!1, d!1, p!1, st!1`coord_st) AND
+         (st!1`pdb(p!1)`p_disp_top)`devs(d!1) = vital_signs_device)
+        IMPLIES
+        c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`vital_signs =
+         execute_vs(a!1, st!1`pdb(p!1)`vital_signs))
+[-71]   ((c_p_per_actionx(a!1, d!1, p!1, st!1`coord_st) AND
+         (st!1`pdb(p!1)`p_disp_top)`devs(d!1) = vital_signs_device)
+        IMPLIES
+        c_fun_act(a!1, d!1, p!1, st!1)`pdb(p!1)`vital_signs =
+         execute_vs(a!1, st!1`pdb(p!1)`vital_signs))
+[-72]   c_p_fun_action(a!1, st!1) = c_p_fun_actionx(a!1, st!1)
+[-73]   c_d_fun_action(a!1, st!1) = c_d_fun_actionx(a!1, st!1)
+[-74]   st!1`nde_state`n_links(nde(st!1`pdb(p!1)), coord_node)
+[-75]   st!1`nde_state`n_links(coord_node, nde(st!1`pdb(p!1)))
+[-76]   st!1`nde_state`n_links
+          (nde(st!1`pdb(p!1)),
+           IF st!1`pdb(p!1)`p_disp_top`devs(d!1) = infusion_pump
+             THEN st!1`pdb(p!1)`ip_state(d!1)`nde
+           ELSE st!1`pdb(p!1)`vital_signs`nde
+           ENDIF)
+[-77]   st!1`nde_state`n_links
+          (IF st!1`pdb(p!1)`p_disp_top`devs(d!1) = infusion_pump
+             THEN st!1`pdb(p!1)`ip_state(d!1)`nde
+           ELSE st!1`pdb(p!1)`vital_signs`nde
+           ENDIF,
+           nde(st!1`pdb(p!1)))
+[-78]   (coord_act_mono(coordinator_enter_action(a!1,
+                                               st!1))`nde_state`act_msg_waiting
+           (nde(st!1`pdb(p!1)))`current_pos
+        = st!1`nde_state`act_msg_waiting(nde(st!1`pdb(p!1)))`last_pos)
+[-79]   (tick_act_patient(p!1,
+                        coord_act_mono(coordinator_enter_action
+                                       (a!1,
+                                        st!1)))`nde_state`act_msg_waiting
+           (IF st!1`pdb(p!1)`p_disp_top`devs(d!1) = infusion_pump
+              THEN st!1`pdb(p!1)`ip_state(d!1)`nde
+            ELSE st!1`pdb(p!1)`vital_signs`nde
+            ENDIF)`current_pos
+        =
+        coord_act_mono(coordinator_enter_action(a!1,
+                                                st!1))`nde_state`act_msg_waiting
+            (IF st!1`pdb(p!1)`p_disp_top`devs(d!1) = infusion_pump
+               THEN st!1`pdb(p!1)`ip_state(d!1)`nde
+             ELSE st!1`pdb(p!1)`vital_signs`nde
+             ENDIF)`last_pos)
+[-80]   (tick_pan_device(d!1, p!1,
+                       tick_act_device(d!1,
+                                       p!1,
+                                       tick_act_patient
+                                       (p!1,
+                                        coord_act_mono
+                                        (coordinator_enter_action
+                                         (a!1,
+                                          st!1)))))`nde_state`pan_msg_waiting
+           (nde(st!1`pdb(p!1)))`current_pos
+        =
+        tick_act_device(d!1, p!1,
+                        tick_act_patient(p!1,
+                                         coord_act_mono
+                                         (coordinator_enter_action
+                                          (a!1,
+                                           st!1))))`nde_state`pan_msg_waiting
+            (nde(st!1`pdb(p!1)))`last_pos)

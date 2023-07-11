@@ -1,0 +1,95 @@
+panlemma1cfunact: LEMMA
+FORALL (d: device, p: patient, st: state):
+LET st1 = tick_pan_device(d, p, st),
+    st2 = tick_pan_patient(p, st1),
+    st3 = tick_pan_coordinator(st2),
+    ps = st`pdb(p),
+    ns = st`nde_state,
+    ds = ps`ip_state(d),
+   is = st`coord_st, 
+   ps1 = st1`pdb(p),
+    ns1 = st1`nde_state,
+    is1 = st1`coord_st,
+   ps2 = st2`pdb(p),
+    ns2 = st2`nde_state,
+    is2 = st2`coord_st,
+   is3 = st3`coord_st, 
+    ns3 = st3`nde_state,
+    pnde = ps`nde,
+    dnde = IF (ps`p_disp_top)`devs(d) = infusion_pump THEN
+           ps`ip_state(d)`nde ELSE ps`vital_signs`nde ENDIF,
+    tds = tick(ds),
+    tvs = tick_vs(ps`vital_signs),
+ 
+    msgd = (# mhdr := updmsg,
+             pat_nd := pnde,
+             msg_nd := dnde,
+             pan := available_act(tds`pan, tds)
+           #),
+    msgv = (# mhdr := updmsg,
+             pat_nd := pnde,
+             msg_nd := dnde,
+             pan := available_act(tvs`pan, tvs)
+           #),
+    ns = st`nde_state,
+    ns1 = st1`nde_state%,
+    IN
+    % channel assumptions
+     ns`n_links(pnde, coord_node) AND 
+     ns`n_links(coord_node, pnde) AND 
+     ns`n_links(pnde, dnde) AND 
+     ns`n_links(dnde, pnde) AND 
+     (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    
+    % patient known to the system
+     (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     (((ps`p_disp_top`devs(d) = infusion_pump) AND
+     ((ps`ip_state(d))`m /= off) AND
+     (is`coord_db(p)`p_devices(d) = infusion_pump)) OR
+     ((ps`p_disp_top`devs(d) = vital_signs_device) AND
+     (ps`vital_signs)`power AND
+     (is`coord_db(p)`p_devices(d) = vital_signs_device)))
+      AND
+    (ns2`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns1`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns1`pan_msg_waiting(coord_node)`last_pos =     ns2`pan_msg_waiting(coord_node)`current_pos) AND
+   (ns`pan_msg_waiting(pnde)`last_pos = ns1`pan_msg_waiting(pnde)`current_pos) AND
+    (ns`pan_msg_waiting(pnde)`buf_status /= full) % AND
+   
+     IMPLIES
+nde(c_fun_act(st)`pdb(p)) = nde(st`pdb(p)) AND
+nde(tick_pan_device(d, p, c_fun_act(st)`pdb(p))) = nde(st`pdb(p)) AND
+nde(tick_pan_patient(p, tick_pan_device(d, p, c_fun_act(st)))`pdb(p)) = nde(st`pdb(p)) AND
+c_fun_act(st))`pdb(p)`p_disp_top`devs = (st`pdb(p)`p_disp_top)`devs AND
+(tick_pan_device(d, p, c_fun_act(st))`pdb(p)`p_disp_top)`devs = (st`pdb(p)`p_disp_top)`devs AND
+(tick_pan_patient(p, tick_pan_device(d, p, c_fun_act(st)))`pdb(p)`p_disp_top)`devs = 
+(st`pdb(p)`p_disp_top)`devs AND
+(tick_pan_coordinator(tick_pan_patient(p, tick_pan_device(d, p, c_fun_act(st)))))`pdb
+              (p)`p_disp_top`devs = 
+              (st`pdb(p)`p_disp_top)`devs AND
+c_fun_act(st)`d_nodes = st`d_nodes AND
+tick_pan_device(d, p, c_fun_act(st))`d_nodes = st`d_nodes AND
+tick_pan_patient(p, tick_pan_device(d, p, c_fun_act(st)))`d_nodes = st`d_nodes  AND
+tick_pan_coordinator(tick_pan_patient(p, tick_pan_device(d, p, c_fun_act(st))))`d_nodes =
+     st`d_nodes AND
+c_fun_act(st)`p_nodes = st`p_nodes AND
+tick_pan_device(d, p, c_fun_act(st))`p_nodes = st`p_nodes AND
+tick_pan_patient(p, tick_pan_device(d, p, c_fun_act(st)))`p_nodes = st`p_nodes  AND
+tick_pan_coordinator(tick_pan_patient(p, tick_pan_device(d, p, c_fun_act(st))))`p_nodes =
+     st`p_nodes AND
+ c_fun_act(st)`coord_st = st`coord_st AND
+ tick_pan_device(d, p, c_fun_act(st))`coord_st = st`coord_st AND
+tick_pan_patient(p, tick_pan_device(d, p, c_fun_act(st)))`coord_st = 
+   st`coord_st AND
+(((ps`p_disp_top)`devs(d) = infusion_pump) IMPLIES
+    next_pan_pm(pnde, ns1)`current_pan_msg = msgd) AND
+(((ps`p_disp_top)`devs(d) = vital_signs_device) IMPLIES
+    next_pan_pm(pnde, ns1)`current_pan_msg = msgv) AND
+(((ps`p_disp_top)`devs(d) = infusion_pump)  IMPLIES
+   next_cm(ns2)`current_pan_msg = msgd ) AND
+ (((ps`p_disp_top)`devs(d) = vital_signs_device) IMPLIES  
+       next_cm(ns2)`current_pan_msg = msgv) 
+
+

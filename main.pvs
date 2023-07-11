@@ -1,0 +1,633 @@
+% Michael Harrison (Newcastle University) and Paolo Masci (US National Institute of Aerospace) February 2020
+
+main: THEORY
+ BEGIN IMPORTING printer[8,8,8]
+
+istate0: state = LET p: patient = 1, st: state = init(0), 
+  st = connect_new_element(p, st) IN st
+istate1a: state = LET p: patient = 1, d: device = 1, st: state = istate0,
+  st = patient_enter_device_name(d, p, st) IN st
+istate1b: state = LET p: patient = 1, st: state = istate1a,
+  st = patient_menu_act(enter, p, st) IN st
+istate1c: state = LET p: patient = 1, st: state = istate1b,
+  st = patient_menu_act(device, p, st) IN st
+istate1d: state = LET p: patient = 1, st: state = istate1c,
+  st = patient_menu_act(pump, p, st) IN st
+istate1e: state = LET p: patient = 1, st: state = istate1d,
+  st = connect_new_element(p, st) IN st
+%istate2: state = LET p: patient = 1, d: device = 1, st: state = istate1,
+%  st = patient_enter_device(d, p, st) IN st
+istate3: state = LET p: patient = 1, d: device = 1, st: state = istate1e,
+  st = patient_menu_act(select, p, st) IN st
+istate4: state = LET p: patient = 1, d: device = 1, st: state = istate3,
+  st = patient_menu_act(device, p, st) IN st
+istate5: state = LET p: patient = 1, st: state = istate4,
+  st = patient_menu_act(edit, p, st) IN st
+istate6: state = LET p: patient = 1, st: state = istate5,
+  st = patient_menu_act(device, p, st) IN st
+istate7: state = LET p: patient = 1, st: state = istate6,
+  st = patient_enter_parameter(dpm, p, st) IN st
+istate8: state = LET p: patient = 1, st: state = istate7,
+  st = patient_menu_act(select, p, st) IN st
+istate9: state = LET p: patient = 1, st: state = istate8,
+  st = patient_menu_act(parameter, p, st) IN st
+istate10: state = LET p: patient = 1, st: state = istate9,
+  st = patient_enter_parameter(rte, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(parameter, p, st) IN st
+istate11: state = LET p: patient = 1, st: state = istate10,
+  st = patient_enter_parameter(vtb, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(parameter, p, st) IN st
+istate12: state = LET p: patient = 1, st: state = istate11,
+  st = patient_enter_action(powr, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(action, p, st) IN st
+istate13: state = LET p: patient = 1, st: state = istate12,
+  st = patient_enter_action(hold, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(action, p, st) IN st
+istate14: state = LET p: patient = 1, st: state = istate13,
+  st = patient_enter_action(choosevtbi, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(action, p, st) IN st
+istate15: state = LET p: patient = 1, st: state = istate14,
+  st = patient_enter_action(chooserate, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(action, p, st) IN st
+istate16: state = LET p: patient = 1, st: state = istate15,
+  st = patient_enter_action(confirm, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(action, p, st) IN st
+istate17: state = LET p: patient = 1, st: state = istate16,
+  st = patient_enter_action(incr, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(action, p, st) IN st
+istate18: state = LET p: patient = 1, st: state = istate17,
+  st = patient_enter_action(decr, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(action, p, st) IN st
+istate19: state = LET p: patient = 1, st: state = istate18,
+  st = patient_enter_action(start, p, st),
+  st = patient_menu_act(select, p, st),
+  st = patient_menu_act(action, p, st) IN st
+istate20: state = LET p: patient = 1, st: state = istate19,
+  st = act_patient_ok(p, st) IN st
+istate21: state = LET st: state = istate20,
+  st = tick_pan_coordinator(st) IN st
+istate22: state = LET st: state = istate21,
+  st = coord_menu_act(cursor_down, st) IN st
+istate23: state = LET st: state = istate22,
+  st = coord_menu_act(cursor_down, st) IN st
+istate24: state = LET p: patient = 1, st: state = istate23, 
+  st = coordinator_enter_patient(p, st) IN st
+istate25: state = LET st: state = istate24,
+  st = coord_menu_act(select, st) IN st
+istate26: state = LET st: state = istate25,
+  st = coord_menu_act(patient, st) IN st
+istate27: state = LET st: state = istate26,
+  st = coord_menu_act(select, st) IN st
+istate28: state = LET st: state = istate27,
+  st = coord_menu_act(display, st) IN st
+istate29: state = LET d: device = 1,
+  st: state = istate28, st = coordinator_enter_device(d, st) IN st
+istate30: state = LET st: state = istate29,
+  st = coord_menu_act(select, st) IN st
+istate31: state = LET st: state = istate30,
+  st = coord_menu_act(device, st) IN st
+istate31a: state = LET st: state = istate31,
+  st = coord_menu_act(cursor_down, st) IN st
+istate32: state = LET st: state = istate31a,
+  st = coord_menu_act(select, st) IN st
+istate33: state = LET st: state = istate32,
+  st = coord_menu_act(display, st) IN st
+
+istate34: state = LET st: state = istate33, 
+  st = coordinator_enter_action(powr, st) IN st
+
+istate35: state = LET st: state = istate34, 
+  st = coord_act_mono(st) IN st
+
+istate36: state = LET p: patient = 1, st: state = istate35, 
+  st = tick_act_patient(p, st) IN st
+
+istate37: state = LET p: patient = 1,  d: device = 1, st: state = istate36,
+  st = tick_act_device(d, p, st) IN st
+
+istate38: state = LET p: patient = 1,  d: device = 1,
+  st: state = istate37,
+  st = tick_pan_device(d, p, st) IN st
+
+istate39: state = LET p: patient = 1,  d: device = 1,
+  st: state = istate38,
+  st = tick_pan_patient(p, st) IN st
+
+istate40: state = LET p: patient = 1,  d: device = 1, st: state = istate39,
+  st = tick_pan_coordinator(st) IN st
+
+istate40a: state = LET p: patient = 1,  d: device = 1, st: state = istate40,
+  st = tick_act_coordinator(st) IN st
+
+istate41: state = LET p: patient = 1, st: state = istate40a, 
+  st = patient_menu_act(cursor_down, p, st) IN st
+
+istate42: state = LET p: patient = 1, st: state = istate41, 
+  st = patient_menu_act(region, p, st) IN st
+
+istate43: state = LET p: patient = 1, st: state = istate42,
+  st = patient_menu_act(select, p, st) IN st
+istate44: state = LET p: patient = 1, st: state = istate43,
+  st = patient_menu_act(region, p, st) IN st
+
+istate45: state = LET p: patient = 1, d: device = 1, st: state = istate44,
+  st = tick_pan_device(d, p, st) IN st
+
+istate46: state = LET p: patient = 1, d: device = 1, st: state = istate45,
+  st = tick_pan_patient(p, st) IN st
+
+istate47: state = LET st: state = istate46, st = tick_pan_coordinator(st) IN st
+istate48: state = LET p: patient = 1, st: state = istate47,
+  st = patient_menu_act(select, p, st) IN st
+istate49: state = LET p: patient = 1, st: state = istate48,
+  st = patient_menu_act(device, p, st) IN st
+istate50: state = LET p: patient = 1, st: state = istate49,
+  st = patient_menu_act(edit, p, st) IN st
+istate51: state = LET p: patient = 1, st: state = istate50,
+  st = patient_menu_act(region, p, st) IN st
+istate52: state = LET p: patient = 1, st: state = istate51,
+  st = patient_enter_parameter(dpm, p, st) IN st
+istate53: state = LET p: patient = 1, st: state = istate52,
+  st = patient_menu_act(select, p, st) IN st
+istate54: state = LET p: patient = 1, st: state = istate53,
+  st = patient_menu_act(parameter, p, st) IN st
+istate55: state = LET p: patient = 1, st: state = istate54,
+  st = act_patient_ok(p, st) IN st
+istate56: state = LET st: state = istate55,
+  st = tick_pan_coordinator(st) IN st
+istate57: state = LET p: patient = 1, d: device = 2, st: state = istate56,
+  st = patient_enter_device_name(d, p, st) IN st
+istate58: state = LET p: patient = 1, st: state = istate57,
+  st = patient_menu_act(enter, p, st) IN st
+istate59: state = LET p: patient = 1, st: state = istate58,
+  st = patient_menu_act(device, p, st) IN st
+istate60: state = LET p: patient = 1, st: state = istate59,
+  st = patient_menu_act(vs_device, p, st) IN st
+istate61: state = LET p: patient = 1, st: state = istate60,
+  st = connect_new_element(p, st) IN st
+istate62: state = LET p: patient = 1, st: state = istate61,
+  st = patient_menu_act(select, p, st) IN st
+istate63: state = LET p: patient = 1, st: state = istate62,
+  st = patient_menu_act(device, p, st) IN st
+istate64: state = LET p: patient = 1, st: state = istate63,
+  st = patient_menu_act(edit, p, st) IN st
+istate65: state = LET p: patient = 1, st: state = istate64,
+  st = patient_menu_act(device, p, st) IN st
+istate66: state = LET p: patient = 1, st: state = istate65,
+  st = patient_enter_parameter(hrte, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st) IN st
+istate67: state = LET p: patient = 1, st: state = istate66,
+  st = patient_enter_parameter(blpl, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st) IN st
+istate68: state = LET p: patient = 1, st: state = istate67,
+  st = patient_enter_parameter(blph, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st) IN st
+istate69: state = LET p: patient = 1, st: state = istate68,
+  st = patient_enter_parameter(sp, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st) IN st
+istate70: state = LET p: patient = 1, st: state = istate69,
+  st = patient_enter_parameter(mde, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st) IN st
+istate71a: state = LET p: patient = 1, st: state = istate70,
+  st = patient_enter_action(powr, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(action, p, st) IN st
+
+istate71: state = LET p: patient = 1, st: state = istate71a,
+  st = patient_enter_action(alrm, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(action, p, st) IN st
+
+istate72: state = LET p: patient = 1, st: state = istate71,
+  st = act_patient_ok(p, st) IN st
+
+istate73: state = LET st: state = istate72,
+  st = tick_pan_coordinator(st) IN st
+istate74: state = LET p: patient = 1, d: device = 2,
+  st: state = istate73, st = coordinator_enter_device(d, st),
+  st = coord_menu_act(select, st),  
+  st = coord_menu_act(device, st) IN st
+istate75: state = LET p: patient = 1, st: state = istate74, 
+  st = coord_menu_act(select, st),  
+  st = coord_menu_act(display, st) IN st
+istate76: state = LET st: state = istate75, 
+st = coordinator_enter_action(powr, st),
+  st = coord_act_mono(st) IN st
+
+istate77: state = LET p: patient = 1, st: state = istate76,
+  st = tick_act_patient(p, st) IN st
+
+istate78: state = LET p: patient = 1,  d: device = 2, st: state = istate77,
+  st = tick_act_device(d, p, st) IN st
+
+istate79: state = LET p: patient = 1,  d: device = 2, st: state = istate78,
+  st = tick_pan_device(d, p, st) IN st
+
+istate80: state = LET p: patient = 1,  st: state = istate79,
+  st = tick_pan_patient(p, st) IN st
+
+istate81: state = LET st: state = istate80,
+  st = tick_pan_coordinator(st) IN st
+
+istate81a: state = LET st: state = istate81,
+  st = tick_act_coordinator(st) IN st
+
+istate82: state = LET  p: patient = 1, st: state = istate81a,
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(device, p, st) IN st
+
+istate83: state = LET  p: patient = 1, st: state = istate82,
+  st = patient_menu_act(cursor_down, p, st),  
+  st = patient_menu_act(region, p, st) IN st
+
+istate84: state = LET  p: patient = 1, st: state = istate83,
+  st = patient_menu_act(edit, p, st),  
+  st = patient_menu_act(region, p, st) IN st
+
+istate85: state = LET  p: patient = 1, st: state = istate84,
+  st = patient_enter_parameter(hrte, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st) IN st
+
+istate86: state = LET  p: patient = 1, st: state = istate85,
+  st = act_patient_ok(p, st) IN st
+
+istate87: state = LET st: state = istate86, st = tick_pan_coordinator(st) IN st
+
+istate88: state = LET p: patient = 2, st: state = istate87, 
+  st = connect_new_element(p, st) IN st
+istate89: state = LET p: patient = 2, d: device = 1, st: state = istate88,
+  st = patient_enter_device_name(d, p, st) IN st
+istate90: state = LET p: patient = 2, st: state = istate89,
+  st = patient_menu_act(enter, p, st) IN st
+istate91: state = LET p: patient = 2, st: state = istate90,
+  st = patient_menu_act(device, p, st) IN st
+istate92: state = LET p: patient = 2, st: state = istate91,
+  st = patient_menu_act(vs_device, p, st) IN st
+istate93: state = LET p: patient = 2, st: state = istate92,
+  st = connect_new_element(p, st) IN st
+istate94: state = LET  p: patient = 2, st: state = istate93,
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(device, p, st) IN st
+istate95: state = LET  p: patient = 2, st: state = istate94,
+  st = patient_menu_act(edit, p, st),  
+  st = patient_menu_act(device, p, st) IN st
+
+istate96: state = LET p: patient = 2, st: state = istate95,
+   st = patient_enter_parameter(hrte, p, st) IN st
+istate96a: state = LET p: patient = 2, st: state = istate96,
+  st = patient_menu_act(select, p, st) IN st
+istate96b: state = LET p: patient = 2, st: state = istate96a,  
+  st = patient_menu_act(parameter, p, st) IN st
+istate96c: state = LET p: patient = 2, st: state = istate96b,
+   st = patient_enter_parameter(blpl, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st),
+   st = patient_enter_parameter(blph, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st),
+   st = patient_enter_parameter(sp, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st),
+   st = patient_enter_parameter(mde, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st),
+   st = patient_enter_action(powr, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(action, p, st),
+  st = patient_enter_action(alrm, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(action, p, st) IN st
+istate97: state = LET p: patient = 2, st: state = istate96c,
+  st = act_patient_ok(p, st), 
+  st = tick_pan_coordinator(st) IN st
+
+
+
+istate99: state = LET p: patient = 2, st: state = istate97,
+  st: state = coordinator_enter_patient(p, st) IN st
+
+istate100: state = LET p: patient = 2, st: state = istate99,
+  st = coord_menu_act(select, st),  
+  st = coord_menu_act(patient, st) IN st
+  
+
+istate101: state = LET p: patient = 2, st: state = istate100,
+  st = coord_menu_act(cursor_up, st),  
+  st = coord_menu_act(select, st),  
+  st = coord_menu_act(display, st) IN st
+
+istate102: state = LET d: device = 1,
+  st: state = istate101,
+  st = coordinator_enter_device(d, st),
+  st = coord_menu_act(select, st),  
+  st = coord_menu_act(device, st) IN st
+
+istate103: state = LET st: state = istate102,
+  st = coord_menu_act(cursor_down, st),
+  st = coord_menu_act(select, st),  
+  st = coord_menu_act(display, st) IN st
+
+istate104: state = LET st: state = istate103,
+  st = coordinator_enter_action(powr, st),
+  st = coord_act_mono(st) IN st
+
+istate105: state = LET p: patient = 2, st: state = istate104,
+  st = tick_act_patient(p, st) IN st
+
+istate106: state = LET p: patient = 2,  d: device = 1, st: state = istate105,
+  st = tick_act_device(d, p, st) IN st
+
+istate107: state = LET p: patient = 2,  d: device = 1, st: state = istate106,
+  st = tick_act_device(d, p, st) IN st
+
+istate108: state = LET p: patient = 2,  d: device = 1, st: state = istate107,
+  st = tick_pan_device(d, p, st) IN st
+
+istate109: state = LET p: patient = 2,  st: state = istate108,
+  st = tick_pan_patient(p, st) IN st
+
+istate110: state = LET st: state = istate109,
+  st = tick_pan_coordinator(st) IN st
+istate110a: state = LET st: state = istate110,
+  st = tick_act_coordinator(st) IN st
+jstate1: state = LET p: patient = 1, st: state = istate110a,
+  st = patient_menu_act(edit, p, st),  
+  st = patient_menu_act(constraint, p, st) IN st
+
+jstate2: state = LET p: patient = 1, st: state = jstate1,
+  st = patient_enter_parameter(hrte, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st) IN st
+
+jstate3a: state = LET p: patient = 1, st: state = jstate2,
+  st = patient_enter_relation(gt, p, st) IN st
+
+jstate3: state = LET p: patient = 1, st: state = jstate3a,
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(relation, p, st) IN st
+
+jstate4a: state = LET p: patient = 1, st: state = jstate3,
+  st = patient_enter_num_value(120, p, st) IN st
+
+jstate4: state = LET p: patient = 1, st: state = jstate4a,
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(num_value, p, st) IN st
+
+
+jstate5: state = LET p: patient = 1, st: state = jstate4,
+  st = act_patient_ok(p, st) IN st
+
+jstate6: state = LET p: patient = 1, d: device = 1, st: state = jstate5,
+  st = patient_enter_device(d, p, st) IN st
+
+jstate6am: state = LET p: patient = 1, d: device = 1, st: state = jstate6,
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(device, p, st) IN st
+
+jstate6a: state = LET p: patient = 1, st: state = jstate6am,
+  st = patient_menu_act(cursor_down, p, st),  
+  st = patient_menu_act(region, p, st) IN st
+
+jstate6a1: state = LET p: patient = 1, st: state = jstate6a,
+  st = patient_menu_act(cursor_down, p, st),  
+  st = patient_menu_act(region, p, st) IN st
+
+jstate6b: state = LET p: patient = 1, d: device = 1, st: state = jstate6a1,
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(display, p, st) IN st
+
+
+jstate6d: state = LET p: patient = 1, st: state = jstate6b,
+  st = patient_menu_act(edit, p, st),  
+  st = patient_menu_act(constraint, p, st) IN st
+
+
+jstate7: state = LET p: patient = 1, st: state = jstate6d,
+  st = patient_enter_parameter(dpm, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st) IN st
+
+jstate8: state = LET p: patient = 1, st: state = jstate7,
+  st = patient_enter_relation(eq, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(relation, p, st) IN st
+
+jstate9: state = LET p: patient = 1, st: state = jstate8,
+  st = patient_enter_enum_value(xdinfusing, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(enum_value, p, st) IN st
+
+jstate10: state = LET p: patient = 1, st: state = jstate9,
+  st = act_patient_ok(p, st)
+  IN st
+
+jstate11: state = LET p: patient = 1, st: state = jstate10,
+  st = patient_enter_action(hold, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(action, p, st) IN st
+
+jstate12: state = LET p: patient = 1, st: state = jstate11,
+  st = act_patient_ok(p, st)
+  IN st
+jstate13: state = LET p: patient = 1, st: state = jstate12,
+  st = tick_act_patient(p, st) IN st
+
+jstate13a: state = LET d: device = 1, p: patient = 1, st: state = jstate13,
+  st = tick_act_device(d, p, st) IN st
+
+jstate13b: state = LET d: device =1, p: patient = 1, st: state = jstate13a,
+  st = tick_pan_device(d, p, st) IN st
+
+jstate13c: state = LET p: patient = 1, st: state = jstate13b,
+  st = tick_pan_patient(p, st) IN st
+
+jstate14: state = LET st: state = jstate13c, st = tick_pan_coordinator(st) IN st
+jstate14a1: state = LET st: state = jstate13c, st = tick_act_coordinator(st) IN st
+
+
+jstate14a: state = LET p: patient = 1, st: state = jstate14a1,
+  st = coordinator_enter_patient(p, st),
+  st = coord_menu_act(select, st),  
+  st = coord_menu_act(patient, st) IN st
+
+jstate14b: state = LET d: device = 1, st: state = jstate14a, 
+  st = coordinator_enter_device(d, st),
+  st = coord_menu_act(select, st),  
+  st = coord_menu_act(device, st),
+  st = coord_menu_act(select, st),  
+  st = coord_menu_act(display, st) IN st
+
+jstate15: state = LET st: state = jstate14b, 
+st = coordinator_enter_action(choosevtbi, st) IN st
+
+jstate16: state = LET st: state = jstate15, 
+  st = coord_act_mono(st) IN st
+
+jstate17: state = LET p: patient = 1, st: state = jstate16, st = tick_act_patient(p, st) IN st
+
+jstate18: state = LET p: patient = 1,  d: device = 1, st: state = jstate17,
+  st = tick_act_device(d, p, st) IN st
+
+jstate18a: state = LET p: patient = 1,  d: device = 1, st: state = jstate18,
+  st = tick_pan_device(d, p, st) IN st
+
+jstate19: state = LET p: patient = 1,  d: device = 1, st: state = jstate18a,
+  st = tick_pan_patient(p, st) IN st
+
+jstate20: state = LET p: patient = 1,  d: device = 1, st: state = jstate19,
+  st = tick_pan_coordinator(st) IN st
+jstate20a: state = LET p: patient = 1,  d: device = 1, st: state = jstate20,
+  st = tick_act_coordinator(st) IN st
+jstate21: state = LET st: state = jstate20a, st = coordinator_enter_action(incr, st) IN st
+
+jstate22: state = LET st: state = jstate21, 
+  st = coord_act_mono(st) IN st
+
+jstate23: state = LET p: patient = 1, st: state = jstate22, st = tick_act_patient(p, st) IN st
+
+jstate24: state = LET p: patient = 1,  d: device = 1, st: state = jstate23,
+  st = tick_act_device(d, p, st) IN st
+
+jstate24a: state = LET p: patient = 1,  d: device = 1, st: state = jstate24,
+  st = tick_pan_device(d, p, st) IN st
+
+jstate25: state = LET p: patient = 1,  d: device = 1, st: state = jstate24a,
+  st = tick_pan_patient(p, st) IN st
+
+jstate26: state = LET p: patient = 1,  d: device = 1, st: state = jstate25,
+  st = tick_pan_coordinator(st) IN st
+jstate26a: state = LET p: patient = 1,  d: device = 1, st: state = jstate26,
+  st = tick_act_coordinator(st) IN st
+
+jstate27: state = LET p: patient = 1,  d: device = 1, st: state = jstate26a, 
+  st = coordinator_enter_action(incr, st),
+  st = coord_act_mono(st), st = tick_act_patient(p, st),
+  st = tick_act_device(d, p, st),
+  st = tick_pan_device(d, p, st), st = tick_pan_patient(p, st),
+  st = tick_pan_coordinator(st), st = tick_act_coordinator(st) IN st
+
+jstate28: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate27, st = coordinator_enter_action(incr, st),
+  st = coord_act_mono(st), st = tick_act_patient(p, st),
+  st = tick_act_device(d, p, st), st = tick_pan_device(d, p, st),
+  st = tick_pan_patient(p, st),
+  st = tick_pan_coordinator(st), st = tick_act_coordinator(st) IN st
+
+jstate29: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate28, st = coordinator_enter_action(incr, st),
+  st = coord_act_mono(st), st = tick_act_patient(p, st),
+  st = tick_act_device(d, p, st), st = tick_pan_device(d, p, st),
+  st = tick_pan_patient(p, st),
+  st = tick_pan_coordinator(st), st = tick_act_coordinator(st) IN st
+
+jstate30: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate29, st = coordinator_enter_action(confirm, st),
+  st = coord_act_mono(st), st = tick_act_patient(p, st),
+  st = tick_act_device(d, p, st), st = tick_pan_device(d, p, st),
+  st = tick_pan_patient(p, st),
+  st = tick_pan_coordinator(st), st = tick_act_coordinator(st) IN st
+
+  jstate31: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate30, st = coordinator_enter_action(chooserate, st),
+  st = coord_act_mono(st), st = tick_act_patient(p, st),
+  st = tick_act_device(d, p, st), st = tick_pan_device(d, p, st),
+  st = tick_pan_patient(p, st),
+  st = tick_pan_coordinator(st), st = tick_act_coordinator(st) IN st
+
+jstate32: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate31, st = coordinator_enter_action(incr, st),
+  st = coord_act_mono(st), st = tick_act_patient(p, st),
+  st = tick_act_device(d, p, st), st = tick_pan_device(d, p, st),
+  st = tick_pan_patient(p, st),
+  st = tick_pan_coordinator(st), t = tick_act_coordinator(st) IN st
+
+jstate33: state = LET p: patient = 1,  d1: device = 1, d2: device = 2, 
+  st: state = jstate32, st = coordinator_enter_action(confirm, st),
+  st = coord_act_mono(st), st = tick_act_patient(p, st),
+  st = tick_act_device(d1, p, st), st = tick_pan_device(d1, p, st),
+  st = tick_pan_patient(p, st),
+  st = tick_pan_coordinator(st), st = tick_act_coordinator(st) IN st
+
+jstate34a: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate33, st = coordinator_enter_action(start, st),
+  st = coord_act_mono(st) IN st
+
+jstate34b: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate34a, st = tick_act_patient(p, st) IN st
+jstate34c: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate34b, st = tick_act_device(d, p, st) IN st
+jstate34d: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate34c, st = tick_pan_device(d, p, st) IN st
+jstate34e: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate34d, st = tick_pan_patient(p, st) IN st
+jstate34f: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate34e, st = tick_pan_coordinator(st),
+  st = tick_act_coordinator(st) IN st
+jstate34: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate33, st = coordinator_enter_action(start, st),
+  st = coord_act_mono(st), st = tick_act_patient(p, st),
+  st = tick_act_device(d, p, st), st = tick_pan_device(d, p, st),
+  st = tick_pan_patient(p, st),
+  st = tick_pan_coordinator(st), st = tick_act_coordinator(st) IN st
+
+jstate35: state = LET p: patient = 1, d: device = 2, st: state = jstate34,
+  st = patient_enter_device(d, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(device, p, st) IN st
+
+
+jstate36: state = LET p: patient = 1, st: state = jstate35,
+  st = patient_menu_act(edit, p, st),  
+  st = patient_menu_act(constraint, p, st) IN st
+
+
+jstate37: state = LET p: patient = 1, st: state = jstate36,
+  st = patient_enter_parameter(hrte, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(parameter, p, st) IN st
+
+jstate38: state = LET p: patient = 1, st: state = jstate37,
+  st = patient_enter_relation(gt, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(relation, p, st) IN st
+
+jstate39: state = LET p: patient = 1, st: state = jstate38,
+  st = patient_enter_num_value(120, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(num_value, p, st) IN st
+
+jstate40: state = LET p: patient = 1, st: state = jstate39,
+  st = act_patient_ok(p, st)
+  IN st
+
+jstate41: state = LET p: patient = 1, st: state = jstate40,
+  st = patient_enter_action(alrm, p, st),
+  st = patient_menu_act(select, p, st),  
+  st = patient_menu_act(action, p, st) IN st
+
+jstate42: state = LET p: patient = 1, st: state = jstate41,
+  st = act_patient_ok(p, st)
+  IN st
+jstate43: state = LET p: patient = 1,  d: device = 1,
+  st: state = jstate42, st = tick_act_patient(p, st),
+  st = tick_act_device(d, p, st), st = tick_pan_device(d, p, st),
+  st = tick_pan_patient(p, st),
+  st = tick_pan_coordinator(st), st = tick_act_coordinator(st) IN st
+
+ END main
+ 

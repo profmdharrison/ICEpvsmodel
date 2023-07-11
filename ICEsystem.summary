@@ -1,0 +1,21 @@
+Proof summary for theory system_th
+
+	IMP_patient_th_TCC1.............................................✅ proved              (0.347 s)
+	init_coord_menu_TCC1............................................✅ proved              (2.187 s)
+	init_patient_menu_TCC1..........................................✅ proved              (5.577 s)
+	act_error_TCC1..................................................✅ proved              (1.853 s)
+	act_error_TCC2..................................................✅ proved              (1.973 s)
+	act_patient_ok_TCC1.............................................✅ proved              (1.899 s)
+	tick_pan_coordinator_TCC1.......................................✅ proved              (2.146 s)
+	update_t_panel_TCC1.............................................✅ proved              (1.837 s)
+	constraint_broken_to_coordinator_TCC1...........................✅ proved              (1.778 s)
+	check_rule_set_TCC1.............................................✅ proved              (1.544 s)
+	check_rule_set_TCC2.............................................✅ proved              (1.934 s)
+	check_rule_set_TCC3.............................................✅ proved              (1.944 s)
+	check_rule_set_TCC4.............................................✅ proved              (1.789 s)
+	check_rule_set_TCC5.............................................✅ proved              (1.847 s)
+	check_rule_set_TCC6.............................................✅ proved              (1.692 s)
+	tick_pan_device_TCC1............................................✅ proved              (1.819 s)
+	select_action_TCC1..............................................✅ proved              (1.83 s)
+
+Theory system_th totals: 17 formulas, 17 attempted, 17 succeeded (33.996 s)

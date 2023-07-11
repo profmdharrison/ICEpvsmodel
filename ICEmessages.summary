@@ -1,0 +1,13 @@
+Proof summary for theory node_th
+
+	no_node_TCC1....................................................✅ proved              (0.386 s)
+	root_node_TCC1..................................................✅ proved              (0.939 s)
+	increment_node_TCC1.............................................✅ proved              (0.944 s)
+	empty_pan_q_TCC1................................................✅ proved              (0.867 s)
+	init_n_state_TCC1...............................................✅ proved              (0.933 s)
+	add_pan_buff_TCC1...............................................✅ proved              (0.886 s)
+	add_act_buff_TCC1...............................................✅ proved              (0.981 s)
+	sub_pan_buff_TCC1...............................................✅ proved              (0.929 s)
+	sub_act_buff_TCC1...............................................✅ proved              (0.863 s)
+
+Theory node_th totals: 9 formulas, 9 attempted, 9 succeeded (7.728 s)

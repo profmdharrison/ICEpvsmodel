@@ -1,0 +1,50 @@
+menu_th: THEORY
+ BEGIN
+  IMPORTING coord_t_and_c_th
+ %act_menu(m: menu, vm: menu_set, mt: menu_type, t: T): T =
+ % IF vm(m) THEN (mt(m))(t) ELSE t ENDIF
+
+ 
+
+menu_state: TYPE =
+   [# visible_menu: menu_set,
+      prev_menu: menu_set,
+      previous_entry: menu
+    #] 
+
+patient_mn_type: TYPE = [patient -> menu_state]
+      
+m_state: TYPE =
+    [#  patient_mn: patient_mn_type,
+        coord_mn: menu_state
+    #]
+
+
+init_cm: menu_state = (# visible_menu := emptyset,
+                         prev_menu := emptyset,
+                         previous_entry := no_action
+                      #)
+
+init_m_state: m_state =
+(# patient_mn := LAMBDA (p: patient): init_cm,
+   coord_mn := init_cm   #)
+
+%menu_st := init_m_state
+
+
+
+p_change_menu(mnus: menu_set, p: patient, ms: m_state): m_state =
+ms WITH 
+ [patient_mn := LAMBDA (p1: patient):
+  IF p1 =p THEN 
+     ms`patient_mn(p) WITH
+   [visible_menu := mnus,
+    prev_menu := ms`patient_mn(p)`visible_menu
+   ] ELSE ms`patient_mn(p1) ENDIF]
+
+c_change_menu(menu: menu_set, ms: m_state): m_state =
+ms WITH [
+  coord_mn := ms`coord_mn WITH [visible_menu := menu,
+         prev_menu := ms`coord_mn`visible_menu]]
+  
+ END menu_th

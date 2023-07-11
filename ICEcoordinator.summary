@@ -1,0 +1,10 @@
+Proof summary for theory coordinator_th
+
+	IMP_patient_th_TCC1.............................................✅ proved              (0.4 s)
+	i_select_display_TCC1...........................................✅ proved              (1.547 s)
+	i_select_action_TCC1............................................✅ proved              (1.586 s)
+	i_up_display_TCC1...............................................✅ proved              (1.499 s)
+	i_up_display_TCC2...............................................✅ proved              (1.352 s)
+	i_down_display_TCC1.............................................✅ proved              (1.542 s)
+
+Theory coordinator_th totals: 6 formulas, 6 attempted, 6 succeeded (7.926 s)

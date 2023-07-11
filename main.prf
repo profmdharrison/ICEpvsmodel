@@ -1,0 +1,18 @@
+(main
+ (istate0_TCC1 0
+  (istate0_TCC1-1 nil 3803640740 ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil (istate0 subtype "1" "patient[8, 8, 8]")))
+ (istate57_TCC1 0
+  (istate57_TCC1-1 nil 3819025228 ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)) nil
+   (istate57 subtype "2" "device[8, 8, 8]")))
+ (istate88_TCC1 0
+  (istate88_TCC1-1 nil 3819025228 ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil (istate88 subtype "2" "patient[8, 8, 8]"))))
+

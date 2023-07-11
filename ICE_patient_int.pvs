@@ -1,0 +1,741 @@
+
+% Michael Harrison (Newcastle University) and Paolo Masci (US National Institute of Aerospace)
+% November 2022
+% Patient interface
+p_interface_th[maxrate: posnat, 
+          maxinfuse: posnat, 
+          maxtime: {maxtime: posnat | maxinfuse <= maxtime}]:
+THEORY
+  BEGIN
+   IMPORTING system_th[maxrate, maxinfuse, maxtime],
+             ICE_templates_th[maxrate, maxinfuse, maxtime]
+
+
+
+             
+m_connect_patient_coord(p: patient, xs: interface_st): interface_st =
+   IF p /= p_null AND xs`ss`pdb(p)`id = p_null
+   THEN connect_to_coordinator(p, xs)
+   ELSE xs ENDIF
+
+m_connect_device_patient(p: patient, d: device, xs: interface_st): interface_st =
+    LET xs1 = (#  ss := patient_enter_device_name(d, p, xs`ss),
+                  ms := init_m_state
+              #),
+        xs2 = patient_menu_act(enter, p, xs1),
+        xs3 = patient_menu_act(device, p, xs2),
+        xs4 = patient_menu_act(pump, p, xs3)
+    IN IF p/=p_null AND d /= nil_device 
+      THEN connect_new_element(p, xs4) ELSE xs4 ENDIF
+
+m_enter_device_pump(p: patient, d: device, xs: interface_st): interface_st =
+    LET xs1 = (#  ss := patient_enter_device_name(d, p, xs`ss),
+                  ms := init_m_state
+              #),
+        xs2 = patient_menu_act(enter, p, xs1),
+        xs3 = patient_menu_act(device, p, xs2) IN
+        patient_menu_act(pump, p, xs3)
+    
+
+m_select_d_p_window(p: patient, xs: interface_st): interface_st =
+LET xs1 = patient_menu_act(select, p, xs)
+    IN patient_menu_act(device, p, xs1)
+   % st3 = patient_menu_act(select, p, st2)
+   % IN patient_menu_act(display, p, st3)
+
+p_d_homes(p: patient, st: state): boolean =
+   (st`pdb(p)`p_disp_device`enum_disp(mde) = xpause) AND
+   (st`pdb(p)`p_disp_device`enum_disp(dpm) = xmainmenu)
+
+p_d_home(p: patient, xs: interface_st): boolean =
+   (xs`ss`pdb(p)`p_disp_device`enum_disp(mde) = xpause) AND
+   (xs`ss`pdb(p)`p_disp_device`enum_disp(dpm) = xmainmenu)
+
+enter_pump_new_device(p: patient, d: device, xs: interface_st): interface_st =
+LET xs1 = (# ss := patient_enter_device_name(d, p, xs`ss),
+             ms := p_change_menu(edit_none_menu, p, xs`ms) #),
+    xs2 = patient_menu_act(enter, p, xs1),
+    xs3 = patient_menu_act(device, p, xs2),
+    xs4 = patient_menu_act(pump, p, xs3) IN xs4
+
+m_select_p_action(d: device, p: patient, xs: interface_st): interface_st =
+LET xs1 = patient_menu_act(select, p, xs),
+    xs2 = patient_menu_act(action, p, xs1) IN xs2
+
+
+
+
+
+% QED m_c_p_c proved by nmdh4 on Wed, 23 Nov 2022 11:56:52 GMT
+% QED m_c_p_c proved by nmdh4 on Thu, 01 Dec 2022 11:35:16 GMT
+% QED m_c_p_c proved by nmdh4 on Mon, 05 Dec 2022 12:09:03 GMT
+% QED m_c_p_c proved by nmdh4 on Thu, 15 Dec 2022 10:50:08 GMT
+% QED m_c_p_c proved by nmdh4 on Wed, 21 Dec 2022 10:30:39 GMT
+% @QED m_c_p_c proved by nmdh4 on Tue, 21 Feb 2023 10:28:58 GMT
+m_c_p_c: LEMMA
+FORALL (p: patient):
+p /= p_null  IMPLIES
+m_connect_patient_coord(p, init_xstate)`ss =
+                                 connect_to_coordinator(p, init_xstate)`ss
+
+% QED enter_device_pump_lemma proved by nmdh4 on Thu, 08 Dec 2022 17:25:39 GMT
+% QED enter_device_pump_lemma proved by nmdh4 on Wed, 21 Dec 2022 10:31:40 GMT
+% @QED enter_device_pump_lemma proved by nmdh4 on Tue, 21 Feb 2023 10:29:54 GMT
+enter_device_pump_lemma: LEMMA
+FORALL (p: patient, d: device, xs: interface_st): 
+p /= p_null  AND d /= nil_device AND 
+xs`ss`pdb(p)`emode = edit_none AND
+xs`ss`pdb(p)`p_disp_top`devs(d) /= no_device 
+IMPLIES
+enter_pump_new_device(p, d, xs)`ss`pdb(p)`p_entry_window`ent_device = (# dv := d, dt := infusion_pump #)
+
+% QED select_device_display_lemma proved by nmdh4 on Fri, 09 Dec 2022 10:22:56 GMT
+% QED select_device_display_lemma proved by nmdh4 on Wed, 21 Dec 2022 10:32:28 GMT
+% @QED select_device_display_lemma proved by nmdh4 on Tue, 21 Feb 2023 10:30:32 GMT
+select_device_display_lemma: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+p /= p_null  AND d /= nil_device AND 
+xs`ss`pdb(p)`emode = edit_none AND
+xs`ss`pdb(p)`p_disp_top`devs(d) /= no_device AND
+xs`ss`pdb(p)`p_entry_window`ent_device = (# dv := d, dt := infusion_pump #) AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+per_d_select(xs`ss`pdb(p))
+IMPLIES
+m_select_d_p_window(p, xs)`ss`pdb(p)`p_disp_top`sel_device`dv = d AND
+m_select_d_p_window(p, xs)`ss`pdb(p)`p_disp_device = xs`ss`pdb(p)`patient_panels(d)
+
+% QED invoke_p_action proved by nmdh4 on Mon, 12 Dec 2022 17:30:26 GMT
+% QED invoke_p_action proved by nmdh4 on Tue, 20 Dec 2022 16:02:38 GMT
+% @QED invoke_p_action proved by nmdh4 on Tue, 21 Feb 2023 10:31:03 GMT
+invoke_p_action: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET ps = xs`ss`pdb(p) IN
+p /= p_null AND d /= nil_device AND
+xs`ss`pdb(p)`emode = edit_none AND
+xs`ss`pdb(p)`pmode = d_mode AND
+ps`p_entry_window`ent_act = a AND
+p_d_per_action(a, ps) AND
+xs`ss`pdb(p)`p_disp_top`devs(d) /= no_device AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu IMPLIES
+m_select_p_action(d, p, xs)`ss = patient_act_mono(p, xs`ss)
+
+m_select_device(d: device, p: patient, xs: interface_st): interface_st =
+LET xs1 = (# ss := patient_enter_device(d, p, xs`ss), ms := xs`ms #),
+xs2 = patient_menu_act(select, p, xs1) IN
+patient_menu_act(device, p, xs2)
+
+% QED menu_select_lemma proved by nmdh4 on Fri, 23 Dec 2022 15:28:47 GMT
+% QED menu_select_lemma proved by nmdh4 on Tue, 21 Feb 2023 10:31:39 GMT
+% @QED menu_select_lemma proved by nmdh4 on Wed, 22 Mar 2023 10:52:03 GMT
+menu_select_lemma: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+xs1 = (# ss := patient_enter_device(d, p, st), ms := xs`ms #),
+xs2 = patient_menu_act(select, p, xs1),
+xs3 = patient_menu_act(device, p, xs2) IN
+p /= p_null AND d /= nil_device AND
+%(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+ps`pmode /= error IMPLIES
+xs3`ss = st WITH  [ pdb := LAMBDA(p1: patient):
+                   IF p1 = p THEN
+                    p_select_d_mode(patient_enter_device(d, p, st)`pdb(p))
+                    ELSE st`pdb(p1) ENDIF ]
+
+% QED act_invoke_lemma proved by nmdh4 on Thu, 05 Jan 2023 09:47:40 GMT
+% QED act_invoke_lemma proved by nmdh4 on Thu, 05 Jan 2023 14:37:37 GMT
+% @QED act_invoke_lemma proved by nmdh4 on Tue, 21 Feb 2023 10:32:56 GMT
+act_invoke_lemma: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+xs1 = (# ss := patient_enter_action(a, p, st), ms := xs`ms #),
+xs2 = patient_menu_act(select, p, xs1),
+xs3 = patient_menu_act(action, p, xs2) IN
+p /= p_null AND d /= nil_device AND
+(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+ps`pmode = d_mode AND
+%consistent_patient_d(d, p, st) AND
+%ps`p_disp_main`p_actions(a) AND
+ps`p_disp_device`cmds(a) AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+ps`p_disp_top`sel_device = (# dv := d, dt := infusion_pump #) AND
+ps`pmode /= error IMPLIES
+xs3`ss = patient_act_mono(p, xs1`ss)
+
+
+
+% QED m_p_select_lemma proved by nmdh4 on Thu, 05 Jan 2023 12:04:59 GMT
+% QED m_p_select_lemma proved by nmdh4 on Tue, 21 Feb 2023 10:32:08 GMT
+% @QED m_p_select_lemma proved by nmdh4 on Wed, 22 Mar 2023 10:40:40 GMT
+m_p_select_lemma: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+xs3 = m_select_device(d, p, xs) IN
+p /= p_null AND d /= nil_device AND
+%(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+ps`pmode /= error IMPLIES
+xs3`ss = st WITH  [ pdb := LAMBDA(p1: patient):
+                   IF p1 = p THEN
+                    p_select_d_mode(patient_enter_device(d, p, st)`pdb(p))
+                    ELSE st`pdb(p1) ENDIF ]
+
+% QED m_p_ed_select_lemma proved by nmdh4 on Wed, 22 Mar 2023 11:05:36 GMT
+% @QED m_p_ed_select_lemma proved by nmdh4 on Wed, 22 Mar 2023 15:29:47 GMT
+m_p_ed_select_lemma: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+xs2 = patient_menu_act(select, p, xs),
+xs3 = patient_menu_act(device, p, xs2) IN
+p /= p_null AND d /= nil_device AND
+%(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+ps`p_entry_window`ent_device = (# dv := d, dt := infusion_pump #) AND
+ps`pmode /= error 
+IMPLIES
+xs3`ss = mapping_to_ps(p_select_d_mode, p, xs)`ss
+
+% @QED m_p_ed_selectstar_lemma proved by nmdh4 on Wed, 22 Mar 2023 15:31:29 GMT
+m_p_ed_selectstar_lemma: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+xs2 = patient_menu_act(select, p, xs),
+xs3 = patient_menu_act(device, p, xs2) IN
+p /= p_null AND d /= nil_device AND
+%(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+ps`p_entry_window`ent_device = (# dv := d, dt := infusion_pump #) AND
+ps`pmode /= error 
+IMPLIES
+xs3`ss`pdb(p) = p_select_d_mode(ps)
+
+
+m_device_act(a: action_id, d: device, p: patient, xs: interface_st): interface_st =
+LET xs1 = (# ss := patient_enter_action(a, p, xs`ss), ms := xs`ms #),
+xs2 = patient_menu_act(select, p, xs1) IN 
+patient_menu_act(action, p, xs2)
+
+
+
+% QED m_p_act_invoke_lemma proved by nmdh4 on Thu, 05 Jan 2023 12:20:52 GMT
+% QED m_p_act_invoke_lemma proved by nmdh4 on Thu, 05 Jan 2023 14:38:40 GMT
+% QED m_p_act_invoke_lemma proved by nmdh4 on Tue, 21 Feb 2023 10:33:23 GMT
+% @QED m_p_act_invoke_lemma proved by nmdh4 on Wed, 22 Mar 2023 11:31:03 GMT
+m_p_act_invoke_lemma: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+xs1 = (# ss := patient_enter_action(a, p, st), ms := xs`ms #) IN
+p /= p_null AND d /= nil_device AND
+(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+ps`pmode = d_mode AND
+%consistent_patient_d(d, p, st) AND
+%ps`p_disp_main`p_actions(a) AND
+ps`p_disp_device`cmds(a) AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+ps`p_disp_top`sel_device = (# dv := d, dt := infusion_pump #) AND
+ps`pmode /= error IMPLIES
+m_device_act(a, d, p, xs)`ss = patient_act_mono(p, xs1`ss)
+
+% @QED m_p_ed_act_invoke_lemma proved by nmdh4 on Wed, 22 Mar 2023 11:37:50 GMT
+m_p_ed_act_invoke_lemma: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+xs1 = patient_menu_act(select, p, xs),
+xs2 = patient_menu_act(action, p, xs1) IN
+p /= p_null AND d /= nil_device AND
+(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+ps`pmode = d_mode AND
+ps`p_entry_window`ent_act = a AND
+%consistent_patient_d(d, p, st) AND
+%ps`p_disp_main`p_actions(a) AND
+p_d_per_action(a, ps) AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+ps`p_disp_top`sel_device = (# dv := d, dt := infusion_pump #) AND
+ps`pmode /= error IMPLIES
+xs2`ss = patient_act_mono(p, st)
+
+% QED m_p_menu_action_lemma proved by nmdh4 on Thu, 05 Jan 2023 15:06:52 GMT
+% QED m_p_menu_action_lemma proved by nmdh4 on Tue, 21 Feb 2023 10:36:20 GMT
+% @QED m_p_menu_action_lemma proved by nmdh4 on Wed, 22 Mar 2023 11:41:17 GMT
+m_p_menu_action_lemma: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+xs1 = m_select_device(d, p, xs),
+xs2 = m_device_act(a, d, p, xs1) IN
+p /= p_null AND d /= nil_device AND
+(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+((ps`pmode = d_mode) OR
+ (ps`pmode = dc_mode) OR
+ (ps`pmode = top)) AND
+%consistent_patient_d(d, p, st) AND
+ps`p_disp_device`cmds(a) AND
+ps`patient_panels(d)`cmds(a) AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+ps`pmode /= error IMPLIES
+xs2`ss = patient_act_mono(p, patient_enter_action(a, p, 
+                   st WITH 
+                   [pdb := LAMBDA(p1: patient):
+                   IF p1 = p THEN
+                    p_select_d_mode(patient_enter_device(d, p, st)`pdb(p))
+                    ELSE st`pdb(p1) ENDIF]))
+
+% @QED m_action_select_lemma proved by nmdh4 on Mon, 20 Mar 2023 09:56:17 GMT
+m_action_select_lemma: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+xs1 = m_select_device(d, p, xs),
+xs2 = m_device_act(a, d, p, xs1),
+st1 = st WITH  [ pdb := 
+              LAMBDA(p1: patient):
+                IF p1 = p THEN
+                    ps WITH 
+                    [pmode := d_mode,
+                    p_entry_window := ps`p_entry_window WITH
+                      [ent_device := (# dv := d, dt := infusion_pump #),
+                       ent_act := a],
+                    p_disp_top := ps`p_disp_top WITH
+                    [ sel_device := (# dv := d, dt := infusion_pump #)],
+                    p_disp_device := ps`patient_panels(d)]
+                    ELSE st`pdb(p1) ENDIF ] IN
+p /= p_null AND d /= nil_device AND
+(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+((ps`pmode = d_mode) OR
+ (ps`pmode = dc_mode) OR
+ (ps`pmode = top)) AND
+%consistent_patient_d(d, p, st) AND
+ps`p_disp_device`cmds(a) AND
+ps`patient_panels(d)`cmds(a) AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+ps`pmode /= error 
+%(a /= nil_action) AND
+%(ps`ip_state(d)`m = off) AND
+ IMPLIES
+xs2`ss = patient_act_mono(p, st1)
+
+device_pump_x_lemma: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+p /= p_null AND d /= nil_device AND
+xs`ss`pdb(p)`emode = edit_none AND
+xs`ss`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu IMPLIES
+m_enter_device_pump(p, d, xs)`ss =
+      xs`ss WITH
+                [pdb := 
+                   LAMBDA (p1: patient):
+                     IF p1 =p THEN
+                        xs`ss`pdb(p) WITH
+                           [p_entry_window := 
+                              xs`ss`pdb(p)`p_entry_window 
+                                 WITH [ent_device := (# dv := d, dt := infusion_pump #),
+                                       ent_name := d]
+                            ] ELSE xs`ss`pdb(p1) ENDIF]
+
+device_pump_lemma: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p), dnde = nde(ps`ip_state(d)),  pnde = nde(ps),
+ns = nde_state(st), st1 = patient_enter_action(a, p, st),
+st2 = patient_act_mono(p, st1),
+ns2 = nde_state(st1), st3 = tick_act_device(d, p, st2),
+ns3 = nde_state(st3) IN
+p /= p_null AND d /= nil_device AND a /= nil_action AND
+ns`n_links(pnde, dnde) AND 
+ns`n_links(dnde, pnde) AND 
+(pnde /= dnde) AND
+(ns`act_msg_waiting(dnde)`buf_status /= full) AND
+(ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+(ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+(ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+(ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+(ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+ps`emode = edit_none AND
+(ps`pmode = d_mode) AND
+ p_d_per_action(a, ps) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`p_disp_top`sel_device = (# dv := d, dt := infusion_pump #) AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu IMPLIES
+p_fun_act(a, d, p, st) =
+tick_act_device(d, p, patient_act_mono(p, st
+                      WITH [pdb := LAMBDA(p1: patient):
+                             IF p1 = p
+                             THEN ps
+                               WITH [pmode := d_mode,
+                                    p_entry_window
+                                        := ps`p_entry_window
+                                         WITH [ent_device 
+                                           := (# dv := d,
+                                                 dt := infusion_pump #),
+                                                ent_act
+                                           := a], 
+                                                p_disp_top 
+                                           := ps`p_disp_top
+                                            WITH [sel_device
+                                                := (# dv := d,
+                                                      dt := infusion_pump #)],
+                                                p_disp_device
+                                                 := ps`patient_panels(d)]
+                             ELSE st`pdb(p1) ENDIF]))
+
+% @QED device_ed_pump_lemma proved by nmdh4 on Thu, 23 Mar 2023 15:53:23 GMT
+device_ed_pump_lemma: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p), dnde = nde(ps`ip_state(d)),  pnde = nde(ps),
+ns = nde_state(st), 
+xs1 = patient_menu_act(select, p, xs),
+xs2 = patient_menu_act(device, p, xs1),
+xs3 = patient_menu_act(select, p, xs2),
+xs4 = patient_menu_act(action, p, xs3),
+xs5s = tick_act_device(d, p, xs4`ss),
+st1 = patient_enter_action(a, p, st),
+st2 = patient_act_mono(p, st1),
+ns2 = nde_state(st2), st3 = tick_act_device(d, p, st2),
+ns3 = nde_state(st3) IN
+p /= p_null AND d /= nil_device AND a /= nil_action AND
+ns`n_links(pnde, dnde) AND 
+ns`n_links(dnde, pnde) AND 
+(pnde /= dnde) AND
+(ns`act_msg_waiting(dnde)`buf_status /= full) AND
+(ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+(ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+(ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+(ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+(ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+ps`emode = edit_none AND
+(ps`pmode = d_mode) AND
+ p_d_per_action(a, ps) AND
+ps`p_entry_window`ent_device = (# dv := d, dt := infusion_pump #) AND
+ps`p_entry_window`ent_act = a AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`p_disp_top`sel_device`dv = d AND 
+ps`p_disp_top`sel_device`dt = infusion_pump AND
+ps`patient_panels(d) = ps`p_disp_device AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu IMPLIES
+xs5s = p_fun_act(a, d, p, st) 
+
+% @QED menu_home_action_lemma proved by nmdh4 on Fri, 24 Mar 2023 15:26:01 GMT
+menu_home_action_lemma: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+    ns = st`nde_state,
+    ds = ps`ip_state(d),
+    dnde = nde(ps`ip_state(d)), 
+    pnde = nde(ps),
+    xs1 = patient_menu_act(select, p, xs),
+xs2 = patient_menu_act(device, p, xs1),
+xs3 = patient_menu_act(select, p, xs2),
+xs4 = patient_menu_act(action, p, xs3),
+xs5s = tick_act_device(d, p, xs4`ss),
+xs6s = tick_pan_device(d, p, xs5s),
+xs7s = tick_pan_patient(p, xs6s),
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state
+%stx = p_d_fun_action(powr, p, st) 
+IN
+%xs1 =  (# ss := stx, ms := xs`ms #) IN
+p /= p_null AND d /= nil_device AND
+a /= nil_action AND
+(ps`ip_state(d)`m = off) AND
+ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+    (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+
+    (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+%consistent_patient_d(d, p, st) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+ps`pmode = d_mode AND
+%ps`p_entry_window`ent_act = a AND
+%consistent_patient_d(d, p, st) AND
+p_d_per_action(a, ps) AND
+ps`p_entry_window`ent_device = (# dv := d, dt := infusion_pump #) AND
+ps`p_entry_window`ent_act = a AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`p_disp_top`sel_device`dv = d AND 
+ps`p_disp_top`sel_device`dt = infusion_pump AND
+ps`patient_panels(d) = ps`p_disp_device AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+(st`p_nodes(pnde) = p) AND
+(st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+st`ps(p)
+    
+%xs`ms`patient_mn(p)`visible_menu = edit_none_menu 
+IMPLIES
+xs7s = p_d_fun_action(a, p, st) 
+
+
+% QED home_action_lemma proved by nmdh4 on Wed, 14 Dec 2022 15:46:33 GMT
+% QED home_action_lemma proved by nmdh4 on Wed, 21 Dec 2022 10:36:31 GMT
+% QED home_action_lemma proved by nmdh4 on Mon, 20 Feb 2023 17:13:53 GMT
+% @QED home_action_lemma proved by nmdh4 on Mon, 20 Mar 2023 11:18:35 GMT
+home_action_lemma: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+    ns = st`nde_state,
+    ds = ps`ip_state(d),
+    dnde = nde(ps`ip_state(d)), 
+    pnde = nde(ps),
+    st1 = patient_enter_action(powr, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state,
+stx = p_d_fun_action(powr, p, st),
+xs1 =  (# ss := stx, ms := xs`ms #) IN
+p /= p_null AND d /= nil_device AND
+(ps`ip_state(d)`m = off) AND
+ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+    (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+
+    (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+consistent_patient_d(d, p, st) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+ps`pmode = d_mode AND
+%ps`p_entry_window`ent_act = a AND
+consistent_patient_d(d, p, st) AND
+p_d_per_action(powr, ps) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+(ps`p_disp_top)`sel_device = (# dv := d, dt := infusion_pump #) AND
+ (st`p_nodes(pnde) = p) AND
+(st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+st`ps(p)
+    
+%xs`ms`patient_mn(p)`visible_menu = edit_none_menu 
+IMPLIES
+p_d_home(p, xs1)
+
+% @QED m_p_d_fun_action_lemma proved by nmdh4 on Tue, 28 Mar 2023 11:51:24 GMT
+m_p_d_fun_action_lemma: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET st = xs`ss, ps = st`pdb(p),
+    ns = st`nde_state,
+    ds = ps`ip_state(d),
+    dnde = nde(ps`ip_state(d)), 
+    pnde = nde(ps),
+    xs1 = patient_menu_act(select, p, xs),
+xs2 = patient_menu_act(device, p, xs1),
+xs3 = patient_menu_act(select, p, xs2),
+xs4 = patient_menu_act(action, p, xs3),
+xs5s = tick_act_device(d, p, xs4`ss),
+xs6s = tick_pan_device(d, p, xs5s),
+xs7s = tick_pan_patient(p, xs6s),
+    st1 = patient_enter_action(powr, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state
+%stx = p_d_fun_action(powr, p, st) 
+IN
+%xs1 =  (# ss := stx, ms := xs`ms #) IN
+p /= p_null AND d /= nil_device AND
+%a /= nil_action AND
+(ps`ip_state(d)`m = off) AND
+ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+    (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+
+    (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+%consistent_patient_d(d, p, st) AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`emode = edit_none AND
+ps`pmode = d_mode AND
+%ps`p_entry_window`ent_act = a AND
+%consistent_patient_d(d, p, st) AND
+p_d_per_action(powr, ps) AND
+ps`p_entry_window`ent_device = (# dv := d, dt := infusion_pump #) AND
+ps`p_entry_window`ent_act = powr AND
+ps`p_disp_top`devs(d) = infusion_pump AND
+ps`p_disp_top`sel_device`dv = d AND 
+ps`p_disp_top`sel_device`dt = infusion_pump AND
+ps`patient_panels(d) = ps`p_disp_device AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu AND
+(st`p_nodes(pnde) = p) AND
+(st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+st`ps(p)
+IMPLIES p_d_homes(p, xs7s)
+
+
+
+m_c_d_e: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET dnde = xs`ss`pdb(p)`nde,
+pnde = xs`ss`pdb(p)`nde IN
+p /= p_null  AND d /= nil_device AND 
+xs`ss`pdb(p)`id = p_null AND
+xs`ss`pdb(p)`pmode = top AND
+xs`ss`ps(p)% AND
+
+IMPLIES
+m_connect_device_patient(p, d, xs)`ss =
+connect_device_to_patient(p, d, infusion_pump, xs)`ss
+
+% QED m_c_d_p proved by nmdh4 on Wed, 23 Nov 2022 15:04:09 GMT
+% QED m_c_d_p proved by nmdh4 on Thu, 15 Dec 2022 18:00:33 GMT
+% QED m_c_d_p proved by nmdh4 on Fri, 16 Dec 2022 11:06:46 GMT
+% QED m_c_d_p proved by nmdh4 on Wed, 21 Dec 2022 11:17:24 GMT
+% QED m_c_d_p proved by nmdh4 on Tue, 21 Feb 2023 11:20:04 GMT
+% @QED m_c_d_p proved by nmdh4 on Tue, 28 Mar 2023 14:46:25 GMT
+m_c_d_p: LEMMA
+FORALL (d: device, p: patient):
+LET st1 = connect_device_to_patient(p, d, infusion_pump,
+                                 connect_to_coordinator(p, init_xstate))`ss IN
+p /= p_null  AND d /= nil_device IMPLIES
+m_connect_device_patient(p, d, 
+     m_connect_patient_coord(p, init_xstate))`ss =
+       st1 WITH
+            [pdb := LAMBDA (p1: patient):
+                    IF p1 = p THEN 
+                    st1`pdb(p) 
+                    WITH [p_entry_window :=
+                            empty_entry_window WITH
+                                [ent_name := d,
+                                ent_device := (# dv := d, dt := infusion_pump #)] ]
+                                ELSE init_p_state ENDIF]
+
+% QED m_s_d_p_w proved by nmdh4 on Wed, 23 Nov 2022 15:59:13 GMT
+% QED m_s_d_p_w proved by nmdh4 on Fri, 09 Dec 2022 10:38:43 GMT
+% QED m_s_d_p_w proved by nmdh4 on Fri, 16 Dec 2022 09:45:07 GMT
+% QED m_s_d_p_w proved by nmdh4 on Wed, 21 Dec 2022 11:49:11 GMT
+% QED m_s_d_p_w proved by nmdh4 on Tue, 21 Feb 2023 11:24:17 GMT
+% @QED m_s_d_p_w proved by nmdh4 on Tue, 28 Mar 2023 14:52:48 GMT
+m_s_d_p_w: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET ps = xs`ss`pdb(p) IN
+p /= p_null AND 
+d /= nil_device AND
+ps`p_entry_window`ent_device = (# dv := d, dt := infusion_pump #) AND
+ps`pmode = top AND
+ps`emode = edit_none AND
+xs`ms`patient_mn(p)`visible_menu = edit_none_menu 
+IMPLIES
+m_select_d_p_window(p, xs)`ss =
+patient_select_mode(d_mode, p, xs`ss)
+
+% QED m_initial_window proved by nmdh4 on Fri, 25 Nov 2022 17:34:29 GMT
+% QED m_initial_window proved by nmdh4 on Fri, 16 Dec 2022 13:06:04 GMT
+% QED m_initial_window proved by nmdh4 on Wed, 21 Dec 2022 12:11:11 GMT
+% QED m_initial_window proved by nmdh4 on Tue, 21 Feb 2023 11:35:23 GMT
+% @QED m_initial_window proved by nmdh4 on Tue, 28 Mar 2023 15:04:18 GMT
+m_initial_window: LEMMA
+FORALL (d: device, p: patient):
+LET st = init_xstate`ss, ix1 = init_xstate WITH
+            [ss := init_state WITH
+            [pdb := LAMBDA (p1: patient):
+                    IF p1 = p THEN 
+                    st`pdb(p) 
+                    WITH [p_entry_window :=
+                            empty_entry_window WITH
+                                [ent_name := d,
+                                ent_device := (# dv := d, dt := infusion_pump #)] ]
+                                ELSE init_p_state ENDIF]]
+IN
+p /= p_null AND 
+d /= nil_device  IMPLIES
+
+m_select_d_p_window(p, m_connect_device_patient(p, d, 
+     m_connect_patient_coord(p, init_xstate)))`ss =
+patient_select_mode(d_mode, p, connect_device_to_patient(p, d, infusion_pump,
+                                 connect_to_coordinator(p, ix1))`ss)
+                                 
+
+  END p_interface_th

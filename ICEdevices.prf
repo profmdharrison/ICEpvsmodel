@@ -1,0 +1,15 @@
+(devices_th
+ (nil_device_TCC1 0
+  (nil_device_TCC1-1 nil 3819002914 ("" (subtype-tcc) nil nil)
+   ((dlimit const-decl "nat" coord_t_and_c_th nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil (nil_device subtype "coord_t_and_c_th.dlimit" "device")))
+ (d_bot_TCC1 0
+  (d_bot_TCC1-1 nil 3819002914 ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil (d_bot subtype "0" "device"))))
+

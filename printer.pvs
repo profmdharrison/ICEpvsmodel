@@ -1,0 +1,1153 @@
+printer[
+    maxrate: posnat, 
+    maxinfuse: posnat, 
+    maxtime: {maxtime: posnat | maxinfuse <= maxtime}
+]: THEORY
+  BEGIN 
+    IMPORTING system_th[maxrate, maxinfuse, maxtime]
+   mindex: nat = 16
+   nlimit: nat = 16
+   dlimit: nat = 16
+   plimit: nat = 16
+   last_patient: nat = 2
+   
+  action_id2string(a: action_id): string =
+   COND
+    a = powr -> "powr",
+    a = alrm -> "alrm",
+    a = incr -> "incr",
+    a = decr -> "decr",
+    a = bolus -> "bolus",
+    a = confirm -> "confirm",
+    a = choosetime -> "choosetime",
+    a = choosevtbi -> "choosevtbi",
+    a = chooserate -> "chooserate",
+    a = start -> "start",
+    a = hold -> "hold",
+    a = tick -> "tick",
+    a = openclamp -> "openclamp",
+    a = closeclamp -> "closeclamp",
+    a = nil_action -> "nil_action"
+    ENDCOND
+  CONVERSION action_id2string
+
+action_ids2string(fs: action_ids): string =
+  LET ans = "{ ",
+      ans = IF fs(powr) THEN ans + "powr," + space ELSE ans ENDIF,
+      ans = IF fs(alrm) THEN ans + "alrm," + space ELSE ans ENDIF,
+      ans = IF fs(incr) THEN ans + "incr," + space ELSE ans ENDIF,
+      ans = IF fs(decr) THEN ans + "decr," + space ELSE ans ENDIF,
+      ans = IF fs(bolus) THEN ans + "bolus," + space ELSE ans ENDIF,
+      ans = IF fs(confirm) THEN ans + "confirm," + space ELSE ans ENDIF,
+      ans = IF fs(choosetime) THEN ans + "choosetime," + space ELSE ans ENDIF,
+      ans = IF fs(choosevtbi) THEN ans + "choosevtbi," + space ELSE ans ENDIF,
+      ans = IF fs(chooserate) THEN ans + "chooserate," + space ELSE ans ENDIF,
+      ans = IF fs(start) THEN ans + "start," + space ELSE ans ENDIF,
+      ans = IF fs(hold) THEN ans + "hold," + space ELSE ans ENDIF,
+      ans = IF fs(tick) THEN ans + "tick," + space ELSE ans ENDIF,
+      ans = IF fs(openclamp) THEN ans + "openclamp," + space ELSE ans ENDIF,
+      ans = IF fs(closeclamp) THEN ans + "closeclamp," + space ELSE ans ENDIF,
+      ans = IF fs(nil_action) THEN ans + "nil_action," + space ELSE ans ENDIF
+   IN ans + " }"
+  CONVERSION action_ids2string
+
+rel_op_type2string(r: rel_op_type): string =
+  COND
+    r = lt -> "lt",
+    r = le -> "le",
+    r = gt -> "gt",
+    r = ge -> "ge",
+    r = eq -> "eq",
+    r = neq -> "neq",
+    r = no_rel -> "no_rel"
+  ENDCOND
+CONVERSION rel_op_type2string
+
+relset2string(rs: relset): string =
+ LET ans = "{ ",
+      ans = IF rs(lt) THEN ans + "lt," + space ELSE ans ENDIF,
+      ans = IF rs(le) THEN ans + "le," + space ELSE ans ENDIF,
+      ans = IF rs(gt) THEN ans + "gt," + space ELSE ans ENDIF,
+      ans = IF rs(ge) THEN ans + "ge," + space ELSE ans ENDIF,
+      ans = IF rs(eq) THEN ans + "eq," + space ELSE ans ENDIF,
+      ans = IF rs(neq) THEN ans + "neq," + space ELSE ans ENDIF,
+      ans = IF rs(no_rel) THEN ans + "no_rel," + space ELSE ans ENDIF
+   IN ans + " }"
+  CONVERSION relset2string
+
+device_type2string(dt: device_type): string =
+  COND
+   dt = infusion_pump -> "infusion_pump",
+   dt = vital_signs_device -> "vital_signs_device",
+   dt = no_device -> "no_device"
+  ENDCOND
+ CONVERSION device_type2string
+
+device2string(d: device): string = "" + 1
+
+
+devs_type2string(dst: devs_type): string =
+"(# dv := " + dst`dv + space +
+ "dt := " + dst`dt + " #)"
+CONVERSION devs_type2string
+
+disp_focus_type2string(df: disp_focus_type): string =
+COND
+   df = no_focus -> "no_focus",
+   df = top_focus -> "top_focus",
+   df = patient_focus -> "patient_focus",
+   df = device_focus -> "device_focus"
+  ENDCOND
+ CONVERSION disp_focus_type2string
+
+mode2string(m: mode): string =
+   COND
+    m = off -> "off",
+    m = pause     -> "pause",
+    m = infuse  -> "infuse"
+    ENDCOND
+  CONVERSION mode2string
+
+dispmode2string(dm: dispmode): string =
+   COND
+    dm = dblank -> "dblank",
+    dm = mainmenu     -> "mainmenu",
+    dm = dvtbi  -> "dvtbi",
+    dm = drate -> "drate",
+    dm = dtime -> "dtime",
+    dm = dinfusing -> "dinfusing",
+    dm = dalarm -> "dalarm",
+    dm = dkvo -> "dkvo"
+    ENDCOND
+  CONVERSION dispmode2string
+
+clamp_state2string(c: clamp_state): string =
+   COND
+    c = open -> "open",
+    c = closed     -> "closed"
+    ENDCOND
+  CONVERSION clamp_state2string
+
+priority_type2string(p: priority_type): string =
+   COND
+    p = rte -> "rte",
+    p = tme     -> "tme"
+    ENDCOND
+  CONVERSION priority_type2string
+
+menu2string(m: menu): string =
+COND
+    m = no_action -> "no_action",
+  %  m = connect     -> "connect",
+  %  m = act -> "act",
+  %  m = quit  -> "quit",
+  %  m = ok -> "ok",
+    m = delete -> "delete",
+    m = cursor_up -> "cursor_up",
+    m = cursor_down -> "cursor_down",
+    m = select -> "select",
+    m = enter -> "enter",
+    m = top     -> "top",
+    m = main  -> "main",
+    m = patient -> "patient",
+    m = device -> "device",
+    m = device_filter -> "device_filter",
+    m = region -> "region",
+    m = rule -> "rule",
+    m = constraint -> "constraint",
+    m = edit -> "edit",
+    m = clear -> "clear",
+    m = display -> "display",
+    m = parameter -> "parameter",
+    m = action     -> "action",
+    m = relation  -> "relation",
+    m = num_value -> "num_value",
+    m = enum_value -> "enum_value",
+    m = escape -> "escape",
+    m = pump -> "pump",
+    m = vs_device -> "vs_device"
+    ENDCOND
+  CONVERSION menu2string
+
+menu_set2string(ms: menu_set): string =
+ LET ans = "{ ",
+      ans = IF ms(no_action) THEN ans + "no_action," + space ELSE ans ENDIF,
+     % ans = IF ms(connect) THEN ans + "connect," + space ELSE ans ENDIF,
+     % ans = IF ms(act) THEN ans + "act," + space ELSE ans ENDIF,
+     % ans = IF ms(quit) THEN ans + "quit," + space ELSE ans ENDIF,
+     % ans = IF ms(ok) THEN ans + "ok," + space ELSE ans ENDIF,
+      ans = IF ms(delete) THEN ans + "delete," + space ELSE ans ENDIF,
+      ans = IF ms(cursor_up) THEN ans + "cursor_up," + space ELSE ans ENDIF,
+      ans = IF ms(cursor_down) THEN ans + "cursor_down," + space ELSE ans ENDIF,
+      ans = IF ms(select) THEN ans + "select," + space ELSE ans ENDIF,
+      ans = IF ms(enter) THEN ans + "enter," + space ELSE ans ENDIF,
+      ans = IF ms(top) THEN ans + "top," + space ELSE ans ENDIF,
+      ans = IF ms(main) THEN ans + "main," + space ELSE ans ENDIF,
+      ans = IF ms(patient) THEN ans + "patient," + space ELSE ans ENDIF,
+      ans = IF ms(device) THEN ans + "device," + space ELSE ans ENDIF,
+      ans = IF ms(region) THEN ans + "region," + space ELSE ans ENDIF,
+      ans = IF ms(rule) THEN ans + "rule," + space ELSE ans ENDIF,
+      ans = IF ms(constraint) THEN ans + "constraint," + space ELSE ans ENDIF,
+      ans = IF ms(edit) THEN ans + "edit," + space ELSE ans ENDIF,
+      ans = IF ms(clear) THEN ans + "clear," + space ELSE ans ENDIF,
+      ans = IF ms(display) THEN ans + "display," + space ELSE ans ENDIF,
+      ans = IF ms(parameter) THEN ans + "parameter," + space ELSE ans ENDIF,
+      ans = IF ms(action) THEN ans + "action," + space ELSE ans ENDIF,
+      ans = IF ms(relation) THEN ans + "relation," + space ELSE ans ENDIF,
+      ans = IF ms(num_value) THEN ans + "num_value," + space ELSE ans ENDIF,
+      ans = IF ms(enum_value) THEN ans + "enum_value," + space ELSE ans ENDIF,
+      ans = IF ms(escape) THEN ans + "escape," + space ELSE ans ENDIF,
+      ans = IF ms(pump) THEN ans + "pump," + space ELSE ans ENDIF,
+      ans = IF ms(vs_device) THEN ans + "vs_device," + space ELSE ans ENDIF
+   IN ans + " }"
+  CONVERSION menu_set2string
+
+%alert_status2string(a: alert_status): string =
+%   COND
+%    a = paused -> "paused",
+%    a = disconnected     -> "disconnected",
+%    a = active  -> "active"
+%    ENDCOND
+%  CONVERSION alert_status2string
+
+value_type2string(p: value_type): string =
+   COND
+    p = numeral -> "numeral",
+    p = enumerated     -> "enumerated",
+    p = empty -> "empty"
+    ENDCOND
+  CONVERSION value_type2string
+
+par2string(a: par): string =
+   COND
+    a = rte -> "rte",
+    a = vtb     -> "vtb",
+    a = tme  -> "tme",
+    a = dpm -> "dpm",
+    a = mde     -> "mde",
+    a = num_er  -> "num_er",
+    a = enum_er -> "enum_er",
+    a = hrte -> "hrte",
+    a = blpl -> "blpl",
+    a = blph -> "blph",
+    a = sp -> "sp",
+    a = rkrt -> "rkrt",
+    a = ptmp -> "ptmp"
+    ENDCOND
+  CONVERSION par2string
+
+
+
+parset2string(ps: parset): string =
+LET ans = "{ ",
+      ans = IF ps(rte) THEN ans + "rte, " + space ELSE ans ENDIF,
+      ans = IF ps(vtb) THEN ans + "vtb," + space ELSE ans ENDIF,
+      ans = IF ps(tme) THEN ans + "tme," + space ELSE ans ENDIF,
+      ans = IF ps(dpm) THEN ans + "dpm," + space ELSE ans ENDIF,
+      ans = IF ps(mde) THEN ans + "mde," + space ELSE ans ENDIF,
+      ans = IF ps(num_er) THEN ans + "num_er," + space ELSE ans ENDIF,
+      ans = IF ps(enum_er) THEN ans + "enum_er," + space ELSE ans ENDIF,
+      ans = IF ps(hrte) THEN ans + "hrte, " + space ELSE ans ENDIF,
+      ans = IF ps(blpl) THEN ans + "blpl," + space ELSE ans ENDIF,
+      ans = IF ps(blph) THEN ans + "blph," + space ELSE ans ENDIF,
+      ans = IF ps(sp) THEN ans + "sp," + space ELSE ans ENDIF,
+      ans = IF ps(rkrt) THEN ans + "rkrt," + space ELSE ans ENDIF,
+      ans = IF ps(ptmp) THEN ans + "ptmp" + space ELSE ans ENDIF
+   IN ans + " }"
+  CONVERSION parset2string
+
+enum2string(e: enum): string =
+   COND
+    e = xoff -> "xoff",
+    e = xpause     -> "xpause",
+    e = xinfuse  -> "xinfuse",
+    e = xdblank -> "xdblank",
+    e = xmainmenu -> "xmainmenu",
+    e = xdvtbi -> "xdvtbi",
+    e = xdrate -> "xdrate",
+    e = xdtime -> "xdtime",
+    e = xdinfusing -> "xdinfusing",
+    e = xdalarm -> "xdalarm",
+    e = xdkvo -> "xdkvo",
+    e = xopen -> "xopen",
+    e = xclosed -> "xclosed",
+    e = xrte -> "xrte",
+    e = xtme -> "xtme",
+    e = xisconnected -> "xisconnected",
+    e = xactive -> "xactive",
+    e = xnumeral -> "xnumeral",
+    e = xenumerated -> "xenumerated",
+    e = xnilval -> "xnilval",
+    e = xalarm -> "xalarm",
+    e = xok -> "xok",
+    e = xnovalue -> "xnovalue"
+    ENDCOND
+CONVERSION enum2string
+
+enumset2string(es: enumset): string =
+ LET ans = "{ ",
+      ans = IF es(xoff) THEN ans + "xoff," + space ELSE ans ENDIF,
+      ans = IF es(xpause) THEN ans + "xpause," + space ELSE ans ENDIF,
+      ans = IF es(xinfuse) THEN ans + "xinfuse," + space ELSE ans ENDIF,
+      ans = IF es(xdblank) THEN ans + "xdblank," + space ELSE ans ENDIF,
+      ans = IF es(xmainmenu) THEN ans + "xmainmenu," + space ELSE ans ENDIF,
+      ans = IF es(xdvtbi) THEN ans + "xdvtbi," + space ELSE ans ENDIF,
+      ans = IF es(xdrate) THEN ans + "xdrate," + space ELSE ans ENDIF,
+      ans = IF es(xdtime) THEN ans + "xdtime," + space ELSE ans ENDIF,
+      ans = IF es(xdinfusing) THEN ans + "xdinfusing," + space ELSE ans ENDIF,
+      ans = IF es(xdalarm) THEN ans + "xdalarm," + space ELSE ans ENDIF,
+      ans = IF es(xdkvo) THEN ans + "xdkvo," + space ELSE ans ENDIF,
+      ans = IF es(xopen) THEN ans + "xopen," + space ELSE ans ENDIF,
+      ans = IF es(xclosed) THEN ans + "xclosed," + space ELSE ans ENDIF,
+      ans = IF es(xrte) THEN ans + "xrte," + space ELSE ans ENDIF,
+      ans = IF es(xtme) THEN ans + "xtme," + space ELSE ans ENDIF,
+      ans = IF es(xisconnected) THEN ans + "xisconnected," + space ELSE ans ENDIF,
+      ans = IF es(xactive) THEN ans + "xactive," + space ELSE ans ENDIF,
+      ans = IF es(xnumeral) THEN ans + "xnumeral," + space ELSE ans ENDIF,
+      ans = IF es(xenumerated) THEN ans + "xenumerated," + space ELSE ans ENDIF,
+      ans = IF es(xnilval) THEN ans + "xnilval," + space ELSE ans ENDIF,
+      ans = IF es(xalarm) THEN ans + "xalarm," + space ELSE ans ENDIF,
+      ans = IF es(xok) THEN ans + "xok," + space ELSE ans ENDIF
+   IN ans + " }"
+  CONVERSION enumset2string
+
+
+msghdr2string(mh: msg_hdr_type): string =
+COND
+    mh = nomsg -> "nomsg",
+    mh = tmmsg -> "tmmsg",
+    mh = pmmsg -> "pmmsg",
+    mh = mmmsg -> "mmmsg",
+    mh = updmsg -> "updmsg",
+    mh = actmsg -> "actmsg",
+    mh = cnstmsg -> "cnstmsg"
+ENDCOND
+  CONVERSION msghdr2string
+
+b_status2string(bs: b_status): string =
+COND
+    bs = full -> "full",
+    bs = empty -> "empty",
+    bs = functioning -> "functioning"
+ENDCOND
+  CONVERSION b_status2string
+
+nw_error_type2string(ne: nw_error_type): string =
+COND
+    ne = clear -> "clear",
+    ne = not_connected -> "not_connected",
+    ne = no_msg -> "no_msg",
+    ne = empty_q -> "empty_q",
+    ne = full_q -> "full_q",
+    ne = spurious_action -> "spurious_action"
+ ENDCOND
+  CONVERSION nw_error_type2string
+
+network_error_type2string(nwe: network_error_type): string =
+"(# nsource := " + nwe`nsource + space +
+       "ndest := " + nwe`ndest + space +
+       "chan_error := " + nwe`chan_error + " #)"
+CONVERSION network_error_type2string
+
+num_parameter2string(np: num_parameter): string =
+LET ans = "{ ",
+      ans = IF (np(rte) /= null_value)
+            THEN ans + "<" + rte + "," +  np(rte) + ">" + space ELSE ans ENDIF,
+      ans = IF (np(vtb) /= null_value)
+            THEN ans + "<" + vtb + "," +  np(vtb) + ">" + space ELSE ans ENDIF,
+      ans = IF (np(tme) /= null_value)
+            THEN ans + "<" + tme + "," +  np(tme) + ">" + space ELSE ans ENDIF,
+      ans = IF (np(hrte) /= null_value)
+            THEN ans + "<" + hrte + "," +  np(hrte) + ">" + space ELSE ans ENDIF,
+      ans = IF (np(blpl) /= null_value)
+            THEN ans + "<" + blpl + "," +  np(blpl) + ">" + space ELSE ans ENDIF,
+      ans = IF (np(blph) /= null_value)
+            THEN ans + "<" + blph + "," +  np(blph) + ">" + space ELSE ans ENDIF,
+      ans = IF (np(sp) /= null_value)
+            THEN ans + "<" + sp + "," +  np(sp) + ">" + space ELSE ans ENDIF,
+      ans = IF (np(rkrt) /= null_value)
+            THEN ans + "<" + rkrt + "," +  np(rkrt) + ">" + space ELSE ans ENDIF,
+      ans = IF (np(ptmp) /= null_value)
+            THEN ans + "<" + ptmp + "," +  np(ptmp) + ">" + space ELSE ans ENDIF,
+      ans = IF (np(num_er) /= null_value)
+            THEN ans + "<" + num_er + "," +  np(num_er) + ">" + space ELSE ans ENDIF
+   IN ans + " }"
+  CONVERSION num_parameter2string
+
+
+enum_parameter2string(ep: enum_parameter): string =
+LET ans = "{ ",
+      ans = IF (ep(dpm) /= xnilval)
+            THEN ans + "<" + dpm + "," +  ep(dpm) + ">" + space ELSE ans ENDIF,
+      ans = IF (ep(mde) /= xnilval)
+            THEN ans + "<" + mde + "," +  ep(mde) + ">" + space ELSE ans ENDIF,
+      ans = IF (ep(enum_er) /= xnilval)
+            THEN ans + "<" + enum_er + "," +  ep(enum_er) + ">" + space ELSE ans ENDIF
+   IN ans + " }"
+  CONVERSION enum_parameter2string
+
+
+
+panel2string(pa: panel): string =
+  "(#" + newline + 
+  "        pars := " + pa`pars + newline +
+  "        enum_disp := " + pa`enum_disp + newline +
+  "        num_disp := " + pa`num_disp + newline +
+  "        cmds := " + pa`cmds + newline +
+  "      #)"
+CONVERSION panel2string
+
+v_state2string(vs: v_state): string =
+  "(#" + newline + 
+  "      dev := " + vs`dev + space +
+  "nde := " + vs`nde + space +
+  "power := " + vs`power + space +
+  "HR := " + vs`HR + space +
+  "BPL := " + vs`BPL + space +
+  "BPH := " + vs`BPH + space +
+  "SPO2 := " + vs`SPO2 + space +
+  "RR := " + vs`RR + space +
+  "temp := " + vs`temp + newline +
+  "      pan := " + vs`pan + newline + 
+  "    #)"
+CONVERSION v_state2string
+
+
+
+pan_message_type2string(pa: pan_message_type): string =
+   "(# mhdr := " + pa`mhdr + space +
+       "pat_nd := " + pa`pat_nd + space +
+       "msg_nd := " + pa`msg_nd + space +
+       "pan := " + pa`pan + " #)"
+  CONVERSION pan_message_type2string
+
+act_msg_type2string(aa: act_message_type): string =
+   "(# mhdr := " + aa`mhdr + space +
+       "pat_nd := " + aa`pat_nd + space +
+       "msg_nd := " + aa`msg_nd + space +
+       "act := " + aa`act + " #)"
+  CONVERSION act_msg_type2string
+
+
+
+  node_printer_bool(l: [ upto(nlimit) -> bool ], n: node): RECURSIVE string =
+    COND
+      n = 0 -> IF l(n) THEN " node(" + n + ")" ELSE "" ENDIF,
+      n > 0 -> IF l(n) THEN " node(" + n + ")" + node_printer_bool(l, n - 1)
+               ELSE node_printer_bool(l, n - 1) ENDIF
+    ENDCOND
+  MEASURE n
+
+ device_printer_bool(l: [ upto(dlimit) -> bool ], d: device): RECURSIVE string =
+    COND
+      d = 0 -> IF l(d) THEN " device(" + d + ")" ELSE "" ENDIF,
+      d > 0 -> IF l(d) THEN " device(" + d + ")" + device_printer_bool(l, d - 1) + newline
+               ELSE device_printer_bool(l, d - 1) ENDIF
+    ENDCOND
+  MEASURE d
+
+  devs_printer_type(l: [ upto(nlimit) -> device_type ], n: node): RECURSIVE string =
+    COND
+      n = 0 -> IF l(n) /= no_device THEN "< device(" + n + "): " + l(n) + ">"
+                     ELSE " " ENDIF,
+      n > 0 -> IF l(n) /= no_device THEN "< device(" + n + "): " + l(n) + ">" + space + devs_printer_type(l, n - 1)
+               ELSE devs_printer_type(l, n - 1) ENDIF
+    ENDCOND
+  MEASURE n
+
+patient_printer_bool(l: [ upto(plimit) -> bool ], p: patient): RECURSIVE string =
+    COND
+      p = 0 -> IF l(p) THEN "patient(" + p + ")" ELSE " " ENDIF,
+      p > 0 -> IF l(p) THEN "patient(" + p + ")" + space + patient_printer_bool(l, p - 1)
+               ELSE patient_printer_bool(l, p - 1) ENDIF
+    ENDCOND
+  MEASURE p
+
+connected_printer_bool(l: [upto(nlimit), upto(nlimit) -> bool], n1, n2: node)
+  : RECURSIVE string =
+COND
+   n1 = 0 -> IF l(n1, n2)
+             THEN " nodes linked <" + n1 + "," + n2 + ">" ELSE "" ENDIF,
+   n1 > 0 -> IF l(n1, n2)
+             THEN " nodes linked <" + n1 + "," + n2 + ">" 
+                + connected_printer_bool(l, n1-1, n2) 
+              ELSE connected_printer_bool(l, n1-1, n2) ENDIF
+ENDCOND
+MEASURE n1
+
+nodes_link_printer(l: [upto(nlimit), upto(nlimit) -> bool], n1, n2: node):
+                             RECURSIVE string =
+COND
+  n2 = 0 -> connected_printer_bool(l, n1, n2),
+  n2 > 0 -> connected_printer_bool(l, n1, n2) +
+            nodes_link_printer(l, n1, n2-1)
+ENDCOND
+MEASURE n2
+
+connected2string(c: connected): string =
+"{" + nodes_link_printer(c, nlimit, nlimit) + " }"
+ CONVERSION connected2string
+
+node_to_integer_printer(l: [ upto(nlimit) -> integer ], n: node, nv: integer): RECURSIVE string =
+    COND
+      n = 0 -> IF l(n) /= nv THEN "node(" + n + ") := " + l(n) ELSE
+               "" ENDIF,
+      n > 0 -> IF l(n) /= nv
+               THEN "node(" + n + ") := " + l(n) + space + node_to_integer_printer(l, n - 1, nv)
+	       ELSE node_to_integer_printer(l, n - 1, nv) ENDIF
+    ENDCOND
+  MEASURE n
+
+
+patient_to_device2string(pd: patient_to_device): string =
+ "(# pat := " + pd`pat + space +
+    "dev := " + pd`dev + space + " #)"
+  CONVERSION patient_to_device2string
+
+dev_act_type2string(da: dev_act_type): string =
+"(# dev := " + da`dev + space +
+    "act := " + da`act + space + " #)"
+  CONVERSION dev_act_type2string
+
+node_to_pd_printer(l: [ upto(nlimit) -> patient_to_device ], n: node): RECURSIVE string =
+    COND
+      n = 0 -> IF l(n)`pat /= p_null THEN "<node(" + n + "), (" +  l(n) + ")>" ELSE
+               "" ENDIF,
+      n > 0 -> IF l(n)`pat /= p_null
+               THEN "<node(" + n + "), (" + l(n) + ")>" +
+	           space + node_to_pd_printer(l, n - 1)
+	       ELSE node_to_pd_printer(l, n - 1) ENDIF
+    ENDCOND
+  MEASURE n
+
+node_to_patient_printer(l: [ upto(nlimit) -> patient ], n: node, pv: patient): RECURSIVE string =
+    COND
+      n = 0 -> IF l(n) /= pv THEN "< node(" + n + "), patient(" + l(n) + ")>" ELSE
+               "" ENDIF,
+      n > 0 -> IF l(n) /= pv
+               THEN "<node(" + n + "), patient(" + l(n) + ")>" + space + node_to_patient_printer(l, n - 1, pv)
+	       ELSE node_to_patient_printer(l, n - 1, pv) ENDIF
+    ENDCOND
+  MEASURE n
+
+act_buff_printer(l: [ upto(mindex) -> act_message_type ], i: index): RECURSIVE string =
+    COND
+      i = 0 -> IF l(i)`mhdr /= nomsg THEN "index(" + i + ") := " + l(i) + newline ELSE
+               "" ENDIF,
+      i > 0 -> IF l(i)`mhdr /= nomsg
+               THEN "index(" + i + ") := " + l(i) + space + act_buff_printer(l, i - 1) + newline
+	       ELSE act_buff_printer(l, i - 1) ENDIF
+    ENDCOND
+  MEASURE i
+
+pan_buff_printer(l: [ upto(mindex) -> pan_message_type ], i: index): RECURSIVE string =
+    COND
+      i = 0 -> IF l(i)`mhdr /= nomsg THEN "index(" + i + ") := " + l(i) + newline ELSE
+               "" ENDIF,
+      i > 0 -> IF l(i)`mhdr /= nomsg
+               THEN "index(" + i + ") := " + l(i) + space + pan_buff_printer(l, i - 1) + newline
+	       ELSE pan_buff_printer(l, i - 1) ENDIF
+    ENDCOND
+  MEASURE i
+
+patient_pan_printer(l: [ upto(mindex) -> panel ], p: patient): RECURSIVE string =
+COND
+      p = 0 -> IF l(p)`pars /= emptyset THEN "patient(" + p + ") := " + l(p) ELSE
+               "" ENDIF,
+      p > 0 -> IF l(p)`pars /= emptyset
+               THEN "patient(" + p + ") := " + l(p) + space + patient_pan_printer(l, p - 1)
+	       ELSE patient_pan_printer(l, p - 1) ENDIF
+    ENDCOND
+  MEASURE p
+
+patient_mode_type2string(m: patient_mode_type): string =
+   COND
+    m = error -> "error",
+    m = top     -> "top",
+    m = p_mode -> "p_mode",
+    m = d_mode -> "d_mode",
+    m = dc_mode -> "dc_mode"
+    ENDCOND
+  CONVERSION patient_mode_type2string
+
+patient_edit_type2string(m: patient_edit_type): string =
+   COND
+    m = edit_none -> "edit_none",
+    m = edit_top -> "edit_top",
+    m = edit_patient -> "edit_patient",
+    m = edit_device -> "edit_device",
+    m = edit_rule -> "edit_rule",
+    m = edit_constraint -> "edit_constraint"
+   ENDCOND
+ CONVERSION patient_edit_type2string
+
+nodes2string(ns: nodes): string =
+  "{" + node_printer_bool(ns, nlimit) + " }"
+ CONVERSION nodes2string
+
+devices2string(ds: devices): string =
+  "{ " + device_printer_bool(ds, dlimit) + "}"
+CONVERSION devices2string
+
+patients_type2string(ps: patients_type): string =
+  "{ " + patient_printer_bool(ps, plimit) + "}"
+ CONVERSION patients_type2string
+
+devices_type2string(ds:devices_type): string =
+  "{ " + devs_printer_type(ds, dlimit) + "}"
+ CONVERSION devices_type2string
+
+act_buff_type2string(ab: act_buff_type): string =
+  "< " + act_buff_printer(ab, mindex) + ">"
+  CONVERSION act_buff_type2string
+
+pan_buff_type2string(pb: pan_buff_type): string =
+  "< " + pan_buff_printer(pb, mindex) + ">"
+  CONVERSION pan_buff_type2string
+% the following needs thinking about relates to p_state
+%patient_pan_type2string(pb: patient_pan_type): string =
+%  "< " + patient_pan_printer(pb, mindex) + ">"
+%  CONVERSION patient_pan_type2string
+
+pan_q_type2string(pq: pan_q_type): string =
+ "(# current_pos := " + pq`current_pos + space +
+       "last_pos := " + pq`last_pos + space +
+       "buff := " + pq`buff + space +
+       "buf_status := " + pq`buf_status + " #)"
+  CONVERSION pan_q_type2string
+
+act_q_type2string(aq: act_q_type): string =
+ "(# current_pos := " + aq`current_pos + space +
+       "last_pos := " + aq`last_pos + space +
+       "buff := " + aq`buff + space +
+       "buf_status := " + aq`buf_status + " #)"
+  CONVERSION act_q_type2string
+
+d_state2string(ds: d_state): string =
+   "(# dev := " + ds`dev + space +
+       "nde := " + ds`nde + space +
+       "vtbi := " + ds`vtbi + space +
+       "rate := " + ds`rate + space +
+       "time := " + ds`time + space +
+       "vol := " + ds`vol + space +
+       "clamp := " + ds`clamp + space +
+       "m := " + ds`m + space +
+       "dm := " + ds`dm + space +
+       "prevdm := " + ds`prevdm + space +
+       "clock := " + ds`clock + space +
+       "bolus_time := " + ds`bolus_time + space +
+       "pan := " + ds`pan + space +
+       "priority := " + ds`priority + space +
+       "ip_error := " + ds`ip_error + " #)"
+  CONVERSION d_state2string
+
+
+pan_msg_waiting_printer(l: [ upto(nlimit) -> pan_q_type ], n: node): RECURSIVE string =
+ COND
+      n = 0 -> IF l(n)`buf_status /= empty THEN "node(" + n + ") := " + l(n) + newline ELSE
+               "" ENDIF,
+      n > 0 -> IF l(n)`buf_status /= empty
+               THEN "node(" + n + ") := " + l(n) + space + pan_msg_waiting_printer(l, n - 1) + newline
+	       ELSE pan_msg_waiting_printer(l, n - 1) ENDIF
+    ENDCOND
+  MEASURE n
+
+act_msg_waiting_printer(l: [ upto(nlimit) -> act_q_type ], n: node): RECURSIVE string =
+ COND
+      n = 0 -> IF l(n)`buf_status /= empty THEN "node(" + n + ") := " + l(n) + newline ELSE
+               "" ENDIF,
+      n > 0 -> IF l(n)`buf_status /= empty
+               THEN "node(" + n + ") := " + l(n) + space + act_msg_waiting_printer(l, n - 1) + newline
+	       ELSE act_msg_waiting_printer(l, n - 1) ENDIF
+    ENDCOND
+  MEASURE n
+
+d_panel_type_printer(l: [ upto(dlimit) -> panel], d: device): RECURSIVE string =
+ COND
+      d = 0 -> 
+        IF l(d)`pars /= emptyset THEN " device(" + d + ") := " + l(d) ELSE "" ENDIF,
+      d > 0 -> 
+        IF l(d)`pars /= emptyset
+        THEN " device(" + d + ") := " + l(d) + d_panel_type_printer(l, d - 1)
+        ELSE d_panel_type_printer(l, d - 1) ENDIF
+  ENDCOND
+MEASURE d
+
+p_dstates_printer(l: [upto(dlimit) -> d_state], d: device): RECURSIVE string =
+   COND
+      d = 0 -> IF l(d)`nde /= no_node THEN "device(" + d + ") := " + l(d) ELSE
+               "" ENDIF,
+      d > 0 -> IF l(d)`nde /= no_node
+               THEN "device(" + d + ") := " + l(d) + space + p_dstates_printer(l, d - 1)
+	       ELSE p_dstates_printer(l, d - 1) ENDIF
+    ENDCOND
+  MEASURE d
+
+main_act_printer(l: [upto(dlimit) -> action_ids], d: device): RECURSIVE string =
+   COND
+      d = 0 -> IF l(d) /= emptyset THEN "device(" + d + ") := " + l(d) ELSE
+               "" ENDIF,
+      d > 0 -> IF l(d) /= emptyset
+               THEN "device(" + d + ") := " + l(d) + space + main_act_printer(l, d - 1)
+	       ELSE main_act_printer(l, d - 1) ENDIF
+    ENDCOND
+  MEASURE d
+
+main_enum_par_printer(l: [upto(dlimit) -> enum_parameter], d: device): RECURSIVE string =
+   COND
+      d = 0 -> IF l(d) /= empty_enum_parameter THEN "device(" + d + ") := " + l(d) ELSE
+               "" ENDIF,
+      d > 0 -> IF l(d) /= empty_enum_parameter
+               THEN "device(" + d + ") := " + l(d) + space + main_enum_par_printer(l, d - 1)
+	       ELSE main_enum_par_printer(l, d - 1) ENDIF
+    ENDCOND
+  MEASURE d
+
+main_num_par_printer(l: [upto(dlimit) -> num_parameter], d: device): RECURSIVE string =
+   COND
+      d = 0 -> IF l(d) /= empty_num_parameter
+		  THEN "device(" + d + ") := " + l(d) ELSE
+               "" ENDIF,
+      d > 0 -> IF l(d) /= empty_num_parameter
+               THEN "device(" + d + ") := " + l(d) + space + main_num_par_printer(l, d - 1)
+	       ELSE main_num_par_printer(l, d - 1) ENDIF
+    ENDCOND
+  MEASURE d
+
+%patient_health_type_printer(l: [upto(dlimit) -> alert_status], d: device): RECURSIVE string =
+%   COND
+%      d = 0 -> IF l(d) /= disconnected THEN "device(" + d + ") := " + l(d) ELSE
+%               "" ENDIF,
+%      d > 0 -> IF l(d) /= disconnected
+%               THEN "device(" + d + ") := " + l(d) + space + patient_health_type_printer(l, d - 1)
+%	       ELSE patient_health_type_printer(l, d - 1) ENDIF
+%    ENDCOND
+%  MEASURE d
+
+ main_enum_par2string(mep: main_enum_par): string =
+"< " + main_enum_par_printer(mep, dlimit) + ">"
+  CONVERSION main_enum_par2string
+
+action_error_printer(l: [upto(plimit) -> dev_act_type], p: patient): RECURSIVE string =
+   COND
+      p = 0 -> IF l(p)`dev /= nil_device THEN "patient(" + p + ") := " + l(p) ELSE
+                "" ENDIF,
+      p > 0 -> IF l(p)`dev /= nil_device THEN "patient(" + p + ") := " + l(p) + space +
+                action_error_printer(l, p - 1) ELSE action_error_printer(l, p - 1) ENDIF
+    ENDCOND
+  MEASURE p
+
+action_error_type2string(aet: action_error_type): string =
+"< " + action_error_printer(aet, plimit) + ">"
+CONVERSION action_error_type2string
+
+top_enum_par_printer(l: [upto(plimit) -> main_enum_par], p: patient): RECURSIVE string =
+   COND
+      p = 0 -> "patient(" + p + ") := " + l(p),
+      p > 0 -> "patient(" + p + ") := " + l(p) + space + top_enum_par_printer(l, p - 1)
+    ENDCOND
+  MEASURE p
+
+top_enum_params2string(tep: top_enum_params): string =
+"< " + top_enum_par_printer(tep, 6) + ">"
+CONVERSION top_enum_params2string
+
+main_num_par2string(mnp: main_num_par): string =
+"< " + main_num_par_printer(mnp, dlimit) + ">"
+  CONVERSION main_num_par2string
+
+top_num_par_printer(l: [upto(plimit) -> main_num_par], p: patient): RECURSIVE string =
+   COND
+      p = 0 -> "patient(" + p + ") := " + l(p),
+      p > 0 -> "patient(" + p + ") := " + l(p) + space + top_num_par_printer(l, p - 1)
+    ENDCOND
+  MEASURE p
+
+top_num_params2string(tep: top_num_params): string =
+"< " + top_num_par_printer(tep, 6) + ">"
+CONVERSION top_num_params2string
+
+main_act2string(ma: main_act): string =
+"< " + main_act_printer(ma, dlimit) + ">"
+  CONVERSION main_act2string
+
+dpanel_type2string(dp: dpanel_type): string =
+"< " + d_panel_type_printer(dp, dlimit) + ">"
+  CONVERSION dpanel_type2string
+
+patient_config2string(pc: patient_config): string =
+     "(# p_enum_params := " + pc`p_enum_params + newline +
+       "p_num_params := " + pc`p_num_params + newline +
+    %   "param_set := " + pc`param_set + space +
+       "p_actions := " + pc`p_actions + newline +
+       "p_av_actions := " + pc`p_av_actions + newline +
+       "p_devices := " + pc`p_devices + newline +
+       "coord_devices := " + pc`coord_devices + newline +
+       "d_available_actions := " + pc`d_available_actions + newline + " #)"
+  CONVERSION patient_config2string
+         
+
+coord_db_printer(l: [upto(plimit) -> patient_config], p: patient): RECURSIVE string =
+   COND
+      p = 0 -> IF l(p)`p_devices(1) /= no_device THEN "patient(" + p + ") := " + l(p) + newline ELSE
+               "" ENDIF,
+      p > 0 -> IF l(p)`p_devices(1) /= no_device
+               THEN "patient(" + p + ") := " + l(p) + space + coord_db_printer(l, p - 1) + newline
+	       ELSE coord_db_printer(l, p - 1) ENDIF
+    ENDCOND
+  MEASURE p
+
+coord_db_type2string(cd: coord_db_type): string =
+  "< " + coord_db_printer(cd, plimit) + ">"
+CONVERSION coord_db_type2string
+
+
+pan_msg_waiting_type2string(pw: pan_msg_waiting_type): string =
+  "< " + pan_msg_waiting_printer(pw, nlimit) + ">"
+CONVERSION pan_msg_waiting_type2string
+
+act_msg_waiting_type2string(aw: act_msg_waiting_type): string =
+  "< " + act_msg_waiting_printer(aw, nlimit) + ">"
+CONVERSION act_msg_waiting_type2string
+
+%patient_health_type2string(ph: patient_health_type): string =
+%"< " + patient_health_type_printer(ph, dlimit) + ">"
+%  CONVERSION patient_health_type2string
+
+%patient_status_type_printer(l: [upto(plimit) -> patient_health_type],
+%                            p: patient): RECURSIVE string =
+%   COND
+%      p = 0 -> IF l(p) /= all_disconnected THEN "patient(" + p + ") := " + l(p) ELSE
+%               "" ENDIF,
+%      p > 0 -> IF l(p) /= all_disconnected
+%               THEN "patient(" + p + ") := " + l(p) + space + patient_status_type_printer(l, p - 1)
+%	       ELSE patient_status_type_printer(l, p - 1) ENDIF
+%    ENDCOND
+%  MEASURE p
+
+%patient_status_type2string(ps: patient_status_type): string =
+%"< " + patient_status_type_printer(ps, plimit) + ">"
+%  CONVERSION patient_status_type2string
+
+n_state2string(ns: n_state): string =
+   "(#" + newline + 
+    "  current_node := " + ns`current_node + newline +
+    "  n_links := " + ns`n_links + newline +
+    "  current_pan_msg := " + ns`current_pan_msg + newline +
+    "  current_act_msg := " + ns`current_act_msg + newline +
+    "  pan_msg_waiting := " + ns`pan_msg_waiting + newline +
+    "  act_msg_waiting := " + ns`act_msg_waiting + newline +
+    "  nw_error := " + ns`nw_error + newline +
+    "#)" + newline
+CONVERSION n_state2string
+
+
+
+
+
+p_dstates2string(pd: p_dstates): string =
+"< " + p_dstates_printer(pd, dlimit) + ">"
+CONVERSION p_dstates2string
+
+p_disp_main_type2string(pdm: p_disp_main_type): string =
+  "(#" + newline + 
+  "      disp_enum_params := " + pdm`disp_enum_params + newline +
+  "      disp_num_params := " + pdm`disp_num_params + newline +
+  "      p_actions := " + pdm`p_actions + newline + 
+  "    #)" 
+CONVERSION p_disp_main_type2string
+
+p_disp_top_type2string(pdt: p_disp_top_type): string =
+  "(#" + newline +
+  "      sel_device := " + pdt`sel_device + newline +
+  "      devs := " + pdt`devs + newline +
+  "      disp_enum_params := " + pdt`disp_enum_params + newline +
+  "      disp_num_params := " + pdt`disp_num_params + newline + 
+%  "      menu_entry := " + pdt`menu_entry + newline +
+  "      menu_visible := " + pdt`menu_visible + newline +
+   "    #)" + newline 
+CONVERSION p_disp_top_type2string
+
+coord_panel_setup_type2string(cps: coord_panel_setup_type): string =
+    "(#" + newline + 
+    "      select_pars := " + cps`select_pars + newline +
+	  "      select_acts := " + cps`select_acts + newline +         
+    "     #)" + newline
+CONVERSION coord_panel_setup_type2string
+
+coord_disp_top_type2string(cdt: coord_disp_top_type): string =
+  "(#" + newline + 
+  "      patients := " + cdt`patients + newline +
+  "      selected_patient := " + cdt`selected_patient + newline +
+  "      patients_enum_params := " + cdt`patients_enum_params + newline +
+  "      patients_num_params := " + cdt`patients_num_params + newline +
+  %"      menu_entry := " + cdt`menu_entry + newline +
+  "      menu_visible := " + cdt`menu_visible + newline +
+  "    #)" + newline
+CONVERSION coord_disp_top_type2string
+
+coord_entry_window_type2string(cew: coord_entry_window_type): string =
+  "(#" + newline + 
+  "      ent_device := " + cew`ent_device + newline +
+  "      ent_patient := " + cew`ent_patient + newline +
+  "      ent_action := " + cew`ent_action + newline + 
+  "    #)" + newline
+CONVERSION coord_entry_window_type2string
+
+enum_constraint_type2string(ec: enum_constraint_type): string =
+  "(#  d := " + ec`d + newline +
+  "p := " + ec`p + newline +
+  "r := " + ec`r + newline +
+  "v := " + ec`v + newline + " #)"
+CONVERSION enum_constraint_type2string
+
+num_constraint_type2string(nc: num_constraint_type): string =
+ "(#  d := " + nc`d + newline +
+       "p := " + nc`p + newline +
+       "r := " + nc`r + newline +
+       "v := " + nc`v + newline + " #)"
+  CONVERSION num_constraint_type2string
+
+constraint_type2string(ct: constraint_type): string =
+    "(#  vt := " + ct`vt + newline +
+       "nc := " + ct`nc + newline +
+       "ec := " + ct`ec + newline + " #)"
+    CONVERSION constraint_type2string
+
+p_entry_window_type2string(pew: p_entry_window_type): string =
+   newline + "(#      ent_device := " + pew`ent_device + newline +
+      "        ent_par := " + pew`ent_par + newline +
+	    "        ent_rel := " + pew`ent_rel + newline +
+	    "        ent_act := " + pew`ent_act + newline +
+      "        ent_enum := " + pew`ent_enum + newline + 
+      "        ent_num := " + pew`ent_num + newline + 
+      "        ent_name := " + pew`ent_name + newline + " #)"
+    CONVERSION p_entry_window_type2string
+
+production_type_printer(l: [ upto(climit) -> constraint_type ], c: cindex): RECURSIVE string =
+ COND
+      c = 0 -> IF l(c)`vt /= empty THEN "constraint(" + c + ") := " + l(c) + newline ELSE
+               "" ENDIF,
+      c > 0 -> IF l(c)`vt /= empty
+               THEN "constraint(" + c + ") := " + l(c) + space + production_type_printer(l, c - 1) + newline
+	       ELSE production_type_printer(l, c - 1) ENDIF
+    ENDCOND
+  MEASURE c
+  
+production_type2string(pt: production_type): string =
+"< " + production_type_printer(pt, climit) + ">"
+  CONVERSION production_type2string
+
+rule_type2string(rt: rule_type): string =
+ "(#  rule := " + rt`rule + newline +
+       "action := " + rt`action + newline + " #)" 
+  CONVERSION rule_type2string
+
+
+patient_constraint_printer(l: [ upto(climit) -> rule_type ], c: cindex): RECURSIVE string =
+ COND
+      c = 0 -> IF (l(c)`action)`act /= nil_action THEN "rule(" + c + ") := " + l(c) + newline ELSE
+               "" ENDIF,
+      c > 0 -> IF (l(c)`action)`act /= nil_action
+               THEN "rule(" + c + ") := " + l(c) + space + patient_constraint_printer(l, c - 1) + newline
+	       ELSE patient_constraint_printer(l, c - 1) ENDIF
+    ENDCOND
+  MEASURE c
+
+rule_setup_type2string(rst: rule_setup_type): string =
+  "(#" + newline +
+  "        current_rule_index := " + rst`current_rule_index + newline +
+  "        current_lim_rule_index := " + rst`current_lim_rule_index + newline +
+  "        select_act :=  " + rst`select_act + newline +
+  "      #)"
+CONVERSION rule_setup_type2string
+
+constraint_setup_type2string(cst: constraint_setup_type): string =
+  "(#" + newline +
+  "        current_production_index := " + cst`current_production_index + newline +
+  "        current_production := " + cst`current_production + newline +
+  "        select_par :=  " + cst`select_par + newline +
+  "        select_rel := " + cst`select_rel + newline +
+  "        select_num := " + cst`select_num + newline +
+  "        select_enum := " + cst`select_enum + newline +
+  "      #)"
+CONVERSION constraint_setup_type2string
+
+patient_constraint_type2string(pct: patient_constraint_type): string =
+"< " + patient_constraint_printer(pct, climit) + ">"
+CONVERSION patient_constraint_type2string
+
+
+
+p_state2string(ps: p_state): string =
+  "(# " + newline + 
+  "    id := " + ps`id + newline +
+  "    nde := " + ps`nde + newline +
+  "    pmode := " + ps`pmode + newline +
+  "    emode := " + ps`emode + newline +
+  "    disp_focus := " + ps`disp_focus + newline +
+  "    prev_menu_entry := " + ps`prev_menu_entry + newline +
+  "    prev_menu_visible := " + ps`prev_menu_visible + newline +
+ % "    name_buffer := " + ps`name_buffer + newline +
+ % "    num_buffer := " + ps`num_buffer + newline +
+  "    rule_set := " + ps`rule_set + newline +
+  "    p_entry_window := " + ps`p_entry_window + newline +
+  "    p_disp_top := " + ps`p_disp_top + newline +
+  "    p_disp_main := " + ps`p_disp_main + newline +
+  "    p_disp_device := " + ps`p_disp_device + newline +
+  "    p_panel_display := " + ps`p_panel_display + newline +
+  "    p_rules_display := " + ps`p_rules_display + newline +
+  "    p_constraint_display := " + ps`p_constraint_display + newline +
+  "    patient_panels := " + ps`patient_panels + newline +
+  "    filter_device_panels := " + ps`filter_device_panels + newline +
+  "    vital_signs := " + ps`vital_signs + newline +
+  "    ip_state := " + ps`ip_state + newline +
+  "  #)" + newline
+CONVERSION p_state2string
+
+
+patient_db_printer(l: [ upto(plimit) -> p_state ], p: patient): RECURSIVE string =
+COND
+  p = 0 -> 
+    IF l(p)`id /= p_null 
+    THEN newline + "  patient(" + p + ") := " + l(p) 
+    ELSE "" ENDIF,
+  p > 0 -> 
+    IF l(p)`id /= p_null
+    THEN newline + "  patient(" + p + ") := " + l(p) + patient_db_printer(l, p - 1)
+    ELSE patient_db_printer(l, p - 1) ENDIF
+ENDCOND
+  MEASURE p
+
+patient_connect_printer(l: [ upto(plimit) -> nw_error_type ], p: patient): RECURSIVE string =
+COND
+  p = 0 -> 
+    IF l(p) /= not_connected 
+    THEN " patient(" + p + ") := " + l(p) 
+    ELSE "" ENDIF,
+  p > 0 -> 
+    IF l(p) /= not_connected
+    THEN " patient(" + p + ") := " + l(p) + patient_connect_printer(l, p - 1)
+    ELSE patient_connect_printer(l, p - 1) ENDIF
+  ENDCOND
+MEASURE p
+
+device_connect_printer(l: [ upto(dlimit) -> nw_error_type ], d: device): RECURSIVE string =
+  COND
+    d = 0 -> 
+      IF l(d) /= not_connected 
+      THEN " device(" + d + ") := " + l(d) 
+      ELSE "" ENDIF,
+    d > 0 -> 
+      IF l(d) /= not_connected
+      THEN " device(" + d + ") := " + l(d) + device_connect_printer(l, d - 1)
+      ELSE device_connect_printer(l, d - 1) ENDIF
+  ENDCOND
+MEASURE d
+
+device_connect_type2string(dc: device_connect_type): string =
+"< " + device_connect_printer(dc, dlimit) + ">"
+  CONVERSION device_connect_type2string
+  
+patient_device_connect_printer(l: [ upto(plimit) -> device_connect_type ], p: patient): RECURSIVE string =
+COND
+      p = 0 -> " patient(" + p + ") := " + l(p),
+      p > 0 -> " patient(" + p + ") := " + l(p) + patient_device_connect_printer(l, p - 1)
+ENDCOND
+  MEASURE p
+
+
+node_to_patient2string(np: node_to_patient): string =
+"< " + node_to_patient_printer(np, nlimit, p_null) + ">"
+  CONVERSION node_to_patient2string
+
+node_to_pd2string(nd: node_to_pd): string =
+"< " + node_to_pd_printer(nd, nlimit) + ">"
+  CONVERSION node_to_pd2string
+
+disp_patient_type2string(dp: disp_patient_type): string =
+  "(#" + newline +
+  "      current_patient := " + dp`current_patient + newline +
+  "      devices := " + dp`devices + newline +
+  "      selected_device := " + dp`selected_device + newline +
+  "      patient_enum_params := " + dp`patient_enum_params + newline +
+  "      patient_num_params := " + dp`patient_num_params + newline +
+  "      patient_actions := " + dp`patient_actions + newline +
+  "      av_main_act := " + dp`av_main_act + newline +
+  "      selected_action := " + dp`selected_action + newline + 
+  "    #)"
+CONVERSION disp_patient_type2string
+
+disp_device_type2string(dd: disp_device_type): string =
+  "(#" + newline + 
+  "      current_device := " + dd`current_device + newline +
+  "      e_disp := " + dd`e_disp + newline +
+  "      n_disp := " + dd`n_disp + newline +
+  "      c_disp := " + dd`c_disp + newline +
+  "      av_c_disp := " + dd`av_c_disp + newline +
+  "      selected_action := " + dd`selected_action + newline + 
+  "    #)"
+CONVERSION disp_device_type2string
+
+patient_connect_type2string(pc: patient_connect_type): string =
+"<" + patient_connect_printer(pc, plimit) + " >"
+CONVERSION patient_connect_type2string
+
+patient_device_connect_type2string(pc: patient_device_connect_type): string =
+"<" + patient_device_connect_printer(pc, last_patient) + " >"
+CONVERSION patient_device_connect_type2string
+ 
+disp_alarm_type2string(da: disp_alarm_type): string =
+  "(#" + newline + 
+  "      patient_updates := " + da`patient_updates + newline +
+  "      device_update := " + da`device_update + newline +
+  "      patient_connected := " + da`patient_connected + newline +
+  "      patient_device_connected := " + da`patient_device_connected + newline +
+  "      constraint_alarms := " + da`constraint_alarms + newline +
+  "    #)"
+CONVERSION disp_alarm_type2string
+	  
+%p_disp_top_type2string(dt: p_disp_top_type): string =
+%        "(# patients := " + dt`patients + newline +
+%	 "selected_patient := " + dt`selected_patient + newline +
+%	 "patients_enum_params := " +  dt`patients_enum_params + newline +
+%	 "patients_num_params := " + dt`patients_num_params + newline + " #)"
+%	  CONVERSION disp_top_type2string
+
+
+i_state2string(is: i_state): string =
+  "(# " + newline + 
+  "    nde := " + is`nde + newline +
+  "    mode := " + is`mode + newline +
+  "    prev_menu_entry := " + is`prev_menu_entry + newline +
+  "    prev_menu_visible := " + is`prev_menu_visible + newline +
+  "    disp_focus := " + is`disp_focus + newline +
+  "    disp_top := " + is`disp_top + newline +
+  "    entry_window := " + is`entry_window + newline +
+  "    disp_alarm := " + is`disp_alarm + newline +
+  "    disp_patient := " + is`disp_patient + newline +
+  "    disp_device := " + is`disp_device + newline +
+  "    coord_db := " + is`coord_db + newline + newline +
+  "  #)"
+CONVERSION i_state2string
+
+patient_db_type2string(pd: patient_db_type): string =
+"<" + patient_db_printer(pd, plimit) + " >"
+  CONVERSION patient_db_type2string
+
+
+print_state(st: state): string =
+ LET ans = "(# " + newline,
+     ans = ans + "nde_state := " + n_state2string(st`nde_state) + newline,
+     ans = ans + "p_nodes := " + node_to_patient2string(st`p_nodes) + newline,
+     ans = ans + "d_nodes := " + node_to_pd2string(st`d_nodes) + newline,
+     ans = ans + "ps := " + nodes2string(st`ps) + newline,
+     %ans = ans + "patient_nodes := " + nodes2string(st`patient_nodes) + newline,
+     ans = ans + "patient menus" + newline,
+     ans = ans + "pdb := " + patient_db_type2string(st`pdb) + newline, 
+     ans = ans + "coord_st := " + i_state2string(st`coord_st) + newline,
+     ans = ans + "coord_menu" + newline
+     %ans = ans + "comms_error := " + nw_error_type2string(st`comms_error) + newline
+   IN ans + " #)"
+   
+  END printer

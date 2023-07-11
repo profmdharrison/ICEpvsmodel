@@ -1,0 +1,94 @@
+% Michael Harrison (Newcastle University) and Paolo Masci (US National Institute of Aerospace)
+% July 2020
+% Types
+
+
+
+
+coord_t_and_c_th: THEORY
+ BEGIN
+action_id: TYPE = { powr, alrm, incr, decr, bolus, confirm, choosetime, choosevtbi, 
+                       chooserate, start, hold, tick, openclamp, closeclamp, nil_action}
+ action_ids: TYPE = setof[action_id]
+
+   mindex: nat = 16
+   nlimit: nat = 16
+   dlimit: nat = 16
+   plimit: nat = 16
+   climit: nat = 5
+   irates   : TYPE = nonneg_real
+   ivols    : TYPE = nonneg_real
+   itimes   : TYPE = nonneg_real
+   cindex: TYPE = upto(climit)
+   nindex: TYPE = upto(nlimit)
+   mode : TYPE = {off, pause, infuse}
+   dispmode : TYPE = {dblank, mainmenu, dvtbi, drate, dtime, dinfusing, dalarm, dkvo}
+   clamp_state : TYPE = {open, closed}
+   priority_type : TYPE = {rte, tme}
+   menu: TYPE = {no_action, 
+             %    connect, act,
+             %    quit, ok, 
+                 delete, cursor_up, cursor_down, select,
+     enter, 
+     top, main, patient_id, 
+     device, device_filter, region, rule, constraint, edit, clear,
+		 display, parameter, action, relation, num_value, enum_value, escape,
+		 pump, vs_device}
+   menu_set: TYPE = setof[menu]
+ %  menu_mode_type: TYPE = {enter_mode, select_mode, no_selection}
+  % alert_status: TYPE = {paused, infusing, disconnected, active}
+   value_type: TYPE = {numeral, enumerated, empty}  
+   par: TYPE = {rte, vtb, tme, dpm, mde, num_er, enum_er, hrte, blpl, blph, sp, rkrt,
+                ptmp}
+   enum_par(p: par): boolean = (p = dpm) OR (p = mde) OR (p = enum_er)
+   num_par(p: par): boolean = (p = rte) OR (p = vtb) OR (p = tme) OR (p = hrte) OR
+                              (p = blpl) OR (p = blph) OR (p = sp) OR (p = rkrt) OR 
+                              (p = ptmp) OR (p = num_er)
+   enum : TYPE = {xoff, xpause, xinfuse, xdblank, xmainmenu, xdvtbi, xdrate, xdtime, xdinfusing, 
+                xdalarm, xdkvo, xopen, xclosed, xrte, xtme, xisconnected, xactive, 
+                xnumeral, xenumerated, xnilval, xalarm, xok, xnovalue}
+  enumset: TYPE = setof[enum]
+  patient: TYPE = upto(nlimit)
+  disp_focus_type: TYPE = {no_focus, top_focus, patient_focus, device_focus}
+  patient_mode_type: TYPE = {error, top, p_mode, d_mode, dc_mode}
+  patient_edit_type: TYPE = {edit_none, edit_top, edit_patient, edit_device, edit_constraint, edit_rule}
+  rel_op_type: TYPE = {lt, le, gt, ge, eq, neq, no_rel}
+  relset: TYPE = setof[rel_op_type]
+  no_num: nonneg_real = 0
+  num_parameter: TYPE = [par -> nonneg_real]
+  enum_parameter: TYPE = [par -> enum]
+  parset: TYPE = setof[par]
+  null_value: posnat = mindex
+ % noval: enum
+  empty_num_parameter: num_parameter = 
+                    LAMBDA (p: par): 
+                     IF num_par(p) THEN null_value ELSE no_num ENDIF
+  empty_enum_parameter: enum_parameter = 
+                    LAMBDA(p: par): 
+                    IF enum_par(p) THEN xnilval ELSE xnovalue ENDIF
+  panel: TYPE = [# pars: parset, enum_disp: enum_parameter, num_disp: num_parameter, 
+                   cmds: action_ids #]
+
+  empty_panel: panel = (# pars := emptyset, enum_disp := empty_enum_parameter,
+                        num_disp := empty_num_parameter, 
+                        cmds := emptyset #)
+  
+ filter_panel(pa: panel, pst: parset, acts: action_ids): panel =
+   (# pars := pst,
+      enum_disp := LAMBDA (p: par):
+                    IF enum_par(p) THEN
+                     IF pst(p) THEN pa`enum_disp(p) ELSE xnilval ENDIF
+                     ELSE xnovalue ENDIF,
+      num_disp := LAMBDA (p: par):
+                    IF num_par(p) THEN
+                     IF pst(p) THEN pa`num_disp(p) ELSE null_value ENDIF
+                     ELSE no_num ENDIF,
+      cmds := LAMBDA (b: action_id):
+                   acts(b) AND pa`cmds(b)
+       #)
+
+ 
+ END coord_t_and_c_th
+
+
+

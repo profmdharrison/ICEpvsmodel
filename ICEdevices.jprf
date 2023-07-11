@@ -1,0 +1,52 @@
+{
+ "devices_th.nil_device_TCC1": [
+  {
+   "info": {
+    "theory": "devices_th",
+    "formula": "nil_device_TCC1",
+    "status": "proved",
+    "prover": "PVS 7.1.0 (Allegro CL Enterprise Edition)",
+    "shasum": "b28f29e9f6608663063197892ed62440549407ee2b38aeb6101735cfe35e039d"
+   },
+   "origin": ".prf",
+   "proofTree": {
+    "branch": "",
+    "name": "nil_device_TCC1",
+    "type": "root",
+    "rules": [
+     {
+      "branch": "",
+      "name": "(subtype-tcc)",
+      "type": "proof-command",
+      "rules": []
+     }
+    ]
+   }
+  }
+ ],
+ "devices_th.d_bot_TCC1": [
+  {
+   "info": {
+    "theory": "devices_th",
+    "formula": "d_bot_TCC1",
+    "status": "proved",
+    "prover": "PVS 7.1.0 (Allegro CL Enterprise Edition)",
+    "shasum": "2416d50f6262273098f639d0007e5f7b9dc7cf753c0b09f469151a713031caab"
+   },
+   "origin": ".prf",
+   "proofTree": {
+    "branch": "",
+    "name": "d_bot_TCC1",
+    "type": "root",
+    "rules": [
+     {
+      "branch": "",
+      "name": "(subtype-tcc)",
+      "type": "proof-command",
+      "rules": []
+     }
+    ]
+   }
+  }
+ ]
+}

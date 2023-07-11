@@ -1,0 +1,10 @@
+Proof summary for theory vital_signs_th
+
+	init_vs_panel_TCC1..............................................✅ proved              (0.748 s)
+	tick_vs_TCC1....................................................✅ proved              (1.474 s)
+	tick_vs_TCC2....................................................✅ proved              (1.433 s)
+	tick_vs_TCC3....................................................✅ proved              (1.417 s)
+	tick_vs_TCC4....................................................✅ proved              (1.474 s)
+	execute_vs_TCC1.................................................✅ proved              (1.433 s)
+
+Theory vital_signs_th totals: 6 formulas, 6 attempted, 6 succeeded (7.979 s)

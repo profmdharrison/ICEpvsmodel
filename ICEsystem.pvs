@@ -1,0 +1,1374 @@
+% Michael Harrison (Newcastle University) and Paolo Masci (US National Institute of Aerospace)
+% June 2020
+% New coordinator interface version and modified system updating
+system_th[maxrate: posnat, 
+          maxinfuse: posnat, 
+          maxtime: {maxtime: posnat | maxinfuse <= maxtime}]:
+THEORY
+  BEGIN
+   IMPORTING patient_th[maxrate, maxinfuse, maxtime]
+   IMPORTING coordinator_th[maxrate, maxinfuse, maxtime]
+   IMPORTING menu_th
+   %coord_menu: THEORY = menu_th[i_state]
+   %patient_menu: THEORY = menu_th[p_state]
+
+  
+   empty_num_pars: main_num_par = LAMBDA (d: device):
+                            empty_num_parameter 
+   empty_enum_pars: main_enum_par = LAMBDA (d: device):
+                            empty_enum_parameter 
+   empty_acts: main_act = LAMBDA (d: device): emptyset
+   %empty_panel: panel = empty_panel
+   patient_db_type: TYPE = [patient -> p_state]
+   %patient_mn_type: TYPE = [patient -> patient_menu.menu_type]
+   node_to_patient: TYPE = [node -> patient]
+   patient_to_device: TYPE = [# pat: patient, dev: device #]
+   nil_pd: patient_to_device =  (# pat := p_null, dev := nil_device #)
+   node_to_pd: TYPE = [node -> patient_to_device]
+   
+edit_none_menu: menu_set =
+      LAMBDA (m: menu): %(m = connect) OR 
+                        (m = select) OR (m = edit) OR
+                        (m = cursor_down) OR (m = cursor_up) OR 
+                        (m = enter) OR (m = escape)
+enter_options_menu: menu_set =
+      LAMBDA (m: menu): (m = device) OR (m = escape)
+device_entry_options_menu: menu_set =
+      LAMBDA (m: menu): (m = pump) OR (m = vs_device)
+edit_constraint_menu: menu_set =
+      LAMBDA (m: menu): (m = select) OR 
+                        %(m = ok) OR (m = quit) OR 
+                        (m = escape)
+edit_rule_menu: menu_set = 
+      LAMBDA (m: menu): (m = select) OR 
+                         %(m = ok) OR (m = quit) OR 
+                         (m= cursor_up) OR
+                        (m = cursor_down) OR (m = delete)
+edit_menu: menu_set = 
+       LAMBDA (m: menu): %(m = ok) OR 
+                         (m = select) OR %(m = quit) OR
+                         (m = escape)
+edit_options_menu: menu_set =
+       LAMBDA (m: menu): (m = top) OR (m = main) OR (m = device) OR (m = region) OR
+                         (m = constraint) OR (m = rule) OR (m = escape)
+enter_value_options: menu_set = 
+       LAMBDA (m: menu): (m = enum_value) OR (m = num_value) OR
+                         (m = escape)
+
+top_menu: menu_set =
+      LAMBDA (m: menu): (m = select) OR %(m = act) OR
+	            (m = cursor_up) OR (m = cursor_down) OR
+			      (m = escape)
+select_options_menu: menu_set =
+      LAMBDA (m: menu):
+	    (m = patient_id) OR (m = device) OR (m = action) OR (m = escape) OR
+       (m = display) OR (m = region) OR (m = escape)
+
+ 
+
+   state: TYPE =
+    [#  nde_state: n_state,
+        p_nodes: node_to_patient,
+        d_nodes: node_to_pd,
+        ps: patients_type,
+        %patient_nodes: nodes,
+        %patient_menus: patient_mn_type,
+        pdb: patient_db_type,
+        coord_st: i_state%,
+       % ms: m_state
+        %coord_menu: coord_menu.menu_type
+     %   comms_error: nw_error_type
+     #]
+
+  interface_st: TYPE =
+  [# ss: state,
+     ms: m_state
+  #] 
+
+   p_menu_type: TYPE = [menu -> [patient -> [interface_st -> interface_st]]]
+   c_menu_type: TYPE = [menu -> [interface_st -> interface_st]]
+
+update_coord_prev_entry(m: menu, xs: interface_st): interface_st =
+xs WITH [ms := 
+           xs`ms WITH [coord_mn := xs`ms`coord_mn
+                              WITH [previous_entry := m]]]
+
+update_patient_prev_entry(p: patient, m: menu, xs: interface_st): 
+ interface_st =
+xs WITH 
+  [ms  :=
+     xs`ms WITH [patient_mn := 
+           LAMBDA (p1: patient):
+                IF p1 = p THEN xs`ms`patient_mn(p)
+                              WITH [previous_entry := m] ELSE
+                              xs`ms`patient_mn(p1) ENDIF]]
+
+i_select(xs: interface_st): interface_st =
+xs WITH
+  [ms := c_change_menu(select_options_menu, xs`ms)]
+
+i_up_display(xs: interface_st): interface_st =
+LET is = xs`ss`coord_st,
+    xs1 = 
+     xs  WITH 
+        [ss := xs`ss WITH 
+          [coord_st :=
+              is WITH 
+                [disp_focus := 
+                 COND
+                  is`disp_focus = no_focus -> no_focus,
+                  is`disp_focus = top_focus -> no_focus,
+			            is`disp_focus = patient_focus -> top_focus,
+			            is`disp_focus = device_focus -> patient_focus
+		       ENDCOND]]] IN 
+xs1 WITH
+  [ms := c_change_menu(top_menu, xs`ms)]
+
+
+i_down_display(xs: interface_st): interface_st =
+LET is = xs`ss`coord_st,
+    xs1 = 
+    xs WITH [ss := 
+         xs`ss WITH [coord_st :=
+        is WITH [disp_focus := 
+                COND
+                 is`disp_focus = no_focus -> top_focus,
+                 is`disp_focus = top_focus -> patient_focus,
+			           is`disp_focus = patient_focus -> device_focus,
+			           is`disp_focus = device_focus -> no_focus
+		       ENDCOND
+	  ]]] IN 
+xs1 WITH
+  [ms := c_change_menu(top_menu, xs`ms)]
+
+i_select_display(xs: interface_st): interface_st =
+LET is = xs`ss`coord_st, xs1 = xs WITH [ss := xs`ss WITH
+[coord_st := 
+COND
+   is`disp_focus = top_focus -> i_select_top(is),
+   is`disp_focus = patient_focus -> i_select_p_mode(is),
+   is`disp_focus = device_focus -> i_select_d_mode(is),
+   ELSE -> is
+ ENDCOND ] ] IN xs1 
+ WITH [ms := c_change_menu(top_menu, xs`ms)]
+
+ i_select_patient(xs: interface_st): interface_st =
+LET is = xs`ss`coord_st, p = (is`entry_window)`ent_patient, 
+xs1 = xs WITH [ss := 
+IF (disp_top(is)`patients)(p)
+THEN
+xs`ss WITH
+[coord_st := is WITH
+  [disp_top :=
+       disp_top(is) WITH
+         [ selected_patient := p]]] ELSE
+xs`ss ENDIF] IN xs1 
+WITH [ms := c_change_menu(top_menu, xs`ms)]
+
+i_select_device(xs: interface_st): interface_st =
+LET is = xs`ss`coord_st, d = (is`entry_window)`ent_device IN
+IF ((is`mode = d_mode) OR (is`mode = p_mode)) AND
+   ((is`disp_patient)`devices(d) /= no_device)
+THEN  
+   xs WITH
+     [ss := xs`ss
+       WITH 
+       [coord_st := 
+       is WITH
+       [  disp_patient :=
+               disp_patient(is) WITH
+	       [selected_device := d]]],
+      ms := c_change_menu(top_menu, xs`ms)]
+ELSE xs ENDIF
+
+
+ex_a(a: action_id, p: patient, d: device, st: state): state =
+LET ps = (st`pdb)(p), is = st`coord_st,
+    m_nd = IF ((is`coord_db)(p)`p_devices(d) = vital_signs_device)
+             THEN (ps`vital_signs)`nde ELSE ((ps`ip_state)(d))`nde ENDIF,
+    amsg = (# mhdr := actmsg,
+              pat_nd := ps`nde,
+              msg_nd := m_nd,
+              act := a
+            #)
+IN 
+st WITH 
+   [nde_state := act_send(coord_node, ps`nde, amsg, nde_state(st))]
+
+execute_patient_device(a: action_id, p: patient, d: device, st: state): state =
+LET is = coord_st(st) IN
+COND
+ ((mode(is) = p_mode) OR (mode(is) = d_mode)) AND
+ (is`disp_focus = patient_focus) AND
+ (p = (is`disp_patient)`current_patient) AND
+ (is`disp_patient)`av_main_act(d)(a)
+     -> ex_a(a, p, d, st),
+ (mode(is) = d_mode) AND 
+ (is`disp_focus = device_focus) AND
+ (d = (is`disp_device)`current_device) AND
+ (p = (is`disp_patient)`current_patient) AND
+ (is`disp_device)`av_c_disp(a)
+     -> ex_a(a, p, d, st),
+ ELSE -> st WITH
+         [nde_state := nde_state(st) WITH
+	   [nw_error := (# nsource := nde(st`pdb(p)), ndest := nde(st`coord_st),
+                           chan_error := spurious_action  #)]]
+ENDCOND
+
+c_act_mono(st: state): state =
+LET is = st`coord_st, p = (is`disp_patient)`current_patient,
+    d = IF (is`disp_focus = patient_focus) THEN (is`disp_patient)`selected_device
+        ELSE (is`disp_device)`current_device ENDIF,
+    a = IF (is`disp_focus = patient_focus) THEN (is`disp_patient)`selected_action
+        ELSE (is`disp_device)`selected_action ENDIF,
+    st1 = st WITH
+      [coord_st :=
+        IF  (is`disp_focus = patient_focus) THEN
+	  is WITH [ 
+	            disp_patient :=
+	              is`disp_patient
+		         WITH [selected_device := nil_device,
+			             selected_action := nil_action]]
+	ELSE
+          is WITH [ 
+	      disp_device
+	          := is`disp_device
+		        WITH [selected_action := nil_action]] ENDIF] IN
+execute_patient_device(a, p, d, st1)
+
+coord_act_mono(st: state): state =
+LET is = st`coord_st, st1 = 
+IF (is`disp_focus = patient_focus) THEN
+ st WITH [coord_st :=
+           is WITH
+	    [disp_patient :=
+	      is`disp_patient WITH
+	        [selected_action := (is`entry_window)`ent_action]]]
+ ELSE st WITH [coord_st :=
+           is WITH
+	    [disp_device :=
+	      is`disp_device WITH
+	        [selected_action := (is`entry_window)`ent_action]]] ENDIF
+IN c_act_mono(st1) 
+
+i_select_action(xs: interface_st): interface_st =
+
+xs WITH
+[ss := coord_act_mono(xs`ss),
+ ms := c_change_menu(top_menu, xs`ms)]
+
+i_escape(xs: interface_st): interface_st =
+xs WITH
+[ms := c_change_menu(xs`ms`coord_mn`prev_menu, xs`ms) ]
+
+coord_menu(m: menu, xs: interface_st): interface_st =
+LET xs1 = COND
+         m = select -> i_select(xs),
+         m = cursor_up -> i_up_display(xs),
+         m = cursor_down -> i_down_display(xs),
+         m = display -> i_select_display(xs),
+         m = patient_id -> i_select_patient(xs),
+         m = device -> i_select_device(xs),
+         m = action -> i_select_action(xs),
+         m = escape -> i_escape(xs),
+         ELSE -> i_escape(xs)
+        ENDCOND  IN update_coord_prev_entry(m, xs1)
+
+mapping_to_ps(pf: [p_state -> p_state], p: patient, xs: interface_st): 
+     interface_st =
+IF p /= p_null THEN
+LET ps = xs`ss`pdb(p) IN
+     xs WITH [ss := xs`ss WITH
+	 [pdb := LAMBDA (p1: patient):
+	         IF p1 = p THEN pf(ps)
+	           ELSE xs`ss`pdb(p1) ENDIF]]
+ELSE xs ENDIF
+
+p_escape(p: patient, xs: interface_st): interface_st =
+xs WITH [ms := p_change_menu(xs`ms`patient_mn(p)`prev_menu, p, xs`ms)]
+
+p_edit(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+COND per_p_edit(ps) ->
+      LET xs1 = xs WITH 
+        [ms := xs`ms WITH
+               [patient_mn := LAMBDA (p1: patient): 
+                    IF p1 =p THEN xs`ms`patient_mn(p)
+                          WITH [prev_menu := 
+                          xs`ms`patient_mn(p)`visible_menu] ELSE
+                          xs`ms`patient_mn(p1) ENDIF]]
+  IN xs1 WITH [ms := p_change_menu(edit_options_menu, p, xs`ms)],
+(ps`pmode = d_mode) AND (ps`emode = edit_rule) ->
+      LET xs1 = xs WITH 
+        [ms := xs`ms WITH
+               [patient_mn := LAMBDA (p1: patient): 
+                    IF p1 =p THEN xs`ms`patient_mn(p)
+                          WITH [prev_menu := 
+                          xs`ms`patient_mn(p)`visible_menu] ELSE
+                          xs`ms`patient_mn(p1) ENDIF]]
+  IN xs1 WITH [ms := p_change_menu(LAMBDA (m: menu):
+               (m = constraint) OR (m = escape), p, xs`ms)],
+        
+      ELSE -> p_escape(p, xs)  ENDCOND   % have I dealt with all possible edits?
+
+
+
+p_cursor_move(p: patient, xs: interface_st): interface_st =
+xs WITH [ms := p_change_menu(LAMBDA (m: menu): (m = constraint) OR 
+                      (m = region) OR (m = escape), p, xs`ms)]
+p_edit_constraint(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+   IF (ps`pmode = d_mode) AND ((ps`emode = edit_none) OR (ps`emode = edit_rule))
+   THEN xs WITH [ms := p_change_menu(LAMBDA (m: menu): (m = constraint) OR 
+                      (m = region) OR (m = escape), p, xs`ms),
+                 ss := 
+                 xs`ss WITH 
+                    [pdb := LAMBDA (p1: patient):
+                          IF p1 = p THEN
+                          xs`ss`pdb(p) WITH [emode := edit_constraint] 
+                          ELSE xs`ss`pdb(p1) ENDIF]]
+  ELSE xs ENDIF
+  
+
+p_constraint(p: patient, xs: interface_st): interface_st =
+LET pm = xs`ms`patient_mn(p) IN
+COND
+ pm`previous_entry = edit ->
+        p_edit_constraint(p, xs),
+ pm`previous_entry = cursor_up -> 
+        mapping_to_ps(p_scroll_up_rule, p, xs) WITH
+        [ms := p_change_menu(pm`prev_menu, p, xs`ms)],
+ pm`previous_entry = cursor_down ->
+        mapping_to_ps(p_scroll_down_rule, p, xs) WITH
+         [ms := p_change_menu(pm`prev_menu, p, xs`ms)],
+ ELSE -> p_escape(p, xs)    
+ENDCOND
+
+p_delete_rule(p: patient, xs: interface_st): interface_st =
+mapping_to_ps(p_delete_rule, p, xs)
+                  
+p_clear(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+IF (ps`emode = edit_rule) THEN
+xs WITH [ms := p_change_menu(enter_value_options, p, xs`ms)]
+ELSE xs ENDIF
+
+p_select(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+COND
+ ps`emode = edit_none ->
+ xs WITH [ms := p_change_menu(LAMBDA (m: menu):
+                        (m = device) OR (m = escape) OR (m = display) OR 
+                        (m = device_filter) OR (m = region), 
+                        p, xs`ms)],
+ ps`emode = edit_top ->
+ xs WITH [ms := p_change_menu(LAMBDA (m: menu):
+                        (m = parameter) OR (m = escape), 
+                        p, xs`ms)],
+ (ps`emode = edit_patient) OR (ps`emode = edit_device) ->
+ xs WITH [ms := p_change_menu(LAMBDA (m: menu):
+                        (m = parameter) OR (m = action) OR (m = escape), 
+                        p, xs`ms)],
+  (ps`emode = edit_constraint) -> 	
+  xs WITH [ms := p_change_menu(LAMBDA (m: menu):
+                        (m = parameter) OR
+			(m = relation) OR (m = num_value)
+      OR (m = enum_value) OR (m = escape), 
+                        p, xs`ms)],		
+ (ps`emode = edit_rule) -> 		
+ xs WITH [ms := p_change_menu(LAMBDA (m: menu):
+                        (m = action) OR (m = escape)
+                        OR (m = device) OR (m = display) OR (m = escape) OR 
+                        (m = region), 
+                        p, xs`ms)],
+ELSE -> xs
+ENDCOND
+
+p_select_relation(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+IF (ps`emode = edit_constraint) AND 
+  ((ps`p_entry_window)`ent_rel /= no_rel) THEN
+  LET xs1 = xs WITH [ss := xs`ss WITH
+     [pdb := LAMBDA (p1: patient):
+     IF p1 = p THEN
+       ps WITH 
+   [ p_constraint_display := ps`p_constraint_display WITH
+          [ select_rel := (ps`p_entry_window)`ent_rel],
+     p_entry_window :=
+       empty_entry_window
+   ] ELSE xs`ss`pdb(p1) ENDIF]] IN
+   xs1 WITH [ms := p_change_menu(edit_constraint_menu, p, xs`ms)] 
+ELSE xs ENDIF
+
+patient_enter_relation(r: rel_op_type, p: patient, st: state): state =
+IF p /= p_null THEN
+LET ps = st`pdb(p),
+pan = p_disp_device(ps), par = (ps`p_constraint_display)`select_par,
+sr = COND enum_par(par) AND ((r = eq) OR (r = neq))
+		            -> r,
+          num_par(par) -> r,
+          ELSE -> eq
+	ENDCOND
+IN st WITH
+        [pdb := LAMBDA (p1: patient):
+           IF (p1 = p) THEN ps 
+           WITH [p_entry_window := 
+                 ps`p_entry_window 
+                  WITH [ent_rel := sr]]
+		 ELSE st`pdb(p1) ENDIF ]
+ELSE st ENDIF
+
+p_relation(p: patient, xs: interface_st): interface_st =
+COND
+  xs`ms`patient_mn(p)`previous_entry = select ->
+       p_select_relation(p, xs),
+  ELSE ->  xs
+ENDCOND
+ WITH [ms := p_change_menu(edit_constraint_menu, p, xs`ms)] 
+
+p_select_region(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+xs WITH 
+  [ss := xs`ss WITH
+    [pdb := LAMBDA (p1: patient):
+             IF p1 = p THEN p_select_disp_m(ps) ELSE
+               xs`ss`pdb(p1) ENDIF],
+     ms := p_change_menu(edit_none_menu, p, xs`ms)]
+
+p_edit_top(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+IF per_p_edit(ps) THEN
+xs WITH [ss:= xs`ss WITH
+    [pdb := LAMBDA (p1: patient):
+             IF p1 = p THEN 
+             ps WITH 
+             [emode := edit_top,
+              p_panel_display := init_panel_display]
+              ELSE
+               xs`ss`pdb(p1) ENDIF],
+     ms := p_change_menu(edit_menu, p, xs`ms)]
+ELSE xs ENDIF
+
+p_edit_main(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+IF per_p_edit(ps) THEN
+xs WITH [ ss :=  xs`ss WITH
+    [pdb := LAMBDA (p1: patient):
+             IF p1 = p THEN 
+             ps WITH 
+             [emode := edit_patient,
+              p_panel_display := init_panel_display]
+              ELSE
+               xs`ss`pdb(p1) ENDIF],
+     ms := p_change_menu(edit_menu, p, xs`ms)]
+ELSE xs ENDIF
+
+p_edit_device(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+IF per_p_edit(ps) THEN
+xs WITH [ss := xs`ss WITH
+    [pdb := LAMBDA (p1: patient):
+             IF p1 = p THEN 
+             ps WITH 
+             [emode := edit_device,
+              p_panel_display := init_panel_display]
+              ELSE
+               xs`ss`pdb(p1) ENDIF],
+     ms := p_change_menu(edit_menu, p, xs`ms)]
+ELSE xs ENDIF
+
+
+
+p_up_display(p: patient, xs: interface_st): interface_st =
+mapping_to_ps(p_up_display, p, xs)
+
+
+p_down_display(p: patient, xs: interface_st): interface_st =
+mapping_to_ps(p_down_display, p, xs)
+
+p_edit_region(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+  IF per_p_edit(ps)
+  THEN
+   COND ps`disp_focus = top_focus -> p_edit_top(p, xs),
+        ps`disp_focus = patient_focus -> p_edit_main(p, xs),
+	      ps`disp_focus = device_focus -> p_edit_device(p, xs),
+	ELSE -> xs
+   ENDCOND
+  ELSE xs ENDIF
+
+p_region(p: patient, xs: interface_st): interface_st =
+LET pm = xs`ms`patient_mn(p) IN
+  COND
+    pm`previous_entry = edit ->
+        p_edit_region(p, xs),
+    pm`previous_entry = select ->
+        p_select_region(p, xs),
+    pm`previous_entry = cursor_up ->
+        p_up_display(p, xs),
+    pm`previous_entry = cursor_down ->
+        p_down_display(p, xs),
+    ELSE -> p_escape(p, xs)
+  ENDCOND
+
+p_enum_value(p: patient, xs: interface_st): interface_st = 
+COND
+  xs`ms`patient_mn(p)`previous_entry = select ->
+       mapping_to_ps(p_select_enum_value, p, xs),
+  xs`ms`patient_mn(p)`previous_entry = clear ->
+       mapping_to_ps(p_clear_enum_value, p, xs),
+  ELSE ->  xs
+ENDCOND
+ WITH [ms := p_change_menu(edit_constraint_menu, p, xs`ms)] 
+
+p_num_value(p: patient, xs: interface_st): interface_st =
+COND
+  xs`ms`patient_mn(p)`previous_entry = select ->
+       mapping_to_ps(p_select_num_value, p, xs),
+  xs`ms`patient_mn(p)`previous_entry = clear ->
+       mapping_to_ps(p_clear_num_value, p, xs),
+  ELSE -> xs
+ENDCOND
+ WITH [ms := p_change_menu(edit_constraint_menu, p, xs`ms)]
+
+
+
+p_select_display_mode(p: patient, xs: interface_st): interface_st =
+mapping_to_ps(p_select_d_mode, p, xs) WITH
+[ms := p_change_menu(edit_none_menu, p, xs`ms)  ]  
+
+p_select_display_filter_mode(p: patient, xs: interface_st): interface_st =
+mapping_to_ps(p_select_dc_mode, p, xs) WITH
+[ ms := p_change_menu(edit_none_menu, p, xs`ms)  ] 
+
+p_device_entry(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+IF ps`p_disp_top`devs((ps`p_entry_window)`ent_name) /= no_device THEN
+xs WITH [ms := p_change_menu(edit_none_menu, p, xs`ms)] ELSE
+LET ps1 = ps
+WITH [p_entry_window :=
+    ps`p_entry_window
+      WITH [ent_device := (# dv := (ps`p_entry_window)`ent_name,
+                           dt := no_device #)]] IN
+xs WITH
+[ss := xs`ss WITH
+[ pdb := LAMBDA (p1: patient): 
+        IF p1 = p THEN ps1 ELSE xs`ss`pdb(p1) ENDIF],
+  ms := p_change_menu(LAMBDA (m: menu):
+                     (m = pump) OR (m = vs_device), p, xs`ms)
+]
+ENDIF
+
+
+p_device(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p), pm = xs`ms`patient_mn(p) IN
+IF ((ps`emode = edit_none) OR 
+    (ps`emode = edit_rule)) THEN
+    COND   
+      (pm`previous_entry = select) -> 
+         p_select_display_mode(p, xs),
+      pm`previous_entry = enter ->
+			   p_device_entry(p, xs),
+			pm`previous_entry = edit ->
+			   p_edit_device(p, xs),
+		    ELSE -> p_escape(p, xs)
+       ENDCOND
+ELSE p_escape(p, xs) ENDIF
+
+p_device_filter(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+IF (ps`emode = edit_none) AND
+     (xs`ms`patient_mn(p)`previous_entry = select)
+THEN p_select_display_filter_mode(p, xs)
+ELSE p_escape(p, xs)
+ENDIF
+
+p_enter(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+IF ps`emode = edit_none THEN
+xs WITH [ms := p_change_menu(LAMBDA (m: menu): (m = device) OR
+           (m = escape), p, xs`ms)]
+ELSE xs ENDIF
+
+p_complete_device_p(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+xs WITH [
+  ss := xs`ss WITH
+  [pdb := LAMBDA(p1: patient):
+    IF p1 = p THEN
+      p_complete_device(infusion_pump, ps) ELSE
+      xs`ss`pdb(p1) ENDIF],
+    ms := p_change_menu(edit_none_menu, p, xs`ms)]
+
+p_complete_device_vs(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+xs WITH [ 
+  ss := xs`ss WITH
+  [pdb := LAMBDA(p1: patient):
+    IF p1 = p THEN
+      p_complete_device(vital_signs_device, ps) ELSE
+      xs`ss`pdb(p1) ENDIF],
+   ms := p_change_menu(edit_none_menu, p, xs`ms)]
+
+% in the case of constraints assumes only one parameter for each relation
+% checks that the parameter is defined for the device - note not necessarily a subset of the
+% the next level down
+p_select_par(p: patient, xs: interface_st): interface_st =
+LET ps = xs`ss`pdb(p) IN
+IF (ps`p_disp_device)`pars((ps`p_entry_window)`ent_par) THEN
+   COND
+      per_p_select(ps) ->
+          xs WITH 
+           [ss := xs`ss WITH
+             [pdb := LAMBDA (p1: patient):
+                     IF p1 =p THEN
+                    ps WITH [p_panel_display :=
+	      ps`p_panel_display WITH
+           [select_pars :=  add((ps`p_entry_window)`ent_par, (ps`p_panel_display)`select_pars)]
+           ] ELSE xs`ss`pdb(p1) ENDIF],
+        ms := p_change_menu(edit_menu, p, xs`ms)],
+      per_e_select(ps) ->
+       xs WITH
+       [ss := xs`ss WITH
+             [pdb := LAMBDA (p1: patient):
+                     IF p1 =p THEN
+                    ps WITH [p_constraint_display :=  
+               ps`p_constraint_display
+               WITH [select_par := 
+                (ps`p_entry_window)`ent_par]] ELSE xs`ss`pdb(p1) ENDIF],
+                ms := p_change_menu(edit_constraint_menu, p, xs`ms)],
+      ELSE -> xs
+    ENDCOND
+ ELSE xs ENDIF
+
+ act_patient_quit(p: patient, xs: interface_st): interface_st =
+ LET ps = xs`ss`pdb(p) IN
+IF (((ps`p_disp_top)`sel_device)`dv /= nil_device) THEN
+COND
+  (ps`emode = edit_top) OR (ps`emode = edit_device) OR
+  (ps`emode = edit_patient) ->
+      mapping_to_ps(p_quit_patient, p, xs) WITH
+       [ms := p_change_menu(edit_none_menu, p, xs`ms)
+            ],
+  (ps`emode = edit_constraint)  ->
+    mapping_to_ps(p_quit_constraint, p, xs) WITH
+       [ms := p_change_menu(edit_rule_menu, p, xs`ms)],
+  (ps`emode = edit_rule)  ->
+      mapping_to_ps(p_quit_rule, p, xs) WITH
+       [ms := p_change_menu(edit_none_menu, p, xs`ms)],
+  ELSE -> xs
+ENDCOND  
+ELSE xs ENDIF
+
+patient_act_mono(p: patient, st: state): state =
+LET ps = st`pdb(p), a = (ps`p_entry_window)`ent_act,
+    d = ((ps`p_disp_top)`sel_device)`dv
+     IN
+IF (ps`emode = edit_none) AND (a /= nil_action) AND (d /= nil_device)
+THEN
+LET m_nd = IF ((ps`p_disp_top)`devs(d) = vital_signs_device) 
+           THEN (ps`vital_signs)`nde ELSE ((ps`ip_state)(d))`nde ENDIF,
+    amsg = (# mhdr := actmsg, pat_nd := ps`nde, msg_nd := m_nd, act := a #)
+IN
+IF (ps`pmode = d_mode) OR 
+    ((ps`pmode = p_mode) AND (ps`p_disp_main`p_actions(d))(a))
+   THEN st WITH 
+     [nde_state := act_send(ps`nde, m_nd, amsg, nde_state(st)) ]
+ ELSE st ENDIF
+ELSE st ENDIF
+
+p_select_a(p: patient, xs: interface_st): interface_st =
+  LET ps = xs`ss`pdb(p), a = (ps`p_entry_window)`ent_act IN
+   IF (ps`p_disp_device)`cmds(a) THEN
+   COND
+     per_a_select(ps) ->
+        xs WITH
+         [ms := p_change_menu(edit_none_menu, p, xs`ms),
+         ss := patient_act_mono(p, xs`ss)],          
+     per_a_d_r_select(ps) ->
+        xs WITH 
+        [ms := p_change_menu(edit_menu, p, xs`ms),
+         ss := xs`ss WITH
+           [  pdb := LAMBDA (p1: patient):
+           IF p1 = p THEN
+	           xs`ss`pdb(p) WITH [ p_panel_display :=
+	             ps`p_panel_display WITH
+	            [select_acts := add(a, (ps`p_panel_display)`select_acts)]]
+              ELSE xs`ss`pdb(p1) ENDIF]],
+     per_a_rule_select(ps) ->
+        xs WITH
+        [ms := p_change_menu(edit_rule_menu, p, xs`ms),
+         ss := xs`ss WITH
+         [pdb := LAMBDA (p1: patient):
+           IF p1 = p THEN
+           xs`ss`pdb(p) WITH
+               [p_rules_display := ps`p_rules_display
+	                          WITH [select_act := a]] ELSE
+           xs`ss`pdb(p1) ENDIF]],
+   ELSE -> xs
+   ENDCOND
+   ELSE xs ENDIF
+
+
+patient_menu(m: menu, p: patient, xs: interface_st): interface_st = 
+      LET xs1 = 
+         COND
+           m = escape -> p_escape(p, xs),
+           m = cursor_up -> p_cursor_move(p, xs),
+           m = cursor_down -> p_cursor_move(p, xs),
+           m = constraint -> p_constraint(p, xs),
+           m = delete -> p_delete_rule(p, xs),
+           m = clear -> p_clear(p, xs),
+           m = select -> p_select(p, xs),
+           m = parameter -> p_select_par(p, xs),
+           m = relation -> p_select_relation(p, xs),
+           m = action -> p_select_a(p, xs),
+           m = display -> p_select_region(p, xs),
+           m = enum_value -> p_enum_value(p, xs),
+           m = num_value -> p_num_value(p, xs),
+           m = edit -> p_edit(p, xs),
+           m = top -> p_edit_top(p, xs),
+           m = main -> p_edit_main(p, xs),
+           m = region -> p_region(p, xs),
+           m = device -> p_device(p, xs),
+           m = device_filter -> p_device_filter(p, xs),
+           m = enter -> p_enter(p, xs),
+           m = pump -> p_complete_device_p(p, xs),
+           m = vs_device -> p_complete_device_vs(p, xs),
+           ELSE -> p_escape(p, xs)
+         ENDCOND IN update_patient_prev_entry(p, m, xs1)
+
+ init_state: state =
+   (# nde_state := init_n_state,
+      p_nodes := LAMBDA (n: node): p_null,
+      d_nodes := LAMBDA (n: node): nil_pd,                      
+      ps := emptyset,
+      %patient_nodes := emptyset,
+      pdb := LAMBDA (p: patient): init_p_state,
+     % patient_menus := init_patient_menu,
+      coord_st := init_i_state
+     % ms := init_m_state
+     % coord_menu := init_coord_menu
+      % comms_error := not_connected
+    #)
+
+init(x: real): state = init_state
+
+ initialise_pdb(st: state): state = 
+       st WITH
+       [ pdb := LAMBDA (p: patient): init_p_state ]
+
+  init_xstate: interface_st =
+  (# ss := init_state,
+     ms := init_m_state
+   #)  
+
+
+
+
+
+mapping_to_is(cf: [i_state -> i_state], xs: interface_st): interface_st =
+xs  WITH [ss := xs`ss WITH
+        [coord_st := cf(xs`ss`coord_st)]]
+
+
+act_error(st: state): state =
+LET ns = nde_state(st),
+    ne = ns`nw_error, n1 = ne`nsource, n2 = ne`ndest
+
+IN COND
+     n1 = coord_node -> 
+         st WITH [coord_st :=
+          update_patient_alarm_disp(st`p_nodes(n2),
+	         ne`chan_error, st`coord_st)],
+     n1 /= coord_node AND st`p_nodes(n1) /= p_null AND n2 = coord_node ->
+          st WITH [coord_st :=
+          update_patient_alarm_disp(st`p_nodes(n1),
+	         ne`chan_error, st`coord_st)],
+     n1 /= coord_node AND st`p_nodes(n1) /= p_null AND n2 /= coord_node ->
+          st WITH [coord_st :=
+          update_patient_alarm_disp(st`p_nodes(n1),
+	         ne`chan_error, st`coord_st)],
+     n1 /= coord_node AND st`p_nodes(n1) = p_null AND st`p_nodes(n2) /= p_null ->
+           st WITH [coord_st :=
+          update_patient_device_alarm_disp(st`p_nodes(n2),
+	               st`d_nodes(n2)`dev,
+	        ne`chan_error, st`coord_st)],
+     n1 /= coord_node AND st`p_nodes(n1) = p_null AND st`p_nodes(n2) = p_null ->
+     st WITH [coord_st :=
+           update_patient_device_alarm_disp(p_null, nil_device,
+	        spurious_action, st`coord_st)]
+ENDCOND
+
+				      
+% establishes node for patient and connects to coordinator
+connect_to_coordinator(p: patient, xs: interface_st): interface_st =
+   LET st = xs`ss, ns = nde_state(st), cnde = current_node(ns) IN
+   IF (p /= p_null) AND ((st`pdb(p))`id = p_null) THEN
+   LET st1 = st WITH
+     [
+     nde_state := update_n_graph(cnde, nde(st`coord_st), ns),
+     p_nodes := LAMBDA (n: node): IF n = cnde THEN p ELSE st`p_nodes(n) ENDIF,
+     ps := LAMBDA (p1: patient): (p1 = p) OR st`ps(p1),
+     %patient_nodes := LAMBDA (n: node): st`patient_nodes(n) OR (n = cnde),
+     coord_st := include_patient(p, coord_st(st)),
+     pdb := LAMBDA (p1: patient):
+               IF p = p1 THEN st`pdb(p) WITH
+	       [id := p, nde := cnde,
+	        pmode := top%,
+		     % prev_menu_entry := no_action
+          ]
+               ELSE st`pdb(p1) ENDIF ] IN
+    xs WITH 
+       [ss := st1 WITH
+             [coord_st :=
+        update_patient_alarm_disp(p, clear, coord_st(st1))],
+        ms := xs`ms WITH
+               [patient_mn := LAMBDA (p1: patient):
+                      IF p = p1 THEN 
+                        xs`ms`patient_mn(p) WITH [previous_entry := no_action] ELSE
+                         xs`ms`patient_mn(p1) ENDIF]]
+    ELSE xs WITH
+        [ss := st WITH
+         [nde_state := ns WITH [nw_error := (# nsource := cnde, ndest := nde(st`coord_st),
+                                 chan_error := spurious_action  #)],
+	  coord_st := update_patient_alarm_disp(p, spurious_action, coord_st(st))]]
+    ENDIF
+     
+
+% creates node for device and connects it to the patient
+% note this assumes that the coordinator is required to connect patient to
+% devices
+connect_device_to_patient(p: patient, d: device, dt: device_type,
+                          xs: interface_st): interface_st =
+LET ns = xs`ss`nde_state,
+   cnde = current_node(ns) IN
+ IF xs`ss`ps(p) AND (d /= nil_device) THEN
+   LET devst = (ip_state(xs`ss`pdb(p)))(d), 
+   xs1 = xs WITH 
+       [ss := xs`ss WITH
+     [
+     nde_state := update_n_graph(cnde, nde(xs`ss`pdb(p)), ns),
+     d_nodes := LAMBDA (n: node): IF n = cnde THEN
+                   (# pat := p, dev := d #)
+                    ELSE xs`ss`d_nodes(n) ENDIF,
+     coord_st := c_d_t_patient(p, d, dt, coord_st(xs`ss)),
+     pdb := LAMBDA (p1: patient):
+               IF p = p1 THEN add_nde_patient_device(cnde, d, dt, xs`ss`pdb(p))
+               ELSE xs`ss`pdb(p1) ENDIF]] IN
+     xs1 WITH 
+     [ss := xs1`ss WITH
+     [coord_st := update_patient_device_alarm_disp(p, d, (nde_state(xs1`ss)`nw_error)`chan_error,
+                                                        coord_st(xs1`ss))],
+      ms := p_change_menu(edit_none_menu, p, xs`ms)]
+     ELSE xs WITH 
+       [ss := xs`ss WITH
+         [nde_state := ns WITH [nw_error := (# nsource := cnde, ndest := nde(xs`ss`coord_st),
+                                 chan_error := not_connected  #)],
+          coord_st := update_patient_device_alarm_disp(p, d, not_connected, xs`ss`coord_st)],
+          ms := p_change_menu(xs`ms`patient_mn(p)`prev_menu, p, xs`ms)]
+     ENDIF
+  
+
+connect_new_element(p: patient, xs: interface_st): interface_st =
+
+LET ps = xs`ss`pdb(p) IN
+IF ps`emode = edit_none THEN
+LET xs =
+  IF (ps`id /= p_null) AND 
+       (((ps`p_entry_window)`ent_device)`dt /= no_device) THEN
+        connect_device_to_patient(p, ((ps`p_entry_window)`ent_device)`dv,
+                  ((ps`p_entry_window)`ent_device)`dt, xs)
+  ELSE connect_to_coordinator(p, xs) ENDIF IN
+  xs WITH [ms := p_change_menu(edit_none_menu, p, xs`ms)]
+ ELSE xs ENDIF
+
+
+%extract_panel(d: device, ps:p_state): panel =
+%IF ((ps`p_disp_top)`devs(d) = vital_signs_device)
+%THEN (ps`vital_signs)`pan ELSE (ps`ip_state)(d)`pan ENDIF
+
+
+patient_select_mode(m: patient_mode_type, p: patient, st:state): state =
+LET ps = st`pdb(p) IN
+st WITH
+[pdb := LAMBDA (p1: patient):
+       IF p1 = p THEN
+       COND
+        m = d_mode -> p_select_d_mode(ps),
+        m = dc_mode -> p_select_dc_mode(ps),
+        ELSE -> p_select_top(ps) ENDCOND
+      ELSE st`pdb(p1) ENDIF ]
+
+act_patient_ok(p: patient, xs: interface_st): interface_st =
+
+IF (p /= p_null) AND 
+((((xs`ss`pdb(p))`p_disp_top)`sel_device)`dv /= nil_device) THEN
+LET ps = xs`ss`pdb(p), d = ((ps`p_disp_top)`sel_device)`dv,
+    pa = filter_panel(ps`patient_panels(d),
+		       p_panel_display(ps)`select_pars, p_panel_display(ps)`select_acts),
+    pn = nde(ps) IN
+COND
+  ps`emode = edit_device ->
+      LET msg = (# mhdr := pmmsg,
+             pat_nd := pn,
+             msg_nd := IF ((ps`p_disp_top)`devs(d) = vital_signs_device)
+                     THEN (ps`vital_signs)`nde ELSE (ps`ip_state)(d)`nde ENDIF,
+             pan := pa 
+           #)
+	  IN
+       xs WITH [
+        ss := xs`ss WITH
+         [pdb := LAMBDA (p1: patient):
+	           IF p1 = p THEN setup_device_panel(d, pa, ps)
+		   ELSE xs`ss`pdb(p1) ENDIF,
+	   nde_state := send_coord(pn, msg, xs`ss`nde_state) ]],
+  ps`emode = edit_patient ->
+      LET msg = (# mhdr := mmmsg,
+             pat_nd := pn,
+             msg_nd := IF ((ps`p_disp_top)`devs(d) = vital_signs_device)
+                     THEN (ps`vital_signs)`nde ELSE (ps`ip_state)(d)`nde ENDIF,
+             pan := pa 
+           #)
+       IN
+       xs WITH
+       [ ss := xs`ss WITH
+         [pdb := LAMBDA (p1: patient):
+	           IF p1 = p THEN setup_main_panel(d, pa, ps)
+		   ELSE xs`ss`pdb(p1) ENDIF,
+	   nde_state := send_coord(pn, msg, xs`ss`nde_state) ]],
+  ps`emode = edit_top ->
+      LET msg = (# mhdr := tmmsg,
+             pat_nd := pn,
+             msg_nd := IF ((ps`p_disp_top)`devs(d) = vital_signs_device)
+                     THEN (ps`vital_signs)`nde ELSE (ps`ip_state)(d)`nde ENDIF,
+             pan := pa 
+           #)
+       IN
+       xs WITH
+       [ss := xs`ss WITH
+         [pdb := LAMBDA (p1: patient):
+	           IF p1 = p THEN setup_top_panel(d, pa, ps)
+		   ELSE xs`ss`pdb(p1) ENDIF,
+	   nde_state := send_coord(pn, msg, xs`ss`nde_state) ]],
+   (ps`emode = edit_constraint) ->
+     mapping_to_ps(p_ok_constraint, p, xs) WITH
+              [ms := p_change_menu(edit_rule_menu, p, xs`ms)],
+  (ps`emode = edit_rule) ->
+      mapping_to_ps(p_ok_rule, p, xs) WITH
+               [ms := p_change_menu(edit_none_menu, p, xs`ms)],
+  ELSE -> xs
+ENDCOND
+
+ELSE xs ENDIF
+
+
+next_act_patient(p: patient, st: state): state =
+LET pn = nde(st`pdb(p)), ns = next_act_pm(pn, nde_state(st)),
+    mg = ns`current_act_msg, mt = mg`mhdr, a = mg`act,
+    d = mg`msg_nd,
+    st1 = st WITH [nde_state := ns] IN
+   IF mt = actmsg THEN st1 WITH [nde_state := act_send(pn, d, mg, nde_state(st1))]
+      ELSE st
+    ENDIF
+
+next_pan_patient(p: patient, st: state): state =
+LET pn = nde(st`pdb(p)), ns = next_pan_pm(pn, nde_state(st)),
+    mg = ns`current_pan_msg, mt = mg`mhdr, pa = mg`pan,
+    d = mg`msg_nd IN
+    IF
+      ((mt = pmmsg) OR (mt = mmmsg) OR (mt = updmsg)) THEN 
+                    st WITH [nde_state := pan_send(pn, coord_node, mg, ns)]
+      ELSE  st WITH [nde_state := ns]
+    ENDIF
+
+tick_pan_coordinator(st: state): state =
+ LET ns = nde_state(st),
+      mg = next_cm(ns)`current_pan_msg,
+      mt = mg`mhdr,
+      p = st`p_nodes(mg`pat_nd),
+      d = (st`d_nodes(mg`msg_nd))`dev,
+      pa = mg`pan IN
+      st WITH
+   [nde_state := next_cm(ns),
+    coord_st :=
+      COND
+        mt = tmmsg -> setup_p_t_panel(p, d, pa, st`coord_st),
+        mt = pmmsg -> setup_p_d_panel(p, d, pa, st`coord_st),
+        mt = mmmsg -> setup_p_m_panel(p, d, pa, st`coord_st),
+        mt = updmsg -> update_p_panel(p, d, pa, st`coord_st),
+        ELSE -> update_patient_alarm_disp(p, no_msg, st`coord_st)
+      ENDCOND]
+
+update_alarm_disp(p: patient, d: device, a: action_id, is: i_state): i_state =
+is WITH [disp_alarm := disp_alarm(is) WITH [ constraint_alarms :=
+                                              LAMBDA (p1: patient):
+					      IF p = p1 THEN (# dev := d, act := a #)
+					      ELSE (disp_alarm(is)`constraint_alarms)(p1)
+                ENDIF ] ]
+                
+
+
+tick_act_coordinator(st: state): state =
+  LET ns1 = next_act_pm(coord_node, st`nde_state),
+      mg1 = ns1`current_act_msg,
+      mt1 = mg1`mhdr
+      IN 
+      IF mt1 /= nomsg THEN
+      LET p1 = st`p_nodes(mg1`pat_nd),
+          d1 = (st`d_nodes(mg1`msg_nd))`dev,
+          a = mg1`act IN
+      st WITH
+         [nde_state := ns1,
+         coord_st := update_alarm_disp(p1, d1, a, st`coord_st)]
+       ELSE st ENDIF
+
+
+send_device_patient(d: device, p: patient, msg: pan_message_type, st: state): state =
+LET ps = (st`pdb)(p), ds = (ps`ip_state)(d), n1 = nde(ds), n2 = nde(ps), 
+    msg1 = msg WITH [msg_nd := n1] IN
+st WITH
+[nde_state := pan_send(n1, n2, msg1, nde_state(st))]
+
+
+
+update_pars(pa1: panel, pa2: panel): panel =
+pa2 WITH
+   [enum_disp :=
+         LAMBDA (pr: par):
+           IF enum_par(pr) THEN
+              IF pa2`enum_disp(pr) /= xnilval THEN pa1`enum_disp(pr)
+              ELSE xnilval ENDIF ELSE xnovalue ENDIF,
+    num_disp :=
+         LAMBDA (pr: par):
+             IF num_par(pr) THEN
+              IF pa2`num_disp(pr) /= null_value THEN pa1`num_disp(pr)
+              ELSE null_value ENDIF ELSE no_num ENDIF,
+    cmds := LAMBDA (a: action_id): pa1`cmds(a) AND pa2`cmds(a)
+    ]
+
+%trim_msg(d: device, msg: pan_message_type, ps: p_state): panel =
+%LET pat_pa = ps`patient_panels(d), pa = msg`pan
+%IN update_pars(pa, pat_pa)
+
+update_t_panel(p: patient, d: device, pa: panel, pb: patient_db_type): patient_db_type =
+LET ps =  pb(p) IN
+ %   ps = update_top_panel(d, pa, ps),
+ %   ps = update_main_panel(d, pa, ps),
+ %   ps = update_device_panel(d, pa, ps) IN
+   LAMBDA (p1: patient):
+         IF p1 = p THEN ps WITH
+	   [p_disp_top :=
+         p_disp_top(ps) WITH
+          [ disp_enum_params :=
+              update_enum_pars(pa, d, p_disp_top(ps)`disp_enum_params),
+            disp_num_params :=
+              update_num_pars(pa, d, p_disp_top(ps)`disp_num_params)],
+      p_disp_main :=
+          p_disp_main(ps) WITH
+            [ disp_enum_params :=
+              update_enum_pars(pa, d, p_disp_main(ps)`disp_enum_params),
+              disp_num_params :=
+              update_num_pars(pa, d, p_disp_main(ps)`disp_num_params),
+              p_actions := update_p_actions(pa, d, p_disp_main(ps)`p_actions) ],
+      p_disp_device := COND 
+                          (ps`pmode = d_mode) AND 
+                          (((ps`p_disp_top)`sel_device)`dv = d)
+                       -> pa,
+                           (ps`pmode = dc_mode) AND 
+                          (((ps`p_disp_top)`sel_device)`dv = d)
+                       -> filter_panel(pa, ps`filter_device_panels(d)`pars, 
+                                     ps`filter_device_panels(d)`cmds),
+                           ELSE -> ps`p_disp_device 
+                       ENDCOND, 
+      patient_panels := 
+               LAMBDA (d1: device):
+                  IF d = d1
+                  THEN pa 
+		  ELSE ps`patient_panels(d1) ENDIF,
+      filter_device_panels := 
+               LAMBDA (d1: device):
+                  IF d = d1
+                  THEN filter_panel(pa, 
+                  ps`filter_device_panels(d)`pars, ps`filter_device_panels(d)`cmds)
+		  ELSE ps`filter_device_panels(d1) ENDIF ]
+         ELSE pb(p1) ENDIF
+
+constraint_broken_to_coordinator(p: patient, c: cindex, st: state): state =
+LET ps = st`pdb(p) IN
+IF p_check_rule_broken(c, ps) THEN
+LET dv = (ps`rule_set(c)`action)`dev,
+    dtype = ((ps`p_disp_top)`devs)(dv),
+    nd = COND
+          dtype = infusion_pump -> nde(st`pdb(p)`ip_state(dv)),
+	  dtype = vital_signs_device -> nde(ps`vital_signs),
+          ELSE -> no_node
+	 ENDCOND,
+    a = (ps`rule_set(c))`action`act,
+    msg = (# mhdr := cnstmsg,
+             pat_nd := ps`nde,
+             msg_nd := nd,
+	     act := a #)
+IN st WITH
+    [nde_state := act_send(ps`nde, coord_node, msg, st`nde_state),
+     pdb := LAMBDA (p1: patient):
+              IF p1 = p THEN dev_ex(dv, a, st`pdb(p))
+	      ELSE st`pdb(p1) ENDIF ]
+ELSE st ENDIF
+
+check_rule_set(p: patient, st: state): state =
+LET st1 = constraint_broken_to_coordinator(p, 0, st),
+    st2 = constraint_broken_to_coordinator(p, 1, st1),
+    st3 = constraint_broken_to_coordinator(p, 2, st2),
+    st4 = constraint_broken_to_coordinator(p, 3, st3),
+    st5 = constraint_broken_to_coordinator(p, 4, st4) IN
+    constraint_broken_to_coordinator(p, 5, st5)
+
+%receives the next panel update from a device, and sends the trimmed value to the coordinator
+tick_pan_patient(p: patient, st: state): state =
+LET ns = nde_state(st), ps = (st`pdb)(p), n1 = nde(ps),
+ns1 = next_pan_pm(n1, ns), msg = ns1`current_pan_msg 
+IN 
+IF msg /= empty_pan_msg THEN
+LET dn = msg`msg_nd, d = (st`d_nodes(dn))`dev %, 
+%fpan =  filter_panel(msg`pan, 
+                %  ps`filter_device_panels(d)`pars, ps`filter_device_panels(d)`cmds),
+%nmsg = msg WITH [pan := fpan]
+IN 
+st WITH 
+     [nde_state := pan_send(n1, coord_node, msg, ns1),
+      pdb := update_t_panel(p, d, msg`pan, st`pdb)] 
+ELSE st ENDIF
+
+tick_act_patient(p: patient, st: state): state =
+next_act_patient(p, st)
+
+% This models execution on the coordinator - a message is sent to the relevant patient
+
+
+% this models execution on the device based on an incoming message
+tick_act_device(d: device, p: patient, st: state): state =
+LET ps = st`pdb(p),
+    nd = IF (ps`p_disp_top)`devs(d) = infusion_pump THEN nde(ps`ip_state(d))
+         ELSE nde(ps`vital_signs) ENDIF,
+%ds = ps`ip_state(d), np = nde(ps),
+ns = st`nde_state, ns1 = next_act_pm(nd, ns), msg = ns1`current_act_msg IN
+st WITH [nde_state := ns1,
+         pdb := LAMBDA (p1: patient):
+                   IF p1 = p THEN dev_ex(d, msg`act, ps) ELSE st`pdb(p1) ENDIF
+         ]
+
+
+tick_pan_device(d: device, p: patient, st: state): state =
+  LET ps = st`pdb(p), np = nde(ps), ns = st`nde_state
+  IN
+  COND
+   ((ps`p_disp_top)`devs(d) = infusion_pump)  ->
+     LET ds = ps`ip_state(d), nd = nde(ds), ds = tick(ds),
+        pa = available_act(ds`pan, ds),
+      msg = (# mhdr := updmsg, pat_nd := np, msg_nd := nd, pan := pa #)
+      IN st WITH
+     [ nde_state := pan_send(nd, np, msg, ns),
+       pdb := LAMBDA (p1: patient):
+                    IF p1 = p THEN ps WITH
+		        [ip_state :=
+		             LAMBDA (d1: device):
+                                IF (d1 = d) THEN ds ELSE
+				(st`pdb(p))`ip_state(d1) ENDIF]
+		    ELSE st`pdb(p1) ENDIF ],
+      ((ps`p_disp_top)`devs(d) = vital_signs_device)  ->
+     LET vs = ps`vital_signs, nd = nde(vs), vs = tick_vs(vs), 
+     pa = available_act(vs`pan, vs),
+     msg = (# mhdr := updmsg, pat_nd := np, msg_nd := nd, pan := pa #)
+      IN st WITH
+      [ nde_state := pan_send(nd, np, msg, ns),
+       pdb := LAMBDA (p1: patient):
+                    IF p1 = p THEN ps WITH
+		        [vital_signs := vs ]
+		    ELSE st`pdb(p1) ENDIF
+      ],
+     ELSE -> st
+    ENDCOND
+
+
+
+
+
+
+
+
+
+%tickx_device(d: device, p: patient, st: state): state =
+%LET st1 = device_execute(d, p, st) IN
+%tick_device(d, p, st1)
+
+change_focus(df: disp_focus_type, st: state): state =
+LET is = st`coord_st IN
+  st WITH [coord_st := is WITH [disp_focus := df]]
+
+% must select d_mode before selecting an action
+
+%per_select_action(a: action_id, st: state): boolean =
+%LET is = st`coord_st
+%IN (is`mode = d_mode) AND ((is`disp_device)`av_c_disp)(a)
+
+%select_action(a: action_id, st: state): state =
+%LET is = st`coord_st
+%IN
+%COND
+%(is`mode = d_mode) AND (is`disp_focus = device_focus)
+% ->  st WITH [coord_st := i_select_ad(a, is)],
+%((is`mode = d_mode) OR (is`mode = p_mode)) AND (is`disp_focus = patient_focus)
+% -> st WITH [coord_st := i_select_ap(a, is)],
+%ELSE -> st
+%ENDCOND
+
+
+
+
+
+
+
+
+
+
+
+
+pump_action(p: patient, d: device, pa: [d_state -> d_state], st: state): state =
+LET pst = st`pdb(p), dst = (pst`ip_state)(d), newdst = pa(dst) IN
+IF (pst`p_disp_top)`devs(d) = infusion_pump THEN
+st WITH [pdb := LAMBDA (p1: patient):
+                     IF p1 = p THEN
+		     pst WITH
+		       [ ip_state := LAMBDA (d1: device):
+			      IF d1 = d THEN newdst ELSE
+			      ((st`pdb(p))`ip_state)(d1) ENDIF]
+		     ELSE st`pdb(p1) ENDIF ]
+ELSE st ENDIF
+		     
+initialise_pump(p: patient, d: device, st: state): state =
+      pump_action(p, d, fun_power, st)
+
+local_device_execute(a: action_id, d: device, p: patient, st: state): state =
+LET ps = st`pdb(p), ds = (ps`ip_state)(d), newds = execute_ip(a, ds) IN
+IF (ps`p_disp_top)`devs(d) = infusion_pump THEN
+st WITH [pdb := LAMBDA (p1: patient):
+                     IF p1 = p THEN
+		     ps WITH
+		       [ ip_state := LAMBDA (d1: device):
+			      IF d1 = d THEN newds ELSE
+			      ((st`pdb(p))`ip_state)(d1) ENDIF]
+		     ELSE st`pdb(p1) ENDIF ]
+ELSE st ENDIF
+
+coordinator_enter_patient(p: patient, st: state): state =
+LET is = st`coord_st IN
+IF ((is`mode = d_mode) OR (is`mode = p_mode) OR (is`mode = top)) AND
+(is`disp_top)`patients(p)
+  THEN st WITH
+      [coord_st := st`coord_st WITH
+         [entry_window := is`entry_window WITH
+	        [ent_patient := p]]]
+ELSE st ENDIF
+
+coordinator_enter_device(d: device, st: state): state =
+LET is = st`coord_st IN
+IF (((is`mode = d_mode) OR (is`mode = p_mode) ) AND ((is`disp_patient)`devices(d) /= no_device))
+  THEN st WITH
+      [coord_st := st`coord_st WITH
+        [entry_window := is`entry_window WITH
+	        [ent_device := d]]]
+ELSE st ENDIF
+
+coordinator_enter_action(a: action_id, st: state): state =
+LET is = st`coord_st IN
+IF ((is`mode = d_mode) OR (is`mode = p_mode))
+  THEN st WITH
+      [coord_st := st`coord_st WITH
+        [entry_window := is`entry_window WITH
+	        [ent_action := a]]]
+ELSE st ENDIF
+
+
+
+coord_menu_act(m: menu, xs: interface_st): interface_st =
+coord_menu(m, xs)
+
+patient_enter_device_name(d: device, p: patient, st: state): state =
+IF p /= p_null THEN
+LET ps = st`pdb(p) IN
+   st WITH
+        [pdb := LAMBDA (p1: patient):
+	         IF (p1 = p) THEN p_enter_name(d, ps)
+		 ELSE st`pdb(p1) ENDIF ] ELSE st ENDIF
+
+patient_enter_device(d: device, p: patient, st: state): state =
+IF (p /= p_null) THEN
+LET ps = st`pdb(p) IN
+   IF (ps`p_disp_top)`devs(d) /= no_device THEN st WITH
+      [pdb := LAMBDA (p1: patient):
+               IF (p1 = p) THEN ps WITH
+          [p_entry_window
+          := ps`p_entry_window WITH
+             [ent_device := (# dv := d, dt := (ps`p_disp_top)`devs(d) #)]]
+	       ELSE st`pdb(p1) ENDIF ] ELSE st ENDIF
+ELSE st ENDIF
+
+patient_enter_parameter(pn: par, p: patient, st: state): state =
+IF p /= p_null THEN
+LET ps = st`pdb(p) IN
+   IF  (ps`p_disp_device)`pars(pn) THEN st WITH
+        [pdb := LAMBDA (p1: patient):
+           IF (p1 = p) THEN ps WITH 
+               [p_entry_window := ps`p_entry_window
+                  WITH [ent_par := pn]]
+		 ELSE st`pdb(p1) ENDIF ] ELSE st ENDIF
+ELSE st ENDIF
+
+
+
+patient_enter_action(a: action_id, p: patient, st: state): state =
+IF p /= p_null THEN
+LET ps = st`pdb(p), d = ((ps`p_disp_top)`sel_device)`dv IN
+IF (((ps`pmode = d_mode) AND (ps`p_disp_device)`cmds(a))
+  OR ((ps`pmode = p_mode) AND (st`pdb(p)`p_disp_main`p_actions(d)(a))))
+   THEN  st WITH
+        [pdb := LAMBDA (p1: patient):
+           IF (p1 = p) THEN ps 
+             WITH [p_entry_window :=
+               ps`p_entry_window WITH [ent_act := a]]
+		 ELSE st`pdb(p1) ENDIF ] ELSE st ENDIF
+ELSE st ENDIF
+
+patient_enter_enum_value(e: enum, p: patient, st: state): state =
+IF p /= p_null THEN
+LET ps = st`pdb(p) IN
+  st WITH
+        [pdb := LAMBDA (p1: patient):
+           IF (p1 = p) THEN ps WITH 
+           [p_entry_window :=
+              ps`p_entry_window WITH [ent_enum := e]]
+		 ELSE st`pdb(p1) ENDIF ] ELSE st ENDIF
+
+patient_enter_num_value(n: nonneg_real, p: patient, st: state): state =
+IF p /= p_null THEN
+LET ps = st`pdb(p) IN
+   st WITH
+        [pdb := LAMBDA (p1: patient):
+           IF (p1 = p) 
+           THEN ps WITH 
+             [p_entry_window := ps`p_entry_window
+                WITH [ent_num := n]]
+		 ELSE st`pdb(p1) ENDIF ]
+ELSE st ENDIF
+
+patient_menu_act(m: menu, p: patient, xs: interface_st): interface_st =
+patient_menu(m, p, xs)
+
+
+ 
+
+
+
+
+END system_th

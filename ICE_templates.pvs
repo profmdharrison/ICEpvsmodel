@@ -1,0 +1,2993 @@
+ICE_templates_th[maxrate: posnat, 
+          maxinfuse: posnat, 
+          maxtime: {maxtime: posnat | maxinfuse <= maxtime}]:
+
+THEORY 
+BEGIN 
+IMPORTING system_th[maxrate, 
+          maxinfuse, 
+          maxtime],
+          ICE_templates_rsce_th[maxrate, maxinfuse, maxtime]
+
+
+
+p_d_home_casez(a, b: action_id, p: patient, st: state): boolean =
+   p_d_per_action(b, p_d_fun_action(a, p, st)`pdb(p)) AND
+    ((p_d_fun_action(b, p, p_d_fun_action(a, p, st))`pdb(p)`p_disp_device`enum_disp(mde) = xpause) AND
+      (p_d_fun_action(b, p, p_d_fun_action(a, p, st))`pdb(p)`p_disp_device`enum_disp(dpm)
+           = xmainmenu))
+           
+p_d_complete_goal(a: action_id, p: patient, st: state): boolean =
+  (p_d_fun_action(a, p, st)`pdb(p)`p_disp_device`enum_disp(dpm) = xmainmenu) AND
+  (p_d_fun_action(a, p, st)`pdb(p)`p_disp_device`enum_disp(mde) = xpause)
+
+c_d_home_casez(a, b: action_id, st: state): boolean =
+   c_d_per_action(b, c_d_fun_action(a, st)`coord_st) AND
+    ((c_d_fun_action(b, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(dpm)
+                 = xmainmenu) AND
+      (c_d_fun_action(b, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(mde)
+           = xpause))
+           
+c_d_complete_goal(a: action_id, st: state): boolean =
+  (c_d_fun_action(a, st)`coord_st`disp_device`e_disp(dpm) = xmainmenu) AND
+  (c_d_fun_action(a, st)`coord_st`disp_device`e_disp(mde) = xpause)
+
+% QED p_c_device_display_conformance proved by nmdh4 on Fri, 15 Jul 2022 14:17:45 GMT
+% QED p_c_device_display_conformance proved by nmdh4 on Tue, 01 Nov 2022 14:40:58 GMT
+% QED p_c_device_display_conformance proved by nmdh4 on Mon, 23 Jan 2023 14:17:59 GMT
+% QED p_c_device_display_conformance proved by nmdh4 on Thu, 16 Mar 2023 14:19:05 GMT
+% @QED p_c_device_display_conformance proved by nmdh4 on Wed, 17 May 2023 10:35:00 GMT
+p_c_device_display_conformance: THEOREM
+FORALL (p: patient, d: device, st: state):
+LET st1 = tick_pan_device(d, p, st),
+    st2 = tick_pan_patient(p, st1),
+    st3 = tick_pan_coordinator(st2),
+    ps = st`pdb(p),
+    ns = st`nde_state,
+    ds = ps`ip_state(d),
+    vs = ps`vital_signs,
+    is = st`coord_st, 
+    vc = (is`coord_db)(p), 
+    ps1 = st1`pdb(p),
+    ns1 = st1`nde_state,
+    ps2 = st2`pdb(p),
+    ns2 = st2`nde_state,
+    ps3 = st3`pdb(p),
+    is3 = st3`coord_st, 
+    pnde = ps`nde,
+    dnde = IF (ps`p_disp_top`devs(d) = infusion_pump) THEN
+         ps`ip_state(d)`nde ELSE ps`vital_signs`nde ENDIF
+    IN
+    % channel assumptions
+     ns`n_links(pnde, coord_node) AND 
+     ns`n_links(coord_node, pnde) AND 
+     ns`n_links(pnde, dnde) AND 
+     ns`n_links(dnde, pnde) AND 
+     (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    % patient known to the system
+     (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+    % patient controller assumptions
+    % ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+  %  (st`patient_menus = init_patient_menu) AND 
+   
+   (ps`pmode = dc_mode) AND
+   ((((ps`p_disp_top)`sel_device = (# dv := d, dt := infusion_pump #)) AND
+   ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+    (vc`p_devices(d) = infusion_pump) AND
+   ((ps`ip_state(d))`m /= off)) OR
+   (((ps`p_disp_top)`sel_device = (# dv := d, dt := vital_signs_device #)) AND
+   ((ps`p_disp_top)`devs(d) = vital_signs_device) AND
+   (vc`p_devices(d) = vital_signs_device) AND
+   ((ps`vital_signs`power) ))) AND
+%coordinator controller assumptions
+  (is`mode = d_mode) AND
+((is`disp_top)`patients)(p) AND 
+(is`disp_patient)`current_patient = p AND
+%((is`disp_patient)`devices(d) = infusion_pump) AND
+((is`disp_device)`current_device = d) AND
+((is`disp_device)`e_disp = (ps`p_disp_device)`enum_disp) AND
+((is`disp_device)`n_disp = (ps`p_disp_device)`num_disp) AND
+((is`disp_device)`av_c_disp = (ps`p_disp_device)`cmds) AND
+%
+%message passing assumptions
+(ns1`pan_msg_waiting(coord_node)`last_pos = ns2`pan_msg_waiting(coord_node)`current_pos) AND
+(ns2`pan_msg_waiting(coord_node)`buf_status /= full) AND
+%(ns2`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+(ns1`pan_msg_waiting(coord_node)`buf_status /= full) AND
+%(ns1`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+%(ns1`pan_msg_waiting(pnde)`last_pos < mindex) AND
+(ns1`pan_msg_waiting(pnde)`buf_status /= full) AND
+(ns`pan_msg_waiting(pnde)`last_pos = ns1`pan_msg_waiting(pnde)`current_pos) AND
+%(ns`pan_msg_waiting(pnde)`last_pos < mindex) AND
+(ns`pan_msg_waiting(pnde)`buf_status /= full) AND
+%((is`disp_device)`e_disp = (ps`p_disp_device)`enum_disp) AND
+%((is`disp_device)`n_disp = (ps`p_disp_device)`num_disp) AND
+%((is`disp_device)`av_c_disp = (ps`p_disp_device)`cmds) AND
+((is`coord_db(p))`coord_devices(d)`pars = ps`filter_device_panels(d)`pars) AND
+((is`coord_db(p))`d_available_actions(d) = ps`filter_device_panels(d)`cmds)
+IMPLIES
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_device`e_disp = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_device`enum_disp
+AND 
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_device`n_disp = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_device`num_disp
+AND 
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_device`av_c_disp = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_device`cmds
+
+% QED p_c_display_conformance proved by nmdh4 on Sat, 16 Jul 2022 17:14:50 GMT
+% QED p_c_display_conformance proved by nmdh4 on Wed, 02 Nov 2022 09:57:35 GMT
+% QED p_c_display_conformance proved by nmdh4 on Mon, 23 Jan 2023 14:49:16 GMT
+% QED p_c_display_conformance proved by nmdh4 on Thu, 16 Mar 2023 15:18:24 GMT
+% @QED p_c_display_conformance proved by nmdh4 on Wed, 17 May 2023 15:23:46 GMT
+p_c_display_conformance: THEOREM
+FORALL (p: patient, d: device, st: state):
+LET st1 = tick_pan_device(d, p, st),
+    st2 = tick_pan_patient(p, st1),
+    st3 = tick_pan_coordinator(st2),
+    ps = st`pdb(p),
+    ns = st`nde_state,
+    ds = ps`ip_state(d),
+    vs = ps`vital_signs,
+    is = st`coord_st, 
+    vc = (is`coord_db)(p), 
+    ps1 = st1`pdb(p),
+    ns1 = st1`nde_state,
+    ps2 = st2`pdb(p),
+    ns2 = st2`nde_state,
+    ps3 = st3`pdb(p),
+    is3 = st3`coord_st, 
+    pnde = ps`nde,
+    dnde = IF (ps`p_disp_top`devs(d) = infusion_pump) THEN
+         ps`ip_state(d)`nde ELSE ps`vital_signs`nde ENDIF
+    IN
+    % channel assumptions
+     ns`n_links(pnde, coord_node) AND 
+     ns`n_links(coord_node, pnde) AND 
+     ns`n_links(pnde, dnde) AND 
+     ns`n_links(dnde, pnde) AND 
+     (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    % patient known to the system
+     (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+    % patient controller assumptions
+    % ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+  %  (st`patient_menus = init_patient_menu) AND 
+   
+   (ps`pmode = dc_mode) AND
+   ((((ps`p_disp_top)`sel_device = (# dv := d, dt := infusion_pump #)) AND
+   ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+    (vc`p_devices(d) = infusion_pump) AND
+   ((ps`ip_state(d))`m /= off)) OR
+   (((ps`p_disp_top)`sel_device = (# dv := d, dt := vital_signs_device #)) AND
+   ((ps`p_disp_top)`devs(d) = vital_signs_device) AND
+   (vc`p_devices(d) = vital_signs_device) AND
+   ((ps`vital_signs`power) ))) AND
+%coordinator controller assumptions
+  (is`mode = d_mode) AND
+((is`disp_top)`patients)(p) AND 
+(is`disp_patient)`current_patient = p AND
+%((is`disp_patient)`devices(d) = infusion_pump) AND
+((is`disp_device)`current_device = d) AND
+%((is`disp_device)`e_disp = (ps`p_disp_device)`enum_disp) AND
+%((is`disp_device)`n_disp = (ps`p_disp_device)`num_disp) AND
+%((is`disp_device)`av_c_disp = (ps`p_disp_device)`cmds) AND
+%
+%message passing assumptions
+(ns1`pan_msg_waiting(coord_node)`last_pos = ns2`pan_msg_waiting(coord_node)`current_pos) AND
+(ns2`pan_msg_waiting(coord_node)`buf_status /= full) AND
+% (ns2`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+(ns1`pan_msg_waiting(coord_node)`buf_status /= full) AND
+%  (ns1`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+%  (ns1`pan_msg_waiting(pnde)`last_pos < mindex) AND
+(ns1`pan_msg_waiting(pnde)`buf_status /= full) AND
+(ns`pan_msg_waiting(pnde)`last_pos = ns1`pan_msg_waiting(pnde)`current_pos) AND
+%  (ns`pan_msg_waiting(pnde)`last_pos < mindex) AND
+(ns`pan_msg_waiting(pnde)`buf_status /= full) AND
+((is`coord_db(p))`p_enum_params = (ps`p_disp_main)`disp_enum_params) AND
+((is`coord_db(p))`p_num_params = (ps`p_disp_main)`disp_num_params) AND
+((is`coord_db(p))`p_av_actions = (ps`p_disp_main)`p_actions) AND
+((is`disp_top)`patients_enum_params(p) = (ps`p_disp_top)`disp_enum_params) AND
+((is`disp_top)`patients_num_params(p) = (ps`p_disp_top)`disp_num_params) AND
+((is`coord_db(p))`coord_devices(d)`pars = ps`filter_device_panels(d)`pars) AND
+((is`coord_db(p))`d_available_actions(d) = ps`filter_device_panels(d)`cmds)
+IMPLIES
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_device`e_disp = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_device`enum_disp
+AND 
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_device`n_disp = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_device`num_disp
+AND 
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_device`av_c_disp = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_device`cmds 
+AND
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_patient`patient_enum_params = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_main`disp_enum_params
+AND 
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_patient`patient_num_params = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_main`disp_num_params
+AND 
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_patient`av_main_act = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_main`p_actions
+AND
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_top`patients_enum_params(p) = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_top`disp_enum_params
+AND 
+reflect_device_to_coordinator(d, p, st)`coord_st`disp_top`patients_num_params(p) = 
+         reflect_device_to_patient(d, p, st)`pdb(p)`p_disp_top`disp_num_params
+
+
+
+
+
+% 
+% QED p_fun_consistent proved by nmdh4 on Thu, 14 Jul 2022 11:39:25 GMT
+% QED p_fun_consistent proved by nmdh4 on Thu, 14 Jul 2022 15:43:46 GMT
+% QED p_fun_consistent proved by nmdh4 on Wed, 10 Aug 2022 10:52:45 GMT
+% QED p_fun_consistent proved by nmdh4 on Wed, 10 Aug 2022 13:04:53 GMT
+% QED p_fun_consistent proved by nmdh4 on Mon, 24 Oct 2022 14:44:55 GMT
+% QED p_fun_consistent proved by nmdh4 on Thu, 22 Dec 2022 10:57:38 GMT
+% QED p_fun_consistent proved by nmdh4 on Mon, 23 Jan 2023 12:57:36 GMT
+% QED p_fun_consistent proved by nmdh4 on Thu, 16 Mar 2023 15:25:39 GMT
+% @QED p_fun_consistent proved by nmdh4 on Tue, 28 Mar 2023 13:15:26 GMT
+p_fun_consistent: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+ LET ps = st`pdb(p), pnde = nde(ps), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = IF st`pdb(p)`p_disp_top`devs(d) = infusion_pump
+           THEN nde(ps`ip_state(d)) ELSE nde(ps`vital_signs) ENDIF, 
+    ns = st`nde_state,
+    is = st`coord_st,
+    ds = ps`ip_state(d),
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state IN
+    %st6 = patient_enter_action(hold, p, st5),
+    %st7 = patient_act_mono(p, st6),
+    %ns7 = st7`nde_state,
+    %st8 = tick_act_device(d, p, st7),
+    %ns8 = st8`nde_state,
+    %st9 = tick_pan_device(d, p, st8),
+    %ns9 = st9`nde_state,
+    %st10 = tick_pan_patient(p, st9),
+    %ns10 = st10`nde_state IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+   %  (ns4`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   %  (ns4`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   %  (ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   %  (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  % (ns5`act_msg_waiting(dnde)`last_pos < mindex) AND
+  %  (ns7`act_msg_waiting
+  %         (dnde)`current_pos
+  %      = ns5`act_msg_waiting(dnde)`last_pos) AND
+  %  (ns8`act_msg_waiting(dnde)`buf_status /= full) AND
+  %  (ns8`act_msg_waiting(dnde)`last_pos < mindex) AND 
+  %  (ns8`pan_msg_waiting(pnde)`buf_status /= full) AND
+  %  (ns8`pan_msg_waiting(pnde)`last_pos < mindex) AND
+  %  (ns9`pan_msg_waiting(pnde)`buf_status /= full) AND
+  %  (ns9`pan_msg_waiting(pnde)`last_pos < mindex) AND
+  %  (ns9`pan_msg_waiting
+  %         (pnde)`current_pos
+  %      = ns8`act_msg_waiting(pnde)`last_pos) AND
+  %   (ns10`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+  %   (ns10`pan_msg_waiting(coord_node)`buf_status /= full) AND  
+    % patient known to the system
+     (p /= p_null) AND
+     (a /= nil_action) AND (a /= powr) AND
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     %st`pdb(p)`p_disp_top`sel_device`dv = d AND
+     %st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     (( %(is`coord_db)(p)`p_devices(d) = infusion_pump AND
+       ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+       (ps`p_disp_top`sel_device = (# dv := d, dt := infusion_pump #)) AND
+       (ds`m /= off)) OR
+       ( %(is`coord_db)(p)`p_devices(d) = vital_signs_device AND
+       ((ps`p_disp_top)`devs(d) = vital_signs_device) AND
+       (ps`p_disp_top`sel_device = (# dv := d, dt := vital_signs_device #)) AND
+       ps`vital_signs`power))  AND
+      %(st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) OR
+    (ps`pmode = d_mode) AND
+     (ps`emode = edit_none) %AND
+    % ps`p_disp_device`cmds(a)
+     IMPLIES
+    (p_d_per_action(a, ps) IMPLIES consistent_patient_d(d, p, p_d_fun_action(a, p, st))) 
+
+% QED p_consistent_actionnxdevdisp proved by nmdh4 on Wed, 01 Feb 2023 12:10:13 GMT
+% QED p_consistent_actionnxdevdisp proved by nmdh4 on Thu, 16 Mar 2023 15:33:57 GMT
+% @QED p_consistent_actionnxdevdisp proved by nmdh4 on Wed, 17 May 2023 15:57:23 GMT
+p_consistent_actionnxdevdisp: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+ LET ps = st`pdb(p), pnde = nde(ps), 
+    dnde = IF (ps`p_disp_top)`devs(d) = infusion_pump THEN
+           ps`ip_state(d)`nde ELSE ps`vital_signs`nde ENDIF,
+    ns = st`nde_state,
+    ds = ps`ip_state(d),
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+
+    %(ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+    %(ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+   % (ns4`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(coord_node)`buf_status /= full) AND
+     (p /= p_null) AND 
+      (a /= nil_action) AND (a /= powr) AND
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`sel_device`dv = d AND
+    % st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     (( ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+       (ds`m /= off)) 
+      OR
+       ( ((ps`p_disp_top)`devs(d) = vital_signs_device)) AND
+       ps`vital_signs`power) AND
+     (ps`pmode = d_mode) AND
+     (ps`emode = edit_none) AND
+     p_d_per_action(a, ps) AND
+     consistent_patient_d(d, p, st)
+     % (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     % establishing initial state relationship
+    % relate_ip_to_pan(ps`ip_state(d)) AND     
+    % consistent_patient(d, p, st) AND
+     %p_d_per_action(a, st`pdb(p)) 
+     IMPLIES
+
+ (((ps`p_disp_top)`devs(d) = infusion_pump) IMPLIES
+       p_d_fun_action(a, p, st)`pdb(p)`p_disp_device`enum_disp =
+       tick(execute_ip(a, ps`ip_state(d)))`pan`enum_disp) AND
+ (((ps`p_disp_top)`devs(d) = vital_signs_device) IMPLIES
+       p_d_fun_action(a, p, st)`pdb(p)`p_disp_device`enum_disp =
+       tick_vs(execute_vs(a, ps`vital_signs))`pan`enum_disp) 
+                       
+
+% QED p_access_devdisp proved by nmdh4 on Wed, 10 Aug 2022 16:36:27 GMT
+% QED p_access_devdisp proved by nmdh4 on Fri, 12 Aug 2022 10:42:59 GMT
+% QED p_access_devdisp proved by nmdh4 on Mon, 24 Oct 2022 14:56:31 GMT
+% QED p_access_devdisp proved by nmdh4 on Tue, 13 Dec 2022 16:27:48 GMT
+% QED p_access_devdisp proved by nmdh4 on Thu, 22 Dec 2022 11:21:43 GMT
+% QED p_access_devdisp proved by nmdh4 on Mon, 23 Jan 2023 15:15:50 GMT
+% QED p_access_devdisp proved by nmdh4 on Tue, 24 Jan 2023 15:16:06 GMT
+% QED p_access_devdisp proved by nmdh4 on Fri, 27 Jan 2023 11:14:50 GMT
+% QED p_access_devdisp proved by nmdh4 on Thu, 16 Mar 2023 15:44:17 GMT
+% @QED p_access_devdisp proved by nmdh4 on Tue, 28 Mar 2023 13:19:24 GMT
+p_access_devdisp: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+%FORALL (b: action_id):
+  LET ps = st`pdb(p), pnde = nde(ps), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    ns = st`nde_state,
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+      % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+    (st`pdb(p)`ip_state(d)`m /= off) AND
+    % (b /= nil_action) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`sel_device`dv = d AND
+     st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (ps`pmode = d_mode) AND
+    % (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+    % (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+    % (st`pdb(p)`ip_state(d)`time < maxtime) AND
+    % (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+    %  (st`pdb(p)`ip_state(d)`rate >= 1) AND
+    % (st`pdb(p)`ip_state(d)`time >= 1) AND
+    % (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+     % establishing initial state relationship
+    ((a = hold) OR (a = confirm)) AND
+   %  ps_trans_xconf(a, p, pre, post) AND
+   %  relate_ip_to_pan(pspre`ip_state(d)) AND     
+     consistent_patient_d(d, p, st) AND
+     % p_d_per_action(a, st`pdb(p)) AND
+     (ps`emode = edit_none) AND
+    (ps`ip_state(d)`dm /= dalarm) AND
+      p_d_per_action(a, ps)
+       IMPLIES
+           (p_d_fun_action(a, p, st)`pdb(p)`p_disp_device`enum_disp(dpm) 
+              = xmainmenu)
+           AND
+           (p_d_fun_action(a, p, st)`pdb(p)`p_disp_device`enum_disp(mde) 
+          = xpause)
+
+% QED p_access_devdispw proved by nmdh4 on Wed, 01 Feb 2023 12:47:46 GMT
+% QED p_access_devdispw proved by nmdh4 on Thu, 16 Mar 2023 15:47:27 GMT
+% @QED p_access_devdispw proved by nmdh4 on Tue, 28 Mar 2023 13:22:00 GMT
+p_access_devdispw: LEMMA
+ FORALL (d: device, p: patient, st: state):
+%FORALL (b: action_id):
+  LET ps = st`pdb(p), pnde = nde(ps), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    ns = st`nde_state,
+    st1c = patient_enter_action(confirm, p, st),
+    st2c = patient_act_mono(p, st1c),
+    ns2c = st2c`nde_state,
+    st3c = tick_act_device(d, p, st2c),
+    ns3c = st3c`nde_state,
+    st4c = tick_pan_device(d, p, st3c),
+    ns4c = st4c`nde_state,
+    st5c = tick_pan_patient(p, st4c),
+    ns5c = st5c`nde_state,
+    st1h = patient_enter_action(hold, p, st),
+    st2h = patient_act_mono(p, st1h),
+    ns2h = st2h`nde_state,
+    st3h = tick_act_device(d, p, st2h),
+    ns3h = st3h`nde_state,
+    st4h = tick_pan_device(d, p, st3h),
+    ns4h = st4h`nde_state,
+    st5h = tick_pan_patient(p, st4h),
+    ns5h = st5h`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2c`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2c`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3c`act_msg_waiting(dnde)`buf_status /= full) AND
+     % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns3c`act_msg_waiting
+           (dnde)`current_pos
+        = ns2c`act_msg_waiting(dnde)`last_pos) AND
+    (ns3c`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4c`pan_msg_waiting(pnde)`buf_status /= full) AND
+      % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4c`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3c`pan_msg_waiting(pnde)`last_pos) AND
+   (ns2h`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2h`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3h`act_msg_waiting(dnde)`buf_status /= full) AND
+     % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns3h`act_msg_waiting
+           (dnde)`current_pos
+        = ns2h`act_msg_waiting(dnde)`last_pos) AND
+    (ns3h`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4h`pan_msg_waiting(pnde)`buf_status /= full) AND
+      % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4h`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3h`pan_msg_waiting(pnde)`last_pos) AND
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (st`pdb(p)`ip_state(d)`m /= off) AND
+    % (b /= nil_action) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`sel_device`dv = d AND
+     st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (ps`pmode = d_mode) AND
+    % (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+    % (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+    % (st`pdb(p)`ip_state(d)`time < maxtime) AND
+    % (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+    %  (st`pdb(p)`ip_state(d)`rate >= 1) AND
+    % (st`pdb(p)`ip_state(d)`time >= 1) AND
+    % (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+     % establishing initial state relationship
+  %  ((a = hold) OR (a = confirm)) AND
+   %  ps_trans_xconf(a, p, pre, post) AND
+   %  relate_ip_to_pan(pspre`ip_state(d)) AND     
+     consistent_patient_d(d, p, st) AND
+     % p_d_per_action(a, st`pdb(p)) AND
+     (ps`emode = edit_none) AND
+    (ps`ip_state(d)`dm /= dalarm) IMPLIES
+    (  p_d_per_action(confirm, ps)
+       IMPLIES
+           (p_d_fun_action(confirm, p, st)`pdb(p)`p_disp_device`enum_disp(dpm) 
+              = xmainmenu)
+           AND
+           (p_d_fun_action(confirm, p, st)`pdb(p)`p_disp_device`enum_disp(mde) 
+          = xpause) ) AND
+   (  p_d_per_action(hold, ps)
+       IMPLIES
+           (p_d_fun_action(hold, p, st)`pdb(p)`p_disp_device`enum_disp(dpm) 
+              = xmainmenu)
+           AND
+           (p_d_fun_action(hold, p, st)`pdb(p)`p_disp_device`enum_disp(mde) 
+          = xpause) ) 
+
+      
+% QED p_access_devdispx proved by nmdh4 on Tue, 31 Jan 2023 09:52:07 GMT
+% QED p_access_devdispx proved by nmdh4 on Thu, 02 Feb 2023 10:42:35 GMT
+% QED p_access_devdispx proved by nmdh4 on Thu, 02 Feb 2023 11:28:52 GMT
+% QED p_access_devdispx proved by nmdh4 on Thu, 16 Mar 2023 15:51:12 GMT
+% QED p_access_devdispx proved by nmdh4 on Tue, 28 Mar 2023 13:28:03 GMT
+% @QED p_access_devdispx proved by nmdh4 on Tue, 28 Mar 2023 13:30:54 GMT
+p_access_devdispx: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+%FORALL (b: action_id):
+  LET ps = st`pdb(p), pnde = nde(ps), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    ns = st`nde_state,
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+      % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (st`pdb(p)`ip_state(d)`m /= off) AND
+    % (b /= nil_action) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`sel_device`dv = d AND
+     st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (ps`pmode = d_mode) AND
+    % (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+    % (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+    % (st`pdb(p)`ip_state(d)`time < maxtime) AND
+    % (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+    %  (st`pdb(p)`ip_state(d)`rate >= 1) AND
+    % (st`pdb(p)`ip_state(d)`time >= 1) AND
+    % (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+     % establishing initial state relationship
+  %  ((a = hold) OR (a = confirm)) AND
+   %  ps_trans_xconf(a, p, pre, post) AND
+   %  relate_ip_to_pan(pspre`ip_state(d)) AND     
+     consistent_patient_d(d, p, st) AND
+     % p_d_per_action(a, st`pdb(p)) AND
+     (ps`emode = edit_none) AND
+    (ps`ip_state(d)`dm /= dalarm) AND
+      p_d_per_action(a, ps)
+     IMPLIES
+     ((a = hold OR a = confirm)  IMPLIES 
+        (p_d_fun_action(a, p, st)`pdb(p)`p_disp_device`enum_disp(dpm) 
+              = xmainmenu)) AND
+     ((a = hold OR a = confirm) IMPLIES
+    (p_d_fun_action(a, p, st)`pdb(p)`p_disp_device`enum_disp(mde) 
+          = xpause))
+
+% QED p_comp_p_d_per_action proved by nmdh4 on Thu, 11 Aug 2022 15:01:31 GMT
+% QED p_comp_p_d_per_action proved by nmdh4 on Thu, 11 Aug 2022 15:32:02 GMT
+% QED p_comp_p_d_per_action proved by nmdh4 on Mon, 24 Oct 2022 15:51:31 GMT
+% QED p_comp_p_d_per_action proved by nmdh4 on Thu, 22 Dec 2022 14:35:00 GMT
+% QED p_comp_p_d_per_action proved by nmdh4 on Tue, 24 Jan 2023 10:17:26 GMT
+% QED p_comp_p_d_per_action proved by nmdh4 on Fri, 27 Jan 2023 11:32:52 GMT
+% QED p_comp_p_d_per_action proved by nmdh4 on Thu, 16 Mar 2023 15:55:05 GMT
+% @QED p_comp_p_d_per_action proved by nmdh4 on Tue, 28 Mar 2023 13:34:05 GMT
+p_comp_p_d_per_action: LEMMA
+FORALL (a: action_id, d: device, p: patient, st: state):
+LET ps = st`pdb(p), pnde = nde(ps), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    ns = st`nde_state,
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state%,
+   % st6 = patient_enter_action(b, p, st5),
+   % st7 = patient_act_mono(p, st6),
+   % ns7 = st7`nde_state,
+   % st8 = tick_act_device(d, p, st7),
+   % ns8 = st8`nde_state,
+   % st9 = tick_pan_device(d, p, st8),
+   % ns9 = st9`nde_state,
+    % st10 = tick_pan_patient(p, st9),
+   % ns10 = st10`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+   % (ns4`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   %  (ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   %  (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  % (ns5`act_msg_waiting(dnde)`last_pos < mindex) AND
+   (ns5`act_msg_waiting(dnde)`buf_status /= full) AND
+  % (ns7`act_msg_waiting(dnde)`last_pos < mindex) AND
+  % (ns7`act_msg_waiting(dnde)`buf_status /= full) AND
+  %  (ns7`act_msg_waiting
+   %        (dnde)`current_pos
+   %     = ns5`act_msg_waiting(dnde)`last_pos) AND
+   % (ns8`act_msg_waiting(dnde)`buf_status /= full) AND
+  %  (ns8`act_msg_waiting(dnde)`last_pos < mindex) AND 
+   % (ns8`act_msg_waiting
+    %       (dnde)`current_pos
+    %    = ns7`act_msg_waiting(dnde)`last_pos) AND
+   % (ns8`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns8`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns9`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns9`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns9`pan_msg_waiting
+   %        (pnde)`current_pos
+   %     = ns8`pan_msg_waiting(pnde)`last_pos) AND
+ %    (ns10`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+ %    (ns10`pan_msg_waiting(coord_node)`buf_status /= full) AND 
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (st`pdb(p)`ip_state(d)`m /= off) AND
+     (a /= powr) AND (a /= nil_action) AND 
+   %  ((b = confirm) OR (b = hold)) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`sel_device`dv = d AND
+     st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (ps`pmode = d_mode) AND
+     % (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     % (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+     % (st`pdb(p)`ip_state(d)`time < maxtime) AND
+     % (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+     % (st`pdb(p)`ip_state(d)`rate >= 1) AND
+     % (st`pdb(p)`ip_state(d)`time >= 1) AND
+     % (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+     %(st`pdb(p)`ip_state(d)`dm /= dalarm) AND
+     % ((st`pdb(p)`ip_state(d))`prevdm /= dalarm) AND
+     % establishing initial state relationship
+     %res_act(a) AND
+     %relate_ip_to_pan(ps`ip_state(d)) AND     
+     p_d_per_action(a, ps) AND
+     % establishing initial state relationship
+     %((b = hold) OR (b = confirm)) AND
+   %  ps_trans_xconf(a, p, pre, post) AND
+   %  relate_ip_to_pan(pspre`ip_state(d)) AND     
+     consistent_patient_d(d, p, st) AND
+     % p_d_per_action(a, st`pdb(p)) AND
+     (ps`emode = edit_none) %AND
+    % (ps`ip_state(d)`dm /= dalarm)
+     % p_d_per_action(b, p_d_fun_action(a, p, st)`pdb(p))
+     IMPLIES
+    (p_d_per_action(confirm, p_d_fun_action(a, p, st)`pdb(p)) =
+      per_confirm(tick(execute_ip(a, st`pdb(p)`ip_state(d))))) AND
+     (p_d_per_action(hold, p_d_fun_action(a, p, st)`pdb(p)) =
+      per_pause(tick(execute_ip(a, st`pdb(p)`ip_state(d)))))
+
+% QED p_comp_p_d_per_actionx proved by nmdh4 on Thu, 26 Jan 2023 18:31:39 GMT
+% QED p_comp_p_d_per_actionx proved by nmdh4 on Fri, 27 Jan 2023 10:05:48 GMT
+% QED p_comp_p_d_per_actionx proved by nmdh4 on Fri, 27 Jan 2023 11:25:57 GMT
+% QED p_comp_p_d_per_actionx proved by nmdh4 on Fri, 27 Jan 2023 17:45:39 GMT
+% QED p_comp_p_d_per_actionx proved by nmdh4 on Thu, 16 Mar 2023 15:58:37 GMT
+% @QED p_comp_p_d_per_actionx proved by nmdh4 on Tue, 28 Mar 2023 13:38:11 GMT
+p_comp_p_d_per_actionx: LEMMA
+FORALL (a: action_id, d: device, p: patient, st: state):
+LET ps = st`pdb(p), pnde = nde(ps), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    ns = st`nde_state,
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state%,
+   % st6 = patient_enter_action(b, p, st5),
+   % st7 = patient_act_mono(p, st6),
+   % ns7 = st7`nde_state,
+   % st8 = tick_act_device(d, p, st7),
+   % ns8 = st8`nde_state,
+   % st9 = tick_pan_device(d, p, st8),
+   % ns9 = st9`nde_state,
+    % st10 = tick_pan_patient(p, st9),
+   % ns10 = st10`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+   % (ns4`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   %  (ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   %  (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  % (ns5`act_msg_waiting(dnde)`last_pos < mindex) AND
+   (ns5`act_msg_waiting(dnde)`buf_status /= full) AND
+  % (ns7`act_msg_waiting(dnde)`last_pos < mindex) AND
+  % (ns7`act_msg_waiting(dnde)`buf_status /= full) AND
+  %  (ns7`act_msg_waiting
+   %        (dnde)`current_pos
+   %     = ns5`act_msg_waiting(dnde)`last_pos) AND
+   % (ns8`act_msg_waiting(dnde)`buf_status /= full) AND
+  %  (ns8`act_msg_waiting(dnde)`last_pos < mindex) AND 
+   % (ns8`act_msg_waiting
+    %       (dnde)`current_pos
+    %    = ns7`act_msg_waiting(dnde)`last_pos) AND
+   % (ns8`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns8`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns9`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns9`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns9`pan_msg_waiting
+   %        (pnde)`current_pos
+   %     = ns8`pan_msg_waiting(pnde)`last_pos) AND
+ %    (ns10`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+ %    (ns10`pan_msg_waiting(coord_node)`buf_status /= full) AND 
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (st`pdb(p)`ip_state(d)`m /= off) AND
+     (a /= powr) AND (a /= nil_action) AND 
+   %  ((b = confirm) OR (b = hold)) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`sel_device`dv = d AND
+     st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (ps`pmode = d_mode) AND
+    %  (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+    %  (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+    %  (st`pdb(p)`ip_state(d)`time < maxtime) AND
+    %  (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+    %  (st`pdb(p)`ip_state(d)`rate >= 1) AND
+    %  (st`pdb(p)`ip_state(d)`time >= 1) AND
+    % (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+     %(st`pdb(p)`ip_state(d)`dm /= dalarm) AND
+     % ((st`pdb(p)`ip_state(d))`prevdm /= dalarm) AND
+     % establishing initial state relationship
+     %res_act(a) AND
+     %relate_ip_to_pan(ps`ip_state(d)) AND     
+     p_d_per_action(a, ps) AND
+     % establishing initial state relationship
+     %((b = hold) OR (b = confirm)) AND
+   %  ps_trans_xconf(a, p, pre, post) AND
+   %  relate_ip_to_pan(pspre`ip_state(d)) AND     
+     consistent_patient_d(d, p, st) AND
+     % p_d_per_action(a, st`pdb(p)) AND
+     (ps`emode = edit_none) %AND
+    % (ps`ip_state(d)`dm /= dalarm)
+     % p_d_per_action(b, p_d_fun_action(a, p, st)`pdb(p))
+     IMPLIES
+    (p_d_per_action(confirm, p_d_fun_action(a, p, st)`pdb(p)) =
+      per_confirm(tick(execute_ip(a, st`pdb(p)`ip_state(d))))) AND
+     (p_d_per_action(hold, p_d_fun_action(a, p, st)`pdb(p)) =
+      per_pause(tick(execute_ip(a, st`pdb(p)`ip_state(d))))) AND
+      (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`m /= off) %AND
+    %  (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`dm /= dalarm)
+
+% QED p_comp_p_d_alarm_free proved by nmdh4 on Mon, 30 Jan 2023 11:07:40 GMT
+% QED p_comp_p_d_alarm_free proved by nmdh4 on Thu, 16 Mar 2023 16:02:18 GMT
+% @QED p_comp_p_d_alarm_free proved by nmdh4 on Tue, 28 Mar 2023 13:44:08 GMT
+p_comp_p_d_alarm_free: LEMMA
+FORALL (a: action_id, d: device, p: patient, st: state):
+LET ps = st`pdb(p), pnde = nde(ps), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    ns = st`nde_state,
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state%,
+   % st6 = patient_enter_action(b, p, st5),
+   % st7 = patient_act_mono(p, st6),
+   % ns7 = st7`nde_state,
+   % st8 = tick_act_device(d, p, st7),
+   % ns8 = st8`nde_state,
+   % st9 = tick_pan_device(d, p, st8),
+   % ns9 = st9`nde_state,
+    % st10 = tick_pan_patient(p, st9),
+   % ns10 = st10`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+   % (ns4`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   %  (ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   %  (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  % (ns5`act_msg_waiting(dnde)`last_pos < mindex) AND
+   (ns5`act_msg_waiting(dnde)`buf_status /= full) AND
+  % (ns7`act_msg_waiting(dnde)`last_pos < mindex) AND
+  % (ns7`act_msg_waiting(dnde)`buf_status /= full) AND
+  %  (ns7`act_msg_waiting
+   %        (dnde)`current_pos
+   %     = ns5`act_msg_waiting(dnde)`last_pos) AND
+   % (ns8`act_msg_waiting(dnde)`buf_status /= full) AND
+  %  (ns8`act_msg_waiting(dnde)`last_pos < mindex) AND 
+   % (ns8`act_msg_waiting
+    %       (dnde)`current_pos
+    %    = ns7`act_msg_waiting(dnde)`last_pos) AND
+   % (ns8`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns8`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns9`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns9`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns9`pan_msg_waiting
+   %        (pnde)`current_pos
+   %     = ns8`pan_msg_waiting(pnde)`last_pos) AND
+ %    (ns10`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+ %    (ns10`pan_msg_waiting(coord_node)`buf_status /= full) AND 
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (st`pdb(p)`ip_state(d)`m /= off) AND
+     (a /= powr) AND (a /= nil_action) AND 
+   %  ((b = confirm) OR (b = hold)) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`sel_device`dv = d AND
+     st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (ps`pmode = d_mode) AND
+      (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+      (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+      (st`pdb(p)`ip_state(d)`time < maxtime) AND
+      (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+      (st`pdb(p)`ip_state(d)`rate >= 1) AND
+      (st`pdb(p)`ip_state(d)`time >= 1) AND
+     (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+     (st`pdb(p)`ip_state(d)`dm /= dalarm) AND
+     % ((st`pdb(p)`ip_state(d))`prevdm /= dalarm) AND
+     % establishing initial state relationship
+     %res_act(a) AND
+     %relate_ip_to_pan(ps`ip_state(d)) AND     
+     p_d_per_action(a, ps) AND
+     % establishing initial state relationship
+     %((b = hold) OR (b = confirm)) AND
+   %  ps_trans_xconf(a, p, pre, post) AND
+   %  relate_ip_to_pan(pspre`ip_state(d)) AND     
+     consistent_patient_d(d, p, st) AND
+     % p_d_per_action(a, st`pdb(p)) AND
+     (ps`emode = edit_none) %AND
+    % (ps`ip_state(d)`dm /= dalarm)
+     % p_d_per_action(b, p_d_fun_action(a, p, st)`pdb(p))
+     IMPLIES
+    (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`dm /= dalarm)
+
+% QED p_comp_accessx proved by nmdh4 on Thu, 11 Aug 2022 13:55:43 GMT
+% QED p_comp_accessx proved by nmdh4 on Mon, 15 Aug 2022 19:59:43 GMT
+% QED p_comp_accessx proved by nmdh4 on Mon, 24 Oct 2022 15:44:10 GMT
+% QED p_comp_accessx proved by nmdh4 on Thu, 22 Dec 2022 13:24:34 GMT
+% QED p_comp_accessx proved by nmdh4 on Wed, 1 Feb 2023 15:06:49 GMT
+% QED p_comp_accessx proved by nmdh4 on Thu, 16 Mar 2023 16:13:02 GMT
+% @QED p_comp_accessx proved by nmdh4 on Tue, 28 Mar 2023 13:52:52 GMT
+p_comp_accessx: LEMMA
+FORALL (a: action_id, d: device, p: patient, st: state):
+LET ps = st`pdb(p), pnde = nde(ps), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    ns = st`nde_state,
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state,
+    st6c = patient_enter_action(confirm, p, st5),
+    st7c = patient_act_mono(p, st6c),
+    ns7c = st7c`nde_state,
+    st8c = tick_act_device(d, p, st7c),
+    ns8c = st8c`nde_state,
+    st9c = tick_pan_device(d, p, st8c),
+    ns9c = st9c`nde_state,
+    st10c = tick_pan_patient(p, st9c),
+    ns10c = st10c`nde_state,
+    st6h = patient_enter_action(hold, p, st5),
+    st7h = patient_act_mono(p, st6h),
+    ns7h = st7h`nde_state,
+    st8h = tick_act_device(d, p, st7h),
+    ns8h = st8h`nde_state,
+    st9h = tick_pan_device(d, p, st8h),
+    ns9h = st9h`nde_state,
+    st10h = tick_pan_patient(p, st9h),
+    ns10h = st10h`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+
+   % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND 
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns3`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+   % (ns4`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   %  (ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+   %  (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  % (ns5`act_msg_waiting(dnde)`last_pos < mindex) AND
+   (ns5`act_msg_waiting(dnde)`buf_status /= full) AND
+  % (ns7c`act_msg_waiting(dnde)`last_pos < mindex) AND
+   (ns7c`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns7c`act_msg_waiting
+           (dnde)`current_pos
+        = ns5`act_msg_waiting(dnde)`last_pos) AND
+    (ns8c`act_msg_waiting(dnde)`buf_status /= full) AND
+   % (ns8c`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns8c`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns8c`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns8c`act_msg_waiting
+           (dnde)`current_pos
+        = ns7c`act_msg_waiting(dnde)`last_pos) AND
+    (ns9c`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns9c`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns9c`pan_msg_waiting
+           (pnde)`current_pos
+        = ns8c`pan_msg_waiting(pnde)`last_pos) AND
+    % (ns10c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+     (ns10c`pan_msg_waiting(coord_node)`buf_status /= full) AND 
+    % (ns7h`act_msg_waiting(dnde)`last_pos < mindex) AND
+   (ns7h`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns7h`act_msg_waiting
+           (dnde)`current_pos
+        = ns5`act_msg_waiting(dnde)`last_pos) AND
+    (ns8h`act_msg_waiting(dnde)`buf_status /= full) AND
+    % (ns8h`act_msg_waiting(dnde)`last_pos < mindex) AND 
+    (ns8h`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns8h`pan_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns8h`act_msg_waiting
+           (dnde)`current_pos
+        = ns7h`act_msg_waiting(dnde)`last_pos) AND
+    (ns9h`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns9h`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns9h`pan_msg_waiting
+           (pnde)`current_pos
+        = ns8h`pan_msg_waiting(pnde)`last_pos) AND
+   %  (ns10h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+     (ns10h`pan_msg_waiting(coord_node)`buf_status /= full) AND 
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (st`pdb(p)`ip_state(d)`m /= off) AND
+     (a /= powr) AND (a /= nil_action) AND 
+     %((b = confirm) OR (b = hold)) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`sel_device`dv = d AND
+     st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (ps`pmode = d_mode) AND
+     (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+     (st`pdb(p)`ip_state(d)`time < maxtime) AND
+     (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+     (st`pdb(p)`ip_state(d)`rate >= 1) AND
+     (st`pdb(p)`ip_state(d)`time >= 1) AND
+     (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+    %  (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`rate < p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`vtbi) AND 
+    % (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`rate < maxrate) AND
+    % (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`time < maxtime) AND
+    % (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+    %  (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`rate >= 1) AND
+    % (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`time >= 1) AND
+    % (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+    % (p_d_fun_action(a, p, st)`pdb(p)`ip_state(d)`dm /= dalarm) AND
+     % ((p_d_fun_action(a, p, st)`pdb(p)`ip_state(d))`prevdm /= dalarm) AND
+     % establishing initial state relationship
+     %res_act(a) AND
+     %relate_ip_to_pan(ps`ip_state(d)) AND     
+     p_d_per_action(a, ps) AND
+     % establishing initial state relationship
+     %((b = hold) OR (b = confirm)) AND
+   %  ps_trans_xconf(a, p, pre, post) AND
+   %  relate_ip_to_pan(pspre`ip_state(d)) AND     
+     consistent_patient_d(d, p, st) AND
+     % p_d_per_action(a, st`pdb(p)) AND
+     (ps`emode = edit_none) AND
+     (ps`ip_state(d)`dm /= dalarm) 
+     IMPLIES
+     ( p_d_per_action(confirm, p_d_fun_action(a, p, st)`pdb(p))
+     IMPLIES
+    ((p_d_fun_action(confirm, p, p_d_fun_action(a, p, st))`pdb(p)`p_disp_device`enum_disp(dpm)
+                 = xmainmenu) AND
+      (p_d_fun_action(confirm, p, p_d_fun_action(a, p, st))`pdb(p)`p_disp_device`enum_disp(mde)
+           = xpause))) AND
+     ( p_d_per_action(hold, p_d_fun_action(a, p, st)`pdb(p))
+     IMPLIES
+    ((p_d_fun_action(hold, p, p_d_fun_action(a, p, st))`pdb(p)`p_disp_device`enum_disp(dpm)
+                 = xmainmenu) AND
+      (p_d_fun_action(hold, p, p_d_fun_action(a, p, st))`pdb(p)`p_disp_device`enum_disp(mde)
+           = xpause)))
+
+
+
+
+% QED c_fun_consistent proved by nmdh4 on Tue, 14 Feb 2023 12:03:12 GMT
+% @QED c_fun_consistent proved by nmdh4 on Thu, 16 Mar 2023 16:20:40 GMT
+c_fun_consistent: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+ LET ps = st`pdb(p), 
+    pnde = nde(ps), 
+    dnde = IF ps`p_disp_top`devs(d) = infusion_pump THEN ps`ip_state(d)`nde
+           ELSE ps`vital_signs`nde ENDIF,
+    ns = st`nde_state,
+    is = st`coord_st,
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state
+    
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+     (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  
+    % patient known to the system
+     (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     (is`mode = d_mode) AND
+     (is`disp_focus = device_focus) AND
+     ((is`disp_top)`patients)(p) AND 
+     ((((is`coord_db)(p)`p_devices(d) = infusion_pump) AND
+     ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+     (ps`ip_state(d)`m /= off)) OR
+    (((is`coord_db)(p)`p_devices(d) = vital_signs_device) AND
+      (ps`p_disp_top)`devs(d) = vital_signs_device AND
+      ps`vital_signs`power)) AND
+     ((is`disp_patient)`current_patient = p) AND
+     (is`disp_device)`current_device = d AND
+     c_d_per_action(a, is)
+     IMPLIES
+     consistent_coordinator_d(d, p, c_d_fun_action(a, st)) 
+
+
+
+c_p_fun_consistent_displayspt1: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+ LET ps = st`pdb(p), 
+    pnde = nde(ps), 
+    dnde = IF ps`p_disp_top`devs(d) = infusion_pump THEN ps`ip_state(d)`nde
+           ELSE ps`vital_signs`nde ENDIF,
+    ns = st`nde_state,
+    is = st`coord_st,
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state,
+    is7 = st7`coord_st,
+    ps7 = st7`pdb(p),
+    st7x = c_d_fun_action(a, st),
+    is7x = st7x`coord_st,
+    ps7x = st7x`pdb(p),
+    st7y = c_p_fun_action(a, st),
+    is7y = st7y`coord_st,
+    ps7y = st7y`pdb(p)
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+     (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  
+    % patient known to the system
+     (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+    % (is`mode = d_mode) AND
+    % (is`disp_focus = device_focus) AND
+     ((is`disp_top)`patients)(p) AND 
+     ((((is`coord_db)(p)`p_devices(d) = infusion_pump) AND
+     ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+     (ps`ip_state(d)`m /= off)) OR
+    (((is`coord_db)(p)`p_devices(d) = vital_signs_device) AND
+      (ps`p_disp_top)`devs(d) = vital_signs_device AND
+      ps`vital_signs`power)) AND
+     %((is`disp_patient)`current_patient = p) AND
+     %(is`disp_device)`current_device = d AND
+     %c_d_per_action(a, is) AND
+     is`coord_db(p)`p_enum_params = 
+            ps`p_disp_main`disp_enum_params AND
+     is`coord_db(p)`p_num_params = 
+            ps`p_disp_main`disp_num_params AND
+     is`coord_db(p)`p_av_actions =
+         ps`p_disp_main`p_actions AND
+     ps`filter_device_panels(d) =
+          is`coord_db(p)`coord_devices(d) AND
+     ps`filter_device_panels(d)`cmds = is`coord_db(p)`d_available_actions(d)
+     IMPLIES
+   %  ((((is`mode = p_mode) OR (is`mode = d_mode)))  
+    % is`disp_patient`current_patient = p)
+    (c_d_per_actionx(a, d, p, is)
+     IMPLIES
+     ((is7x`disp_patient`patient_enum_params = 
+          ps7x`p_disp_main`disp_enum_params) AND
+     (is7x`disp_patient`patient_num_params =
+         ps7x`p_disp_main`disp_num_params) AND
+      (is7x`disp_patient`av_main_act =
+         ps7x`p_disp_main`p_actions))) AND
+   (c_p_per_actionx(a, d, p, is)
+     IMPLIES
+     ((is7y`disp_patient`patient_enum_params = 
+          ps7y`p_disp_main`disp_enum_params) AND
+     (is7y`disp_patient`patient_num_params =
+         ps7y`p_disp_main`disp_num_params) AND
+      (is7y`disp_patient`av_main_act =
+         ps7y`p_disp_main`p_actions)))
+
+
+
+% @QED c_p_fun_consistent_displaysx proved by nmdh4 on Wed, 05 Jul 2023 13:38:16 GMT
+c_p_fun_consistent_displaysx: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+ LET ps = st`pdb(p), 
+    pnde = nde(ps), 
+    dnde = IF ps`p_disp_top`devs(d) = infusion_pump THEN ps`ip_state(d)`nde
+           ELSE ps`vital_signs`nde ENDIF,
+    ns = st`nde_state,
+    is = st`coord_st,
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state,
+    is7 = st7`coord_st,
+    ps7 = st7`pdb(p),
+    st7x = c_d_fun_action(a, st),
+    is7x = st7x`coord_st,
+    ps7x = st7x`pdb(p),
+    st7y = c_p_fun_action(a, st),
+    is7y = st7y`coord_st,
+    ps7y = st7y`pdb(p)
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+     (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  
+    % patient known to the system
+     (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+    % (is`mode = d_mode) AND
+    % (is`disp_focus = device_focus) AND
+     ((is`disp_top)`patients)(p) AND 
+     ((((is`coord_db)(p)`p_devices(d) = infusion_pump) AND
+     ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+     (ps`ip_state(d)`m /= off)) OR
+    (((is`coord_db)(p)`p_devices(d) = vital_signs_device) AND
+      (ps`p_disp_top)`devs(d) = vital_signs_device AND
+      ps`vital_signs`power)) AND
+     %((is`disp_patient)`current_patient = p) AND
+     %(is`disp_device)`current_device = d AND
+     %c_d_per_action(a, is) AND
+     is`coord_db(p)`p_enum_params = 
+            ps`p_disp_main`disp_enum_params AND
+     is`coord_db(p)`p_num_params = 
+            ps`p_disp_main`disp_num_params AND
+     is`coord_db(p)`p_av_actions =
+         ps`p_disp_main`p_actions AND
+     ps`filter_device_panels(d) =
+          is`coord_db(p)`coord_devices(d) AND
+     ps`filter_device_panels(d)`cmds = is`coord_db(p)`d_available_actions(d)
+     IMPLIES
+   %  ((((is`mode = p_mode) OR (is`mode = d_mode)))  
+    % is`disp_patient`current_patient = p)
+    (c_d_per_actionx(a, d, p, is)
+     IMPLIES
+     ((is7x`disp_patient`patient_enum_params = 
+          ps7x`p_disp_main`disp_enum_params) AND
+     (is7x`disp_patient`patient_num_params =
+         ps7x`p_disp_main`disp_num_params) AND
+      (is7x`disp_patient`av_main_act =
+         ps7x`p_disp_main`p_actions))) 
+
+% @QED c_p_fun_consistent_displaysy proved by nmdh4 on Wed, 05 Jul 2023 15:14:20 GMT
+c_p_fun_consistent_displaysy: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+ LET ps = st`pdb(p), 
+    pnde = nde(ps), 
+    dnde = IF ps`p_disp_top`devs(d) = infusion_pump THEN ps`ip_state(d)`nde
+           ELSE ps`vital_signs`nde ENDIF,
+    ns = st`nde_state,
+    is = st`coord_st,
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state,
+    is7 = st7`coord_st,
+    ps7 = st7`pdb(p),
+    st7x = c_d_fun_action(a, st),
+    is7x = st7x`coord_st,
+    ps7x = st7x`pdb(p),
+    st7y = c_p_fun_action(a, st),
+    is7y = st7y`coord_st,
+    ps7y = st7y`pdb(p)
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+     (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  
+    % patient known to the system
+     (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+    % (is`mode = d_mode) AND
+    % (is`disp_focus = device_focus) AND
+     ((is`disp_top)`patients)(p) AND 
+     ((((is`coord_db)(p)`p_devices(d) = infusion_pump) AND
+     ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+     (ps`ip_state(d)`m /= off)) OR
+    (((is`coord_db)(p)`p_devices(d) = vital_signs_device) AND
+      (ps`p_disp_top)`devs(d) = vital_signs_device AND
+      ps`vital_signs`power)) AND
+     %((is`disp_patient)`current_patient = p) AND
+     %(is`disp_device)`current_device = d AND
+     %c_d_per_action(a, is) AND
+     is`coord_db(p)`p_enum_params = 
+            ps`p_disp_main`disp_enum_params AND
+     is`coord_db(p)`p_num_params = 
+            ps`p_disp_main`disp_num_params AND
+     is`coord_db(p)`p_av_actions =
+         ps`p_disp_main`p_actions AND
+     ps`filter_device_panels(d) =
+          is`coord_db(p)`coord_devices(d) AND
+     ps`filter_device_panels(d)`cmds = is`coord_db(p)`d_available_actions(d)
+     IMPLIES
+   %  ((((is`mode = p_mode) OR (is`mode = d_mode)))  
+    % is`disp_patient`current_patient = p)
+   (c_p_per_actionx(a, d, p, is)
+     IMPLIES
+     ((is7y`disp_patient`patient_enum_params = 
+          ps7y`p_disp_main`disp_enum_params) AND
+     (is7y`disp_patient`patient_num_params =
+         ps7y`p_disp_main`disp_num_params) AND
+      (is7y`disp_patient`av_main_act =
+         ps7y`p_disp_main`p_actions))) 
+
+% @QED c_p_fun_consistent_displaysxx proved by nmdh4 on Mon, 10 Jul 2023 16:35:29 GMT
+c_p_fun_consistent_displaysxx: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+ LET ps = st`pdb(p), 
+    pnde = nde(ps), 
+    dnde = IF ps`p_disp_top`devs(d) = infusion_pump THEN ps`ip_state(d)`nde
+           ELSE ps`vital_signs`nde ENDIF,
+    ns = st`nde_state,
+    is = st`coord_st,
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state,
+    is7 = st7`coord_st,
+    ps7 = st7`pdb(p),
+    st7x = c_d_fun_action(a, st),
+    is7x = st7x`coord_st,
+    ps7x = st7x`pdb(p),
+    st7y = c_p_fun_action(a, st),
+    is7y = st7y`coord_st,
+    ps7y = st7y`pdb(p)
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+     (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+  
+    % patient known to the system
+     (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+    % (is`mode = d_mode) AND
+    % (is`disp_focus = device_focus) AND
+     ((is`disp_top)`patients)(p) AND 
+     ((((is`coord_db)(p)`p_devices(d) = infusion_pump) AND
+     ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+     (ps`ip_state(d)`m /= off)) OR
+    (((is`coord_db)(p)`p_devices(d) = vital_signs_device) AND
+      (ps`p_disp_top)`devs(d) = vital_signs_device AND
+      ps`vital_signs`power)) AND
+     %((is`disp_patient)`current_patient = p) AND
+     %(is`disp_device)`current_device = d AND
+     %c_d_per_action(a, is) AND
+     is`coord_db(p)`p_enum_params = 
+            ps`p_disp_main`disp_enum_params AND
+     is`coord_db(p)`p_num_params = 
+            ps`p_disp_main`disp_num_params AND
+     is`coord_db(p)`p_av_actions =
+         ps`p_disp_main`p_actions AND
+     ps`filter_device_panels(d) =
+          is`coord_db(p)`coord_devices(d) AND
+     ps`filter_device_panels(d)`cmds = is`coord_db(p)`d_available_actions(d)
+     IMPLIES
+   %  ((((is`mode = p_mode) OR (is`mode = d_mode)))  
+    % is`disp_patient`current_patient = p)
+     ((c_d_per_actionx(a, d, p, is) AND (ps`pmode = dc_mode) AND
+      (ps`p_disp_top)`sel_device`dv = d)
+     IMPLIES
+      (is7x`disp_device`e_disp = ps7x`p_disp_device`enum_disp AND
+       is7x`disp_device`n_disp = ps7x`p_disp_device`num_disp AND
+       is7x`disp_device`av_c_disp = ps7x`p_disp_device`cmds))
+
+
+% QED accessx proved by nmdh4 on Wed, 29 Jun 2022 09:45:27 GMT
+% QED c_comp_accessx proved by nmdh4 on Mon, 24 Oct 2022 09:46:36 GMT
+% QED c_comp_accessx proved by nmdh4 on Mon, 23 Jan 2023 11:04:39 GMT
+% QED c_comp_accessx proved by nmdh4 on Fri, 03 Feb 2023 15:18:58 GMT
+% QED c_comp_accessx proved by nmdh4 on Mon, 06 Feb 2023 17:56:57 GMT
+% @QED c_comp_accessx proved by nmdh4 on Thu, 16 Mar 2023 16:38:01 GMT
+c_comp_accessx: LEMMA
+ FORALL (a: action_id, d: device, p: patient, st: state):
+ LET ps = st`pdb(p), pnde = nde(ps),
+     ds = ps`ip_state(d), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    is = st`coord_st,
+    ns = st`nde_state,
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state,
+    st8c = coordinator_enter_action(confirm, st7),
+    st9c = coord_act_mono(st8c),
+    ns9c = st9c`nde_state,
+    st10c = tick_act_patient(p, st9c),
+    ns10c = st10c`nde_state,
+    st11c = tick_act_device(d, p, st10c),
+    ns11c = st11c`nde_state,
+    st12c = tick_pan_device(d, p, st11c),
+    ns12c = st12c`nde_state,
+    st13c = tick_pan_patient(p, st12c),
+    ns13c = st13c`nde_state,
+    st14c = tick_pan_coordinator(st13c),
+    ns14c = st14c`nde_state,
+    st8h = coordinator_enter_action(hold, st7),
+    st9h = coord_act_mono(st8h),
+    ns9h = st9h`nde_state,
+    st10h = tick_act_patient(p, st9h),
+    ns10h = st10h`nde_state,
+    st11h = tick_act_device(d, p, st10h),
+    ns11h = st11h`nde_state,
+    st12h = tick_pan_device(d, p, st11h),
+    ns12h = st12h`nde_state,
+    st13h = tick_pan_patient(p, st12h),
+    ns13h = st13h`nde_state,
+    st14h = tick_pan_coordinator(st13h),
+    ns14h = st14h`nde_state IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+   %  (ns`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns2`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+     %(ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+     %(ns3`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    %(ns4`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns5`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns6`pan_msg_waiting
+             (pnde)`current_pos
+         = ns5`pan_msg_waiting(pnde)`last_pos) AND
+    %(ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    %(ns6`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    %(ns7`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns7`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns7`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9c`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns9c`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9c`act_msg_waiting
+           (pnde)`current_pos
+        = ns7`act_msg_waiting(pnde)`last_pos) AND
+     (ns9c`act_msg_waiting(dnde)`buf_status /= full) AND
+     %(ns9c`act_msg_waiting(dnde)`last_pos < mindex) AND
+     %(ns10c`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns10c`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10c`act_msg_waiting
+           (dnde)`current_pos
+        = ns9c`act_msg_waiting(dnde)`last_pos) AND
+    %(ns11c`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns11c`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns11c`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns11c`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12c`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns12c`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12c`pan_msg_waiting
+           (pnde)`current_pos
+        = ns11c`pan_msg_waiting(pnde)`last_pos) AND
+    (ns13c`pan_msg_waiting
+             (pnde)`current_pos
+         = ns12c`pan_msg_waiting(pnde)`last_pos) AND
+    %(ns12c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns12c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    %(ns13c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns13c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13c`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns12c`pan_msg_waiting(coord_node)`last_pos) AND
+    %(ns14c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns14c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns9h`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns9h`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9h`act_msg_waiting
+           (pnde)`current_pos
+        = ns7`act_msg_waiting(pnde)`last_pos) AND
+     (ns9h`act_msg_waiting(dnde)`buf_status /= full) AND
+     %(ns9h`act_msg_waiting(dnde)`last_pos < mindex) AND
+     %(ns10h`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns10h`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10h`act_msg_waiting
+           (dnde)`current_pos
+        = ns9h`act_msg_waiting(dnde)`last_pos) AND
+    %(ns11h`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns11h`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns11h`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns11h`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12h`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns12h`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12h`pan_msg_waiting
+           (pnde)`current_pos
+        = ns11h`pan_msg_waiting(pnde)`last_pos) AND
+    (ns13h`pan_msg_waiting
+             (pnde)`current_pos
+         = ns12h`pan_msg_waiting(pnde)`last_pos) AND
+    %(ns12h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns12h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    % (ns13h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns13h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13h`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns12h`pan_msg_waiting(coord_node)`last_pos) AND
+    %(ns14h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns14h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     %((b = confirm) OR (b = hold)) AND
+    % home_acts(b) AND
+     (ds`m /= off) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+     (st`pdb(p)`ip_state(d)`time < maxtime) AND
+     (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+     (st`pdb(p)`ip_state(d)`rate >= 1) AND
+     (st`pdb(p)`ip_state(d)`time >= 1) AND
+     (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+    % (c_d_fun_action(a, st)`pdb(p)`ip_state(d)`rate < c_d_fun_action(a, st)`pdb(p)`ip_state(d)`vtbi) AND 
+    % (c_d_fun_action(a, st)`pdb(p)`ip_state(d)`rate < maxrate) AND
+    % (c_d_fun_action(a, st)`pdb(p)`ip_state(d)`time < maxtime) AND
+    % (c_d_fun_action(a, st)`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+    %  (c_d_fun_action(a, st)`pdb(p)`ip_state(d)`rate >= 1) AND
+    % (c_d_fun_action(a, st)`pdb(p)`ip_state(d)`time >= 1) AND
+    % (c_d_fun_action(a, st)`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+    % (c_d_fun_action(a, st)`pdb(p)`ip_state(d)`dm /= dalarm) AND
+    %  ((c_d_fun_action(a, st)`pdb(p)`ip_state(d))`prevdm /= dalarm) AND
+     % establishing initial state relationship
+     %res_act(a) AND
+     %relate_ip_to_pan(ps`ip_state(d)) AND     
+     consistent_coordinator_d(d, p, st) AND
+     c_d_per_action(a, is) AND
+     (is`mode = d_mode) AND
+     (is`disp_focus = device_focus) AND
+     (is`coord_db(p)`p_devices(d) = infusion_pump) AND
+     ((is`disp_patient)`current_patient = p) AND
+     (is`disp_device)`current_device = d AND
+     ((is`disp_top)`patients)(p) AND
+     (ps`ip_state(d)`dm /= dalarm) AND
+     (is`coord_db(p)`coord_devices(d)`pars(mde)) AND % implies that if device displayed then parameter is displayed
+     (is`coord_db(p)`coord_devices(d)`pars(dpm)) AND
+     (is`coord_db)(p)`d_available_actions(d)(hold) AND % these actions have been made visible
+     (is`coord_db)(p)`d_available_actions(d)(confirm)  
+     IMPLIES
+     ((c_d_per_action(confirm, c_d_fun_action(a, st)`coord_st)
+     IMPLIES
+    ((c_d_fun_action(confirm, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(dpm)
+                 = xmainmenu) AND
+      (c_d_fun_action(confirm, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(mde)
+           = xpause))) AND
+   (c_d_per_action(hold, c_d_fun_action(a, st)`coord_st)
+     IMPLIES
+    ((c_d_fun_action(hold, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(dpm)
+                 = xmainmenu) AND
+      (c_d_fun_action(hold, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(mde)
+           = xpause))))
+
+% QED p_comp_allz proved by nmdh4 on Tue, 14 Feb 2023 15:41:13 GMT
+% QED p_comp_allz proved by nmdh4 on Thu, 16 Mar 2023 17:04:17 GMT
+% @QED p_comp_allz proved by nmdh4 on Tue, 28 Mar 2023 14:18:48 GMT
+p_comp_allz: LEMMA
+ FORALL (a: action_id,
+         d: device, p: patient, st: state):
+LET ps = st`pdb(p), pnde = nde(ps), 
+    dnde = nde(ps`ip_state(d)), 
+    ns = st`nde_state,
+    st1 = patient_enter_action(a, p, st),
+    st2 = patient_act_mono(p, st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_device(d, p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_pan_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_patient(p, st4),
+    ns5 = st5`nde_state,
+    st6c = patient_enter_action(confirm, p, st5),
+    st7c = patient_act_mono(p, st6c),
+    ns7c = st7c`nde_state,
+    st8c = tick_act_device(d, p, st7c),
+    ns8c = st8c`nde_state,
+    st9c = tick_pan_device(d, p, st8c),
+    ns9c = st9c`nde_state,
+    st10c = tick_pan_patient(p, st9c),
+    ns10c = st10c`nde_state,
+    st6h = patient_enter_action(hold, p, st5),
+    st7h = patient_act_mono(p, st6h),
+    ns7h = st7h`nde_state,
+    st8h = tick_act_device(d, p, st7h),
+    ns8h = st8h`nde_state,
+    st9h = tick_pan_device(d, p, st8h),
+    ns9h = st9h`nde_state,
+    st10h = tick_pan_patient(p, st9h),
+    ns10h = st10h`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns2`act_msg_waiting
+           (dnde)`current_pos
+        = ns`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    (ns3`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns4`pan_msg_waiting
+           (pnde)`current_pos
+        = ns3`pan_msg_waiting(pnde)`last_pos) AND
+     (ns4`pan_msg_waiting(coord_node)`buf_status /= full) AND
+     (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+     (ns5`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns7c`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns7c`act_msg_waiting
+           (dnde)`current_pos
+        = ns5`act_msg_waiting(dnde)`last_pos) AND
+    (ns8c`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns8c`act_msg_waiting
+           (dnde)`current_pos
+        = ns7c`act_msg_waiting(dnde)`last_pos) AND
+    (ns8c`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns9c`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns9c`pan_msg_waiting
+           (pnde)`current_pos
+        = ns8c`pan_msg_waiting(pnde)`last_pos) AND
+    (ns10c`pan_msg_waiting(coord_node)`buf_status /= full) AND 
+    (ns7h`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns7h`act_msg_waiting
+           (dnde)`current_pos
+        = ns5`act_msg_waiting(dnde)`last_pos) AND
+    (ns8h`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns8h`act_msg_waiting
+           (dnde)`current_pos
+        = ns7h`act_msg_waiting(dnde)`last_pos) AND
+    (ns8h`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns9h`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns9h`pan_msg_waiting
+           (pnde)`current_pos
+        = ns8h`pan_msg_waiting(pnde)`last_pos) AND
+     (ns10h`pan_msg_waiting(coord_node)`buf_status /= full) AND 
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (a /= powr) AND (a /= nil_action) AND 
+     (st`pdb(p)`ip_state(d)`m /= off) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`sel_device`dv = d AND
+     st`pdb(p)`p_disp_top`sel_device`dt = infusion_pump AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (ps`pmode = d_mode) AND
+     (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+     (st`pdb(p)`ip_state(d)`time < maxtime) AND
+     (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+      (st`pdb(p)`ip_state(d)`rate >= 1) AND
+     (st`pdb(p)`ip_state(d)`time >= 1) AND
+     (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+      % establishing initial state relationship
+     consistent_patient_d(d, p, st) AND
+      p_d_per_action(a, st`pdb(p)) AND
+     (ps`emode = edit_none) AND
+      (ps`ip_state(d)`dm /= dalarm) 
+     IMPLIES
+      (p_d_home_casez(a, confirm, p, st) AND   
+    NOT p_d_per_action(hold, p_d_fun_action(a, p, st)`pdb(p))) OR 
+    (p_d_home_casez(a, hold, p, st) AND   
+    NOT p_d_per_action(confirm, p_d_fun_action(a, p, st)`pdb(p))) OR
+    p_d_complete_goal(a, p, st)
+
+% QED c_comp_c_d_per_action proved by nmdh4 on Mon, 22 Aug 2022 10:44:21 GMT
+% QED c_comp_c_d_per_action proved by nmdh4 on Mon, 24 Oct 2022 10:27:29 GMT
+% QED c_comp_c_d_per_action proved by nmdh4 on Thu, 27 Oct 2022 14:01:54 GMT
+% QED c_comp_c_d_per_action proved by nmdh4 on Fri, 03 Feb 2023 11:57:13 GMT
+% QED c_comp_c_d_per_action proved by nmdh4 on Fri, 03 Feb 2023 12:40:40 GMT
+% @QED c_comp_c_d_per_action proved by nmdh4 on Thu, 16 Mar 2023 17:12:41 GMT
+c_comp_c_d_per_action: LEMMA
+ FORALL (a: action_id,
+         d: device, p: patient, st: state):
+%FORALL (b: action_id):
+ LET ps = st`pdb(p), pnde = nde(ps),
+     ds = ps`ip_state(d), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    is = st`coord_st,
+    ns = st`nde_state,
+ % home_acts = LAMBDA (x: action_id): (x = hold) OR (x = confirm), 
+  % FORALL (b: action_id):
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state,
+    st8c = coordinator_enter_action(confirm, st7),
+    st9c = coord_act_mono(st8c),
+    ns9c = st9c`nde_state,
+    st10c = tick_act_patient(p, st9c),
+    ns10c = st10c`nde_state,
+    st11c = tick_act_device(d, p, st10c),
+    ns11c = st11c`nde_state,
+    st12c = tick_pan_device(d, p, st11c),
+    ns12c = st12c`nde_state,
+    st13c = tick_pan_patient(p, st12c),
+    ns13c = st13c`nde_state,
+    st14c = tick_pan_coordinator(st13c),
+    ns14c = st14c`nde_state,
+    st8h = coordinator_enter_action(hold, st7),
+    st9h = coord_act_mono(st8h),
+    ns9h = st9h`nde_state,
+    st10h = tick_act_patient(p, st9h),
+    ns10h = st10h`nde_state,
+    st11h = tick_act_device(d, p, st10h),
+    ns11h = st11h`nde_state,
+    st12h = tick_pan_device(d, p, st11h),
+    ns12h = st12h`nde_state,
+    st13h = tick_pan_patient(p, st12h),
+    ns13h = st13h`nde_state,
+    st14h = tick_pan_coordinator(st13h),
+    ns14h = st14h`nde_state 
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+  %   (ns`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+  %  (ns2`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+   %  (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+   %  (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    % (ns4`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns5`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns6`pan_msg_waiting
+             (pnde)`current_pos
+         = ns5`pan_msg_waiting(pnde)`last_pos) AND
+    % (ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    % (ns6`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    % (ns7`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns7`act_msg_waiting(pnde)`buf_status /= full) AND
+    %  (ns7`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9c`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns9c`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9c`act_msg_waiting
+           (pnde)`current_pos
+        = ns7`act_msg_waiting(pnde)`last_pos) AND
+     (ns9c`act_msg_waiting(dnde)`buf_status /= full) AND
+     % (ns9c`act_msg_waiting(dnde)`last_pos < mindex) AND
+     % (ns10c`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns10c`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10c`act_msg_waiting
+           (dnde)`current_pos
+        = ns9c`act_msg_waiting(dnde)`last_pos) AND
+    % (ns11c`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns11c`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns11c`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns11c`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12c`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns12c`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12c`pan_msg_waiting
+           (pnde)`current_pos
+        = ns11c`pan_msg_waiting(pnde)`last_pos) AND
+    (ns13c`pan_msg_waiting
+             (pnde)`current_pos
+         = ns12c`pan_msg_waiting(pnde)`last_pos) AND
+   % (ns12c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns12c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   % (ns13c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns13c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13c`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns12c`pan_msg_waiting(coord_node)`last_pos) AND
+   % (ns14c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns14c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns9h`act_msg_waiting(pnde)`buf_status /= full) AND
+   %  (ns9h`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9h`act_msg_waiting
+           (pnde)`current_pos
+        = ns7`act_msg_waiting(pnde)`last_pos) AND
+     (ns9h`act_msg_waiting(dnde)`buf_status /= full) AND
+    % (ns9h`act_msg_waiting(dnde)`last_pos < mindex) AND
+    % (ns10h`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns10h`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10h`act_msg_waiting
+           (dnde)`current_pos
+        = ns9h`act_msg_waiting(dnde)`last_pos) AND
+    % (ns11h`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns11h`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns11h`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns11h`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12h`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns12h`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12h`pan_msg_waiting
+           (pnde)`current_pos
+        = ns11h`pan_msg_waiting(pnde)`last_pos) AND
+    (ns13h`pan_msg_waiting
+             (pnde)`current_pos
+         = ns12h`pan_msg_waiting(pnde)`last_pos) AND
+   % (ns12h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns12h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   % (ns13h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns13h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13h`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns12h`pan_msg_waiting(coord_node)`last_pos) AND
+   % (ns14h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns14h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     %((b = confirm) OR (b = hold)) AND
+    % home_acts(b) AND
+     (ds`m /= off) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+    % (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+    % (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+    % (st`pdb(p)`ip_state(d)`time < maxtime) AND
+    % (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+    %  (st`pdb(p)`ip_state(d)`rate >= 1) AND
+    % (st`pdb(p)`ip_state(d)`time >= 1) AND
+    % (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+    % (st`pdb(p)`ip_state(d)`dm /= dalarm) AND
+    %  ((st`pdb(p)`ip_state(d))`prevdm /= dalarm) AND
+     % establishing initial state relationship
+     %res_act(a) AND
+     %relate_ip_to_pan(ps`ip_state(d)) AND     
+     consistent_coordinator_d(d, p, st) AND
+     c_d_per_action(a, is) AND
+     (is`mode = d_mode) AND
+     (is`disp_focus = device_focus) AND
+     (is`coord_db(p)`p_devices(d) = infusion_pump) AND
+     ((is`disp_patient)`current_patient = p) AND
+     (is`disp_device)`current_device = d AND
+     ((is`disp_top)`patients)(p) AND
+     (is`coord_db(p)`coord_devices(d)`pars(mde)) AND % implies that if device displayed then parameter is displayed
+     (is`coord_db(p)`coord_devices(d)`pars(dpm)) AND
+     (is`coord_db)(p)`d_available_actions(d)(confirm) AND % these actions have been made visible
+     (is`coord_db)(p)`d_available_actions(d)(hold) 
+     IMPLIES
+      c_d_per_action(confirm, c_d_fun_action(a, st)`coord_st) =
+      per_confirm(tick(execute_ip(a, st`pdb(p)`ip_state(d)))) AND
+      c_d_per_action(hold, c_d_fun_action(a, st)`coord_st) =
+      per_pause(tick(execute_ip(a, st`pdb(p)`ip_state(d))))
+
+c_comp_completex: lEMMA
+FORALL (a: action_id, d: device, p: patient, st: state):
+ LET ps = st`pdb(p), pnde = nde(ps),
+     ds = ps`ip_state(d), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ds), 
+    is = st`coord_st,
+    ns = st`nde_state,
+   st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state,
+    st8c = coordinator_enter_action(confirm, st7),
+    st9c = coord_act_mono(st8c),
+    ns9c = st9c`nde_state,
+    st10c = tick_act_patient(p, st9c),
+    ns10c = st10c`nde_state,
+    st11c = tick_act_device(d, p, st10c),
+    ns11c = st11c`nde_state,
+    st12c = tick_pan_device(d, p, st11c),
+    ns12c = st12c`nde_state,
+    st13c = tick_pan_patient(p, st12c),
+    ns13c = st13c`nde_state,
+    st14c = tick_pan_coordinator(st13c),
+    ns14c = st14c`nde_state,
+    st8h = coordinator_enter_action(hold, st7),
+    st9h = coord_act_mono(st8h),
+    ns9h = st9h`nde_state,
+    st10h = tick_act_patient(p, st9h),
+    ns10h = st10h`nde_state,
+    st11h = tick_act_device(d, p, st10h),
+    ns11h = st11h`nde_state,
+    st12h = tick_pan_device(d, p, st11h),
+    ns12h = st12h`nde_state,
+    st13h = tick_pan_patient(p, st12h),
+    ns13h = st13h`nde_state,
+    st14h = tick_pan_coordinator(st13h),
+    ns14h = st14h`nde_state 
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+   %  (ns`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+   %  (ns2`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+    % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    % (ns4`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns5`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns6`pan_msg_waiting
+             (pnde)`current_pos
+         = ns5`pan_msg_waiting(pnde)`last_pos) AND
+    % (ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    % (ns6`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    % (ns7`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns7`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns7`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9c`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns9c`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9c`act_msg_waiting
+           (pnde)`current_pos
+        = ns7`act_msg_waiting(pnde)`last_pos) AND
+     (ns9c`act_msg_waiting(dnde)`buf_status /= full) AND
+    % (ns9c`act_msg_waiting(dnde)`last_pos < mindex) AND
+    % (ns10c`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns10c`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10c`act_msg_waiting
+           (dnde)`current_pos
+        = ns9c`act_msg_waiting(dnde)`last_pos) AND
+    % (ns11c`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns11c`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns11c`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns11c`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12c`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns12c`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12c`pan_msg_waiting
+           (pnde)`current_pos
+        = ns11c`pan_msg_waiting(pnde)`last_pos) AND
+    (ns13c`pan_msg_waiting
+             (pnde)`current_pos
+         = ns12c`pan_msg_waiting(pnde)`last_pos) AND
+    % (ns12c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns12c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    % (ns13c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns13c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13c`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns12c`pan_msg_waiting(coord_node)`last_pos) AND
+    % (ns14c`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns14c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns9h`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns9h`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9h`act_msg_waiting
+           (pnde)`current_pos
+        = ns7`act_msg_waiting(pnde)`last_pos) AND
+     (ns9h`act_msg_waiting(dnde)`buf_status /= full) AND
+    % (ns9h`act_msg_waiting(dnde)`last_pos < mindex) AND
+    % (ns10h`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns10h`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10h`act_msg_waiting
+           (dnde)`current_pos
+        = ns9h`act_msg_waiting(dnde)`last_pos) AND
+    % (ns11h`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns11h`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns11h`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns11h`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12h`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns12h`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12h`pan_msg_waiting
+           (pnde)`current_pos
+        = ns11h`pan_msg_waiting(pnde)`last_pos) AND
+    (ns13h`pan_msg_waiting
+             (pnde)`current_pos
+         = ns12h`pan_msg_waiting(pnde)`last_pos) AND
+   % (ns12h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns12h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   % (ns13h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns13h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13h`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns12h`pan_msg_waiting(coord_node)`last_pos) AND
+   % (ns14h`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns14h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+    % (b = confirm) AND
+     %(ds`m /= off) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+      (is`coord_db)(p)`p_devices(d) = infusion_pump AND
+       ((ps`p_disp_top)`devs(d) = infusion_pump) AND
+       (ds`m /= off) AND
+       (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+     (st`pdb(p)`ip_state(d)`time < maxtime) AND
+     (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+      (st`pdb(p)`ip_state(d)`rate >= 1) AND
+     (st`pdb(p)`ip_state(d)`time >= 1) AND
+     (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+     (st`pdb(p)`ip_state(d)`dm /= dalarm) AND
+    %  ((st`pdb(p)`ip_state(d))`prevdm /= dalarm) AND
+     % establishing initial state relationship
+     %res_act(a) AND
+     %relate_ip_to_pan(ps`ip_state(d)) AND     
+     consistent_coordinator_d(d, p, st) AND
+     c_d_per_action(a, is) AND
+     (is`mode = d_mode) AND
+     (is`disp_focus = device_focus) AND
+     ((is`disp_patient)`current_patient = p) AND
+     (is`disp_device)`current_device = d AND
+     ((is`disp_top)`patients)(p) AND
+     (is`coord_db(p)`coord_devices(d)`pars(mde)) AND % implies that if device displayed then parameter is displayed
+     (is`coord_db(p)`coord_devices(d)`pars(dpm)) IMPLIES
+     ((c_d_per_action(confirm, c_d_fun_action(a, st)`coord_st)
+     IMPLIES
+    ((c_d_fun_action(confirm, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(dpm)
+                 = xmainmenu) AND
+      (c_d_fun_action(confirm, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(mde)
+           = xpause))) AND
+   (c_d_per_action(hold, c_d_fun_action(a, st)`coord_st)
+     IMPLIES
+    ((c_d_fun_action(hold, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(dpm)
+                 = xmainmenu) AND
+      (c_d_fun_action(hold, c_d_fun_action(a, st))`coord_st`disp_device`e_disp(mde)
+           = xpause))))
+
+
+
+
+
+
+% QED c_comp_allz proved by nmdh4 on Tue, 14 Feb 2023 16:24:59 GMT
+% @QED c_comp_allz proved by nmdh4 on Thu, 16 Mar 2023 17:44:39 GMT
+c_comp_allz: LEMMA
+ FORALL (a: action_id,
+         d: device, p: patient, st: state):
+    LET ps = st`pdb(p), pnde = nde(ps),
+     ds = ps`ip_state(d), 
+    dnde = nde(ps`ip_state(d)), 
+    is = st`coord_st,
+    ns = st`nde_state,
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state,
+    st8c = coordinator_enter_action(confirm, st7),
+    st9c = coord_act_mono(st8c),
+    ns9c = st9c`nde_state,
+    st10c = tick_act_patient(p, st9c),
+    ns10c = st10c`nde_state,
+    st11c = tick_act_device(d, p, st10c),
+    ns11c = st11c`nde_state,
+    st12c = tick_pan_device(d, p, st11c),
+    ns12c = st12c`nde_state,
+    st13c = tick_pan_patient(p, st12c),
+    ns13c = st13c`nde_state,
+    st14c = tick_pan_coordinator(st13c),
+    ns14c = st14c`nde_state,
+    st8h = coordinator_enter_action(hold, st7),
+    st9h = coord_act_mono(st8h),
+    ns9h = st9h`nde_state,
+    st10h = tick_act_patient(p, st9h),
+    ns10h = st10h`nde_state,
+    st11h = tick_act_device(d, p, st10h),
+    ns11h = st11h`nde_state,
+    st12h = tick_pan_device(d, p, st11h),
+    ns12h = st12h`nde_state,
+    st13h = tick_pan_patient(p, st12h),
+    ns13h = st13h`nde_state,
+    st14h = tick_pan_coordinator(st13h),
+    ns14h = st14h`nde_state 
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+    (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+     (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+     (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns6`pan_msg_waiting
+             (pnde)`current_pos
+         = ns5`pan_msg_waiting(pnde)`last_pos) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns7`act_msg_waiting(pnde)`buf_status /= full) AND
+    (ns9c`act_msg_waiting(pnde)`buf_status /= full) AND
+    (ns9c`act_msg_waiting
+           (pnde)`current_pos
+        = ns7`act_msg_waiting(pnde)`last_pos) AND
+     (ns9c`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10c`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10c`act_msg_waiting
+           (dnde)`current_pos
+        = ns9c`act_msg_waiting(dnde)`last_pos) AND
+     (ns11c`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns11c`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns12c`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns12c`pan_msg_waiting
+           (pnde)`current_pos
+        = ns11c`pan_msg_waiting(pnde)`last_pos) AND
+    (ns13c`pan_msg_waiting
+             (pnde)`current_pos
+         = ns12c`pan_msg_waiting(pnde)`last_pos) AND
+    (ns12c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13c`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns12c`pan_msg_waiting(coord_node)`last_pos) AND
+    (ns14c`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns9h`act_msg_waiting(pnde)`buf_status /= full) AND
+    (ns9h`act_msg_waiting
+           (pnde)`current_pos
+        = ns7`act_msg_waiting(pnde)`last_pos) AND
+     (ns9h`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10h`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10h`act_msg_waiting
+           (dnde)`current_pos
+        = ns9h`act_msg_waiting(dnde)`last_pos) AND
+    (ns11h`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns11h`pan_msg_waiting(pnde)`buf_status /= full) AND
+     (ns12h`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns12h`pan_msg_waiting
+           (pnde)`current_pos
+        = ns11h`pan_msg_waiting(pnde)`last_pos) AND
+    (ns13h`pan_msg_waiting
+             (pnde)`current_pos
+         = ns12h`pan_msg_waiting(pnde)`last_pos) AND
+     (ns12h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13h`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns12h`pan_msg_waiting(coord_node)`last_pos) AND
+    (ns14h`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     (ds`m /= off) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+     (st`pdb(p)`ip_state(d)`time < maxtime) AND
+     (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+      (st`pdb(p)`ip_state(d)`rate >= 1) AND
+     (st`pdb(p)`ip_state(d)`time >= 1) AND
+     (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+     (st`pdb(p)`ip_state(d)`dm /= dalarm) AND
+    
+     
+     % establishing initial state relationship
+     consistent_coordinator_d(d, p, st) AND
+     c_d_per_action(a, is) AND
+     (is`mode = d_mode) AND
+     (is`disp_focus = device_focus) AND
+     (is`coord_db(p)`p_devices(d) = infusion_pump) AND
+     ((is`disp_patient)`current_patient = p) AND
+     (is`disp_device)`current_device = d AND
+     ((is`disp_top)`patients)(p) AND
+     (is`coord_db(p)`coord_devices(d)`pars(mde)) AND % implies that if device displayed then parameter is displayed
+     (is`coord_db(p)`coord_devices(d)`pars(dpm)) AND
+     (is`coord_db)(p)`d_available_actions(d)(hold) AND % these actions have been made visible
+     (is`coord_db)(p)`d_available_actions(d)(confirm) 
+     IMPLIES
+      (c_d_home_casez(a, confirm, st) AND   
+    NOT c_d_per_action(hold, c_d_fun_action(a, st)`coord_st)) OR 
+    (c_d_home_casez(a, hold, st) AND   
+    NOT c_d_per_action(confirm, c_d_fun_action(a, st)`coord_st)) OR
+    c_d_complete_goal(a, st)
+
+
+% QED c_feedback_rte proved by nmdh4 on Wed, 15 Feb 2023 11:54:34 GMT
+% @QED c_feedback_rte proved by nmdh4 on Fri, 17 Mar 2023 09:21:05 GMT
+c_feedback_rte: LEMMA
+ FORALL (a: action_id,
+         d: device, p: patient, st: state):
+ LET ps = st`pdb(p), pnde = nde(ps),
+     ds = ps`ip_state(d), 
+     dnde = nde(ps`ip_state(d)), 
+    is = st`coord_st,
+    ns = st`nde_state,
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+    (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+    (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+     (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns6`pan_msg_waiting
+             (pnde)`current_pos
+         = ns5`pan_msg_waiting(pnde)`last_pos) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+     (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND 
+   
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     ((a = incr) OR (a = decr)) AND
+     (ds`m /= off) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+     (st`pdb(p)`ip_state(d)`time < maxtime) AND
+     (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+      (st`pdb(p)`ip_state(d)`rate >= 1) AND
+    (st`pdb(p)`ip_state(d)`dm = drate) AND
+    % establishing initial state relationship
+      consistent_coordinator_d(d, p, st) AND
+     c_d_per_action(a, is) AND
+     (is`mode = d_mode) AND
+     (is`disp_focus = device_focus) AND
+     (is`coord_db(p)`p_devices(d) = infusion_pump) AND
+     ((is`disp_patient)`current_patient = p) AND
+     (is`disp_device)`current_device = d AND
+     ((is`disp_top)`patients)(p) AND
+     (is`coord_db(p)`coord_devices(d)`pars(mde)) AND % implies that if device displayed then parameter is displayed
+     (is`coord_db(p)`coord_devices(d)`pars(dpm)) AND
+     (is`coord_db(p)`coord_devices(d)`pars(rte))  AND
+     (is`disp_device`e_disp(dpm) = xdrate) AND
+     (is`disp_device`n_disp(rte) = (st`pdb(p)`ip_state(d)`rate))
+      IMPLIES
+     c_d_fun_action(a, st)`coord_st`disp_device`e_disp(dpm) = is`disp_device`e_disp(dpm) AND
+     c_d_fun_action(a, st)`coord_st`disp_device`n_disp(rte) /= is`disp_device`n_disp(rte)
+
+% QED c_feedback_rte_pub proved by nmdh4 on Fri, 30 Sep 2022 15:07:59 GMT
+% QED c_feedback_rte_pub proved by nmdh4 on Fri, 21 Oct 2022 15:45:28 GMT
+% QED c_feedback_rte_pub proved by nmdh4 on Wed, 08 Feb 2023 10:14:12 GMT
+% @QED c_feedback_rte_pub proved by nmdh4 on Fri, 17 Mar 2023 09:24:28 GMT
+c_feedback_rte_pub: LEMMA
+ FORALL (a: action_id,
+         d: device, p: patient, st: state):
+ LET ps = st`pdb(p), pnde = nde(ps),
+     ds = ps`ip_state(d), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    is = st`coord_st,
+    ns = st`nde_state,
+   % home_acts = LAMBDA (x: action_id): (x = hold) OR (x = confirm), 
+    st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns2`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+    % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    % (ns4`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    %(ns5`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns6`pan_msg_waiting
+             (pnde)`current_pos
+         = ns5`pan_msg_waiting(pnde)`last_pos) AND
+    %(ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    %(ns6`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    %(ns7`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND 
+   
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+     ((a = incr) OR (a = decr)) AND
+     (ds`m /= off) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+     st`pdb(p)`ip_state(d)`rate /= execute_ip(a, st`pdb(p)`ip_state(d))`rate AND
+     %(st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     %(st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`rate) % incr or decr
+     (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+     %(st`pdb(p)`ip_state(d)`time < maxtime) AND
+     %(st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+      (st`pdb(p)`ip_state(d)`rate >= 1) AND
+    % (st`pdb(p)`ip_state(d)`time >= 1) AND
+    % (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+    % st`pdb(p)`ip_state(d)`rate =
+    % st`pdb(p)`ip_state(d)`pan`num_disp(rte) AND
+     (st`pdb(p)`ip_state(d)`dm = drate) AND
+    % st`pdb(p)`ip_state(d)`pan`enum_disp(dpm) = xdrate AND
+     % establishing initial state relationship
+     %res_act(a) AND
+     %relate_ip_to_pan(ps`ip_state(d)) AND     
+     consistent_coordinator_d(d, p, st) AND
+    % consistent_current_display(d, p, st) AND
+     c_d_per_action(a, is) AND
+     (is`mode = d_mode) AND
+     (is`disp_focus = device_focus) AND
+     (is`coord_db(p)`p_devices(d) = infusion_pump) AND
+     ((is`disp_patient)`current_patient = p) AND
+     (is`disp_device)`current_device = d AND
+     ((is`disp_top)`patients)(p) AND
+     (is`coord_db(p)`coord_devices(d)`pars(mde)) AND % implies that if device displayed then parameter is displayed
+     (is`coord_db(p)`coord_devices(d)`pars(dpm)) AND
+     (is`coord_db(p)`coord_devices(d)`pars(rte))  AND
+     (is`disp_device`e_disp(dpm) = xdrate) AND
+     (is`disp_device`n_disp(rte) = (st`pdb(p)`ip_state(d)`rate))
+      IMPLIES
+     c_d_fun_action(a, st)`coord_st`disp_device`e_disp(dpm) = is`disp_device`e_disp(dpm) AND
+     c_d_fun_action(a, st)`coord_st`disp_device`n_disp(rte) /= is`disp_device`n_disp(rte)
+
+
+% QED c_fdbk_reversibility_rte proved by nmdh4 on Wed, 13 Jul 2022 09:28:47 GMT
+% QED c_fdbk_reversibility_rte proved by nmdh4 on Fri, 21 Oct 2022 15:35:38 GMT
+% QED c_fdbk_reversibility_rte proved by nmdh4 on Thu, 09 Feb 2023 14:36:40 GMT
+% @QED c_fdbk_reversibility_rte proved by nmdh4 on Fri, 17 Mar 2023 09:55:29 GMT
+c_fdbk_reversibility_rte: LEMMA
+ FORALL (a, b: action_id,
+         d: device, p: patient, st: state):
+ LET ps = st`pdb(p), pnde = nde(ps),
+     ds = ps`ip_state(d), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+    dnde = nde(ps`ip_state(d)), 
+    is = st`coord_st,
+    ns = st`nde_state,
+   % home_acts = LAMBDA (x: action_id): (x = hold) OR (x = confirm), 
+   st1 = coordinator_enter_action(a, st),
+    st2 = coord_act_mono(st1),
+    ns2 = st2`nde_state,
+    st3 = tick_act_patient(p, st2),
+    ns3 = st3`nde_state,
+    st4 = tick_act_device(d, p, st3),
+    ns4 = st4`nde_state,
+    st5 = tick_pan_device(d, p, st4),
+    ns5 = st5`nde_state,
+    st6 = tick_pan_patient(p, st5),
+    ns6 = st6`nde_state,
+    st7 = tick_pan_coordinator(st6),
+    ns7 = st7`nde_state,
+    st8 = coordinator_enter_action(b, st7),
+    st9 = coord_act_mono(st8),
+    ns9 = st9`nde_state,
+    st10 = tick_act_patient(p, st9),
+    ns10 = st10`nde_state,
+    st11 = tick_act_device(d, p, st10),
+    ns11 = st11`nde_state,
+    st12 = tick_pan_device(d, p, st11),
+    ns12 = st12`nde_state,
+    st13 = tick_pan_patient(p, st12),
+    ns13 = st13`nde_state,
+    st14 = tick_pan_coordinator(st13),
+    ns14 = st14`nde_state
+    IN  
+    ns`n_links(pnde, coord_node) AND 
+    ns`n_links(coord_node, pnde) AND 
+    ns`n_links(pnde, dnde) AND 
+    ns`n_links(dnde, pnde) AND 
+    (pnde /= dnde) AND (coord_node /= pnde) AND (coord_node /= dnde) AND 
+    (ns`act_msg_waiting(pnde)`buf_status /= full) AND
+   %  (ns`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting(pnde)`buf_status /= full) AND
+   %  (ns2`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns2`act_msg_waiting
+           (pnde)`current_pos
+        = ns`act_msg_waiting(pnde)`last_pos) AND
+     (ns2`act_msg_waiting(dnde)`buf_status /= full) AND
+    % (ns2`act_msg_waiting(dnde)`last_pos < mindex) AND
+    % (ns3`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns3`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns3`act_msg_waiting
+           (dnde)`current_pos
+        = ns2`act_msg_waiting(dnde)`last_pos) AND
+    % (ns4`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns4`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns4`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns5`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting
+           (pnde)`current_pos
+        = ns4`pan_msg_waiting(pnde)`last_pos) AND
+    (ns6`pan_msg_waiting
+             (pnde)`current_pos
+         = ns5`pan_msg_waiting(pnde)`last_pos) AND
+    % (ns5`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns5`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    % (ns6`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns6`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns6`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns5`pan_msg_waiting(coord_node)`last_pos) AND
+    %(ns7`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns7`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns7`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns7`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9`act_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns9`act_msg_waiting(pnde)`last_pos < mindex) AND
+     (ns9`act_msg_waiting
+           (pnde)`current_pos
+        = ns7`act_msg_waiting(pnde)`last_pos) AND
+     (ns9`act_msg_waiting(dnde)`buf_status /= full) AND
+    % (ns9`act_msg_waiting(dnde)`last_pos < mindex) AND
+    % (ns10`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns10`act_msg_waiting(dnde)`buf_status /= full) AND
+     (ns10`act_msg_waiting
+           (dnde)`current_pos
+        = ns9`act_msg_waiting(dnde)`last_pos) AND
+    %(ns11`act_msg_waiting(dnde)`last_pos < mindex) AND
+     (ns11`act_msg_waiting(dnde)`buf_status /= full) AND
+    (ns11`pan_msg_waiting(pnde)`buf_status /= full) AND
+    % (ns11`pan_msg_waiting(pnde)`last_pos < mindex) AND
+   % (ns4`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12`pan_msg_waiting(pnde)`buf_status /= full) AND
+   % (ns12`pan_msg_waiting(pnde)`last_pos < mindex) AND
+    (ns12`pan_msg_waiting
+           (pnde)`current_pos
+        = ns11`pan_msg_waiting(pnde)`last_pos) AND
+    (ns13`pan_msg_waiting
+             (pnde)`current_pos
+         = ns12`pan_msg_waiting(pnde)`last_pos) AND
+   % (ns12`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns12`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   % (ns13`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns13`pan_msg_waiting(coord_node)`buf_status /= full) AND
+    (ns13`pan_msg_waiting
+             (coord_node)`current_pos
+         = ns12`pan_msg_waiting(coord_node)`last_pos) AND
+   % (ns14`pan_msg_waiting(coord_node)`last_pos < mindex) AND
+    (ns14`pan_msg_waiting(coord_node)`buf_status /= full) AND
+   
+    % patient known to the system
+     (p /= p_null) AND 
+     st`ps(p) AND 
+     (d /= nil_device) AND
+    % (a = incr) AND (a = decr) AND
+     (ds`m /= off) AND
+    % (ds`prevdm /= dalarm) AND
+     (st`p_nodes(pnde) = p) AND
+     (st`d_nodes(dnde) = (# pat := p, dev := d #)) AND
+     st`pdb(p)`p_disp_top`devs(d) = infusion_pump AND
+   %  (st`pdb(p)`ip_state(d)`rate < st`pdb(p)`ip_state(d)`vtbi) AND 
+     (st`pdb(p)`ip_state(d)`rate < maxrate) AND
+    % (st`pdb(p)`ip_state(d)`time < maxtime) AND
+    % (st`pdb(p)`ip_state(d)`vtbi < maxinfuse) AND
+      (st`pdb(p)`ip_state(d)`rate >= 1) AND
+    % (st`pdb(p)`ip_state(d)`time >= 1) AND
+    % (st`pdb(p)`ip_state(d)`vtbi >= 1) AND 
+     %st`pdb(p)`ip_state(d)`rate =
+     %st`pdb(p)`ip_state(d)`pan`num_disp(rte) AND
+     (st`pdb(p)`ip_state(d)`dm = drate) AND
+     %st`pdb(p)`ip_state(d)`pan`enum_disp(dpm) = xdrate AND
+
+     % establishing initial state relationship
+     %res_act(a) AND
+     %relate_ip_to_pan(ps`ip_state(d)) AND     
+     consistent_coordinator_d(d, p, st) AND
+    % consistent_current_display(d, p, st) AND
+     (((a = decr) AND (b = incr))  OR
+      ((a = incr) AND (b = decr))) AND
+      c_d_per_action(a, is) AND
+    % c_d_per_action(b, c_d_fun_action(a, st)) AND
+     (is`mode = d_mode) AND
+     (is`disp_focus = device_focus) AND
+     (is`coord_db(p)`p_devices(d) = infusion_pump) AND
+     ((is`disp_patient)`current_patient = p) AND
+     (is`disp_device)`current_device = d AND
+     ((is`disp_top)`patients)(p) AND
+     (is`coord_db(p)`coord_devices(d)`pars(mde)) AND % implies that if device displayed then parameter is displayed
+     (is`coord_db(p)`coord_devices(d)`pars(dpm)) AND
+     (is`coord_db(p)`coord_devices(d)`pars(rte)) AND
+     (is`disp_device`e_disp(dpm) = xdrate) AND
+     (is`disp_device`n_disp(rte) = (st`pdb(p)`ip_state(d)`rate)) AND
+     (is`coord_db)(p)`d_available_actions(d)(incr) AND
+     (is`coord_db)(p)`d_available_actions(d)(decr)
+      IMPLIES
+     c_d_fun_action(b, c_d_fun_action(a, st))`coord_st`disp_device`n_disp(rte) = is`disp_device`n_disp(rte) 
+
+
+END ICE_templates_th

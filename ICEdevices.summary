@@ -1,0 +1,6 @@
+Proof summary for theory devices_th
+
+	nil_device_TCC1.................................................✅ proved              (0.403 s)
+	d_bot_TCC1......................................................✅ proved              (1.431 s)
+
+Theory devices_th totals: 2 formulas, 2 attempted, 2 succeeded (1.834 s)

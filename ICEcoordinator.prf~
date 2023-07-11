@@ -1,0 +1,56 @@
+(coordinator_th
+ (IMP_patient_th_TCC1 0
+  (IMP_patient_th_TCC1-1 nil 3821446710 ("" (assuming-tcc) nil nil)
+   ((real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (IMP_patient_th assuming
+    "patient_th[coordinator_th.maxrate, coordinator_th.maxinfuse, coordinator_th.maxtime].patient_th"
+    "maxinfuseLEQmaxtime: ASSUMPTION reals.<=(patient_th.maxinfuse, patient_th.maxtime)")))
+ (update_enum_pars_TCC1 0
+  (update_enum_pars_TCC1-1 nil 3821446710
+   ("" (subtype-tcc) (("" (postpone) nil nil)) nil) nil nil
+   (update_enum_pars subtype "coordinator_th.pr"
+    "(coord_t_and_c_th.enum_par)")))
+ (update_num_pars_TCC1 0
+  (update_num_pars_TCC1-1 nil 3821446710
+   ("" (subtype-tcc) (("" (postpone) nil nil)) nil) nil nil
+   (update_num_pars subtype "coordinator_th.pr"
+    "(coord_t_and_c_th.num_par)")))
+ (update_num_pars_TCC2 0
+  (update_num_pars_TCC2-1 nil 3821446710 ("" (subtype-tcc) nil nil) nil
+   nil
+   (update_num_pars subtype
+    "restrict[coord_t_and_c_th.par, (coord_t_and_c_th.num_par), real].restrict(LAMBDA (pr: coord_t_and_c_th.par): IF coordinator_th.pa2(pr) /= coord_t_and_c_th.null_value THEN coordinator_th.pan`num_disp(pr) ELSE coord_t_and_c_th.null_value ENDIF)"
+    "num_parameter")))
+ (i_select_display_TCC1 0
+  (i_select_display_TCC1-1 nil 3813306066
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (i_select_display disjointness
+    "COND coordinator_th.is`disp_focus = coord_t_and_c_th.top_focus -> coordinator_th.i_select_top(coordinator_th.is), coordinator_th.is`disp_focus = coord_t_and_c_th.patient_focus -> coordinator_th.i_select_p_mode(coordinator_th.is), coordinator_th.is`disp_focus = coord_t_and_c_th.device_focus -> coordinator_th.i_select_d_mode(coordinator_th.is), ELSE -> coordinator_th.is ENDCOND"
+    "nil")))
+ (i_select_action_TCC1 0
+  (i_select_action_TCC1-1 nil 3813306066
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (i_select_action disjointness
+    "COND coordinator_th.is`mode = coord_t_and_c_th.p_mode -> coordinator_th.i_select_ap(coordinator_th.a, coordinator_th.is), coordinator_th.is`mode = coord_t_and_c_th.d_mode -> coordinator_th.i_select_ad(coordinator_th.a, coordinator_th.is), ELSE -> coordinator_th.is ENDCOND"
+    "nil")))
+ (i_up_display_TCC1 0
+  (i_up_display_TCC1-1 nil 3813306066 ("" (cond-disjoint-tcc) nil nil)
+   nil nil
+   (i_up_display disjointness
+    "COND coordinator_th.is`disp_focus = coord_t_and_c_th.no_focus -> coord_t_and_c_th.no_focus, coordinator_th.is`disp_focus = coord_t_and_c_th.top_focus -> coord_t_and_c_th.no_focus, coordinator_th.is`disp_focus = coord_t_and_c_th.patient_focus -> coord_t_and_c_th.top_focus, coordinator_th.is`disp_focus = coord_t_and_c_th.device_focus -> coord_t_and_c_th.patient_focus ENDCOND"
+    "nil")))
+ (i_up_display_TCC2 0
+  (i_up_display_TCC2-1 nil 3813306066 ("" (cond-coverage-tcc) nil nil)
+   nil nil
+   (i_up_display coverage
+    "COND coordinator_th.is`disp_focus = coord_t_and_c_th.no_focus -> coord_t_and_c_th.no_focus, coordinator_th.is`disp_focus = coord_t_and_c_th.top_focus -> coord_t_and_c_th.no_focus, coordinator_th.is`disp_focus = coord_t_and_c_th.patient_focus -> coord_t_and_c_th.top_focus, coordinator_th.is`disp_focus = coord_t_and_c_th.device_focus -> coord_t_and_c_th.patient_focus ENDCOND"
+    "nil")))
+ (i_down_display_TCC1 0
+  (i_down_display_TCC1-1 nil 3813306066
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (i_down_display disjointness
+    "COND coordinator_th.is`disp_focus = coord_t_and_c_th.no_focus -> coord_t_and_c_th.top_focus, coordinator_th.is`disp_focus = coord_t_and_c_th.top_focus -> coord_t_and_c_th.patient_focus, coordinator_th.is`disp_focus = coord_t_and_c_th.patient_focus -> coord_t_and_c_th.device_focus, coordinator_th.is`disp_focus = coord_t_and_c_th.device_focus -> coord_t_and_c_th.no_focus ENDCOND"
+    "nil"))))
+

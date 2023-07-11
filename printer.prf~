@@ -1,0 +1,1372 @@
+(printer
+ (action_id2string_TCC1 0
+  (action_id2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (action_id2string disjointness
+    "COND printer.a = coord_t_and_c_th.powr -> \"powr\", printer.a = coord_t_and_c_th.alrm -> \"alrm\", printer.a = coord_t_and_c_th.incr -> \"incr\", printer.a = coord_t_and_c_th.decr -> \"decr\", printer.a = coord_t_and_c_th.bolus -> \"bolus\", printer.a = coord_t_and_c_th.confirm -> \"confirm\", printer.a = coord_t_and_c_th.choosetime -> \"choosetime\", printer.a = coord_t_and_c_th.choosevtbi -> \"choosevtbi\", printer.a = coord_t_and_c_th.chooserate -> \"chooserate\", printer.a = coord_t_and_c_th.start -> \"start\", printer.a = coord_t_and_c_th.hold -> \"hold\", printer.a = coord_t_and_c_th.tick -> \"tick\", printer.a = coord_t_and_c_th.openclamp -> \"openclamp\", printer.a = coord_t_and_c_th.closeclamp -> \"closeclamp\", printer.a = coord_t_and_c_th.nil_action -> \"nil_action\" ENDCOND"
+    "nil")))
+ (action_id2string_TCC2 0
+  (action_id2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (action_id2string coverage
+    "COND printer.a = coord_t_and_c_th.powr -> \"powr\", printer.a = coord_t_and_c_th.alrm -> \"alrm\", printer.a = coord_t_and_c_th.incr -> \"incr\", printer.a = coord_t_and_c_th.decr -> \"decr\", printer.a = coord_t_and_c_th.bolus -> \"bolus\", printer.a = coord_t_and_c_th.confirm -> \"confirm\", printer.a = coord_t_and_c_th.choosetime -> \"choosetime\", printer.a = coord_t_and_c_th.choosevtbi -> \"choosevtbi\", printer.a = coord_t_and_c_th.chooserate -> \"chooserate\", printer.a = coord_t_and_c_th.start -> \"start\", printer.a = coord_t_and_c_th.hold -> \"hold\", printer.a = coord_t_and_c_th.tick -> \"tick\", printer.a = coord_t_and_c_th.openclamp -> \"openclamp\", printer.a = coord_t_and_c_th.closeclamp -> \"closeclamp\", printer.a = coord_t_and_c_th.nil_action -> \"nil_action\" ENDCOND"
+    "nil")))
+ (rel_op_type2string_TCC1 0
+  (rel_op_type2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (rel_op_type2string disjointness
+    "COND printer.r = coord_t_and_c_th.lt -> \"lt\", printer.r = coord_t_and_c_th.le -> \"le\", printer.r = coord_t_and_c_th.gt -> \"gt\", printer.r = coord_t_and_c_th.ge -> \"ge\", printer.r = coord_t_and_c_th.eq -> \"eq\", printer.r = coord_t_and_c_th.neq -> \"neq\", printer.r = coord_t_and_c_th.no_rel -> \"no_rel\" ENDCOND"
+    "nil")))
+ (rel_op_type2string_TCC2 0
+  (rel_op_type2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (rel_op_type2string coverage
+    "COND printer.r = coord_t_and_c_th.lt -> \"lt\", printer.r = coord_t_and_c_th.le -> \"le\", printer.r = coord_t_and_c_th.gt -> \"gt\", printer.r = coord_t_and_c_th.ge -> \"ge\", printer.r = coord_t_and_c_th.eq -> \"eq\", printer.r = coord_t_and_c_th.neq -> \"neq\", printer.r = coord_t_and_c_th.no_rel -> \"no_rel\" ENDCOND"
+    "nil")))
+ (device_type2string_TCC1 0
+  (device_type2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (device_type2string disjointness
+    "COND printer.dt = devices_th[printer.maxrate, printer.maxinfuse, printer.maxtime].infusion_pump -> \"infusion_pump\", printer.dt = devices_th[printer.maxrate, printer.maxinfuse, printer.maxtime].vital_signs_device -> \"vital_signs_device\", printer.dt = devices_th[printer.maxrate, printer.maxinfuse, printer.maxtime].no_device -> \"no_device\" ENDCOND"
+    "nil")))
+ (device_type2string_TCC2 0
+  (device_type2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (device_type2string coverage
+    "COND printer.dt = devices_th[printer.maxrate, printer.maxinfuse, printer.maxtime].infusion_pump -> \"infusion_pump\", printer.dt = devices_th[printer.maxrate, printer.maxinfuse, printer.maxtime].vital_signs_device -> \"vital_signs_device\", printer.dt = devices_th[printer.maxrate, printer.maxinfuse, printer.maxtime].no_device -> \"no_device\" ENDCOND"
+    "nil")))
+ (disp_focus_type2string_TCC1 0
+  (disp_focus_type2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (disp_focus_type2string disjointness
+    "COND printer.df = coord_t_and_c_th.no_focus -> \"no_focus\", printer.df = coord_t_and_c_th.top_focus -> \"top_focus\", printer.df = coord_t_and_c_th.patient_focus -> \"patient_focus\", printer.df = coord_t_and_c_th.device_focus -> \"device_focus\" ENDCOND"
+    "nil")))
+ (disp_focus_type2string_TCC2 0
+  (disp_focus_type2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (disp_focus_type2string coverage
+    "COND printer.df = coord_t_and_c_th.no_focus -> \"no_focus\", printer.df = coord_t_and_c_th.top_focus -> \"top_focus\", printer.df = coord_t_and_c_th.patient_focus -> \"patient_focus\", printer.df = coord_t_and_c_th.device_focus -> \"device_focus\" ENDCOND"
+    "nil")))
+ (mode2string_TCC1 0
+  (mode2string_TCC1-1 nil 3817187072 ("" (cond-disjoint-tcc) nil nil)
+   nil nil
+   (mode2string disjointness
+    "COND printer.m = coord_t_and_c_th.off -> \"off\", printer.m = coord_t_and_c_th.pause -> \"pause\", printer.m = coord_t_and_c_th.infuse -> \"infuse\" ENDCOND"
+    "nil")))
+ (mode2string_TCC2 0
+  (mode2string_TCC2-1 nil 3817187072 ("" (cond-coverage-tcc) nil nil)
+   nil nil
+   (mode2string coverage
+    "COND printer.m = coord_t_and_c_th.off -> \"off\", printer.m = coord_t_and_c_th.pause -> \"pause\", printer.m = coord_t_and_c_th.infuse -> \"infuse\" ENDCOND"
+    "nil")))
+ (dispmode2string_TCC1 0
+  (dispmode2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (dispmode2string disjointness
+    "COND printer.dm = coord_t_and_c_th.dblank -> \"dblank\", printer.dm = coord_t_and_c_th.mainmenu -> \"mainmenu\", printer.dm = coord_t_and_c_th.dvtbi -> \"dvtbi\", printer.dm = coord_t_and_c_th.drate -> \"drate\", printer.dm = coord_t_and_c_th.dtime -> \"dtime\", printer.dm = coord_t_and_c_th.dinfusing -> \"dinfusing\", printer.dm = coord_t_and_c_th.dalarm -> \"dalarm\", printer.dm = coord_t_and_c_th.dkvo -> \"dkvo\" ENDCOND"
+    "nil")))
+ (dispmode2string_TCC2 0
+  (dispmode2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (dispmode2string coverage
+    "COND printer.dm = coord_t_and_c_th.dblank -> \"dblank\", printer.dm = coord_t_and_c_th.mainmenu -> \"mainmenu\", printer.dm = coord_t_and_c_th.dvtbi -> \"dvtbi\", printer.dm = coord_t_and_c_th.drate -> \"drate\", printer.dm = coord_t_and_c_th.dtime -> \"dtime\", printer.dm = coord_t_and_c_th.dinfusing -> \"dinfusing\", printer.dm = coord_t_and_c_th.dalarm -> \"dalarm\", printer.dm = coord_t_and_c_th.dkvo -> \"dkvo\" ENDCOND"
+    "nil")))
+ (clamp_state2string_TCC1 0
+  (clamp_state2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (clamp_state2string disjointness
+    "COND printer.c = coord_t_and_c_th.open -> \"open\", printer.c = coord_t_and_c_th.closed -> \"closed\" ENDCOND"
+    "nil")))
+ (clamp_state2string_TCC2 0
+  (clamp_state2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (clamp_state2string coverage
+    "COND printer.c = coord_t_and_c_th.open -> \"open\", printer.c = coord_t_and_c_th.closed -> \"closed\" ENDCOND"
+    "nil")))
+ (priority_type2string_TCC1 0
+  (priority_type2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (priority_type2string disjointness
+    "COND printer.p = coord_t_and_c_th.rte -> \"rte\", printer.p = coord_t_and_c_th.tme -> \"tme\" ENDCOND"
+    "nil")))
+ (priority_type2string_TCC2 0
+  (priority_type2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (priority_type2string coverage
+    "COND printer.p = coord_t_and_c_th.rte -> \"rte\", printer.p = coord_t_and_c_th.tme -> \"tme\" ENDCOND"
+    "nil")))
+ (menu2string_TCC1 0
+  (menu2string_TCC1-1 nil 3817187072 ("" (cond-disjoint-tcc) nil nil)
+   nil nil
+   (menu2string disjointness
+    "COND printer.m = coord_t_and_c_th.no_action -> \"no_action\", printer.m = coord_t_and_c_th.delete -> \"delete\", printer.m = coord_t_and_c_th.cursor_up -> \"cursor_up\", printer.m = coord_t_and_c_th.cursor_down -> \"cursor_down\", printer.m = coord_t_and_c_th.select -> \"select\", printer.m = coord_t_and_c_th.enter -> \"enter\", printer.m = coord_t_and_c_th.top -> \"top\", printer.m = coord_t_and_c_th.main -> \"main\", printer.m = coord_t_and_c_th.patient -> \"patient\", printer.m = coord_t_and_c_th.device -> \"device\", printer.m = coord_t_and_c_th.device_filter -> \"device_filter\", printer.m = coord_t_and_c_th.region -> \"region\", printer.m = coord_t_and_c_th.rule -> \"rule\", printer.m = coord_t_and_c_th.constraint -> \"constraint\", printer.m = coord_t_and_c_th.edit -> \"edit\", printer.m = coord_t_and_c_th.clear -> \"clear\", printer.m = coord_t_and_c_th.display -> \"display\", printer.m = coord_t_and_c_th.parameter -> \"parameter\", printer.m = coord_t_and_c_th.action -> \"action\", printer.m = coord_t_and_c_th.relation -> \"relation\", printer.m = coord_t_and_c_th.num_value -> \"num_value\", printer.m = coord_t_and_c_th.enum_value -> \"enum_value\", printer.m = coord_t_and_c_th.escape -> \"escape\", printer.m = coord_t_and_c_th.pump -> \"pump\", printer.m = coord_t_and_c_th.vs_device -> \"vs_device\" ENDCOND"
+    "nil")))
+ (menu2string_TCC2 0
+  (menu2string_TCC2-1 nil 3817187072 ("" (cond-coverage-tcc) nil nil)
+   nil nil
+   (menu2string coverage
+    "COND printer.m = coord_t_and_c_th.no_action -> \"no_action\", printer.m = coord_t_and_c_th.delete -> \"delete\", printer.m = coord_t_and_c_th.cursor_up -> \"cursor_up\", printer.m = coord_t_and_c_th.cursor_down -> \"cursor_down\", printer.m = coord_t_and_c_th.select -> \"select\", printer.m = coord_t_and_c_th.enter -> \"enter\", printer.m = coord_t_and_c_th.top -> \"top\", printer.m = coord_t_and_c_th.main -> \"main\", printer.m = coord_t_and_c_th.patient -> \"patient\", printer.m = coord_t_and_c_th.device -> \"device\", printer.m = coord_t_and_c_th.device_filter -> \"device_filter\", printer.m = coord_t_and_c_th.region -> \"region\", printer.m = coord_t_and_c_th.rule -> \"rule\", printer.m = coord_t_and_c_th.constraint -> \"constraint\", printer.m = coord_t_and_c_th.edit -> \"edit\", printer.m = coord_t_and_c_th.clear -> \"clear\", printer.m = coord_t_and_c_th.display -> \"display\", printer.m = coord_t_and_c_th.parameter -> \"parameter\", printer.m = coord_t_and_c_th.action -> \"action\", printer.m = coord_t_and_c_th.relation -> \"relation\", printer.m = coord_t_and_c_th.num_value -> \"num_value\", printer.m = coord_t_and_c_th.enum_value -> \"enum_value\", printer.m = coord_t_and_c_th.escape -> \"escape\", printer.m = coord_t_and_c_th.pump -> \"pump\", printer.m = coord_t_and_c_th.vs_device -> \"vs_device\" ENDCOND"
+    "nil")))
+ (value_type2string_TCC1 0
+  (value_type2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (value_type2string disjointness
+    "COND printer.p = coord_t_and_c_th.numeral -> \"numeral\", printer.p = coord_t_and_c_th.enumerated -> \"enumerated\", printer.p = coord_t_and_c_th.empty -> \"empty\" ENDCOND"
+    "nil")))
+ (value_type2string_TCC2 0
+  (value_type2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (value_type2string coverage
+    "COND printer.p = coord_t_and_c_th.numeral -> \"numeral\", printer.p = coord_t_and_c_th.enumerated -> \"enumerated\", printer.p = coord_t_and_c_th.empty -> \"empty\" ENDCOND"
+    "nil")))
+ (par2string_TCC1 0
+  (par2string_TCC1-1 nil 3817187072 ("" (cond-disjoint-tcc) nil nil)
+   nil nil
+   (par2string disjointness
+    "COND printer.a = coord_t_and_c_th.rte -> \"rte\", printer.a = coord_t_and_c_th.vtb -> \"vtb\", printer.a = coord_t_and_c_th.tme -> \"tme\", printer.a = coord_t_and_c_th.dpm -> \"dpm\", printer.a = coord_t_and_c_th.mde -> \"mde\", printer.a = coord_t_and_c_th.num_er -> \"num_er\", printer.a = coord_t_and_c_th.enum_er -> \"enum_er\", printer.a = coord_t_and_c_th.hrte -> \"hrte\", printer.a = coord_t_and_c_th.blpl -> \"blpl\", printer.a = coord_t_and_c_th.blph -> \"blph\", printer.a = coord_t_and_c_th.sp -> \"sp\", printer.a = coord_t_and_c_th.rkrt -> \"rkrt\", printer.a = coord_t_and_c_th.ptmp -> \"ptmp\" ENDCOND"
+    "nil")))
+ (par2string_TCC2 0
+  (par2string_TCC2-1 nil 3817187072 ("" (cond-coverage-tcc) nil nil)
+   nil nil
+   (par2string coverage
+    "COND printer.a = coord_t_and_c_th.rte -> \"rte\", printer.a = coord_t_and_c_th.vtb -> \"vtb\", printer.a = coord_t_and_c_th.tme -> \"tme\", printer.a = coord_t_and_c_th.dpm -> \"dpm\", printer.a = coord_t_and_c_th.mde -> \"mde\", printer.a = coord_t_and_c_th.num_er -> \"num_er\", printer.a = coord_t_and_c_th.enum_er -> \"enum_er\", printer.a = coord_t_and_c_th.hrte -> \"hrte\", printer.a = coord_t_and_c_th.blpl -> \"blpl\", printer.a = coord_t_and_c_th.blph -> \"blph\", printer.a = coord_t_and_c_th.sp -> \"sp\", printer.a = coord_t_and_c_th.rkrt -> \"rkrt\", printer.a = coord_t_and_c_th.ptmp -> \"ptmp\" ENDCOND"
+    "nil")))
+ (enum2string_TCC1 0
+  (enum2string_TCC1-1 nil 3817187072 ("" (cond-disjoint-tcc) nil nil)
+   nil nil
+   (enum2string disjointness
+    "COND printer.e = coord_t_and_c_th.xoff -> \"xoff\", printer.e = coord_t_and_c_th.xpause -> \"xpause\", printer.e = coord_t_and_c_th.xinfuse -> \"xinfuse\", printer.e = coord_t_and_c_th.xdblank -> \"xdblank\", printer.e = coord_t_and_c_th.xmainmenu -> \"xmainmenu\", printer.e = coord_t_and_c_th.xdvtbi -> \"xdvtbi\", printer.e = coord_t_and_c_th.xdrate -> \"xdrate\", printer.e = coord_t_and_c_th.xdtime -> \"xdtime\", printer.e = coord_t_and_c_th.xdinfusing -> \"xdinfusing\", printer.e = coord_t_and_c_th.xdalarm -> \"xdalarm\", printer.e = coord_t_and_c_th.xdkvo -> \"xdkvo\", printer.e = coord_t_and_c_th.xopen -> \"xopen\", printer.e = coord_t_and_c_th.xclosed -> \"xclosed\", printer.e = coord_t_and_c_th.xrte -> \"xrte\", printer.e = coord_t_and_c_th.xtme -> \"xtme\", printer.e = coord_t_and_c_th.xisconnected -> \"xisconnected\", printer.e = coord_t_and_c_th.xactive -> \"xactive\", printer.e = coord_t_and_c_th.xnumeral -> \"xnumeral\", printer.e = coord_t_and_c_th.xenumerated -> \"xenumerated\", printer.e = coord_t_and_c_th.xnilval -> \"xnilval\", printer.e = coord_t_and_c_th.xalarm -> \"xalarm\", printer.e = coord_t_and_c_th.xok -> \"xok\", printer.e = coord_t_and_c_th.xnovalue -> \"xnovalue\" ENDCOND"
+    "nil")))
+ (enum2string_TCC2 0
+  (enum2string_TCC2-1 nil 3817187072 ("" (cond-coverage-tcc) nil nil)
+   nil nil
+   (enum2string coverage
+    "COND printer.e = coord_t_and_c_th.xoff -> \"xoff\", printer.e = coord_t_and_c_th.xpause -> \"xpause\", printer.e = coord_t_and_c_th.xinfuse -> \"xinfuse\", printer.e = coord_t_and_c_th.xdblank -> \"xdblank\", printer.e = coord_t_and_c_th.xmainmenu -> \"xmainmenu\", printer.e = coord_t_and_c_th.xdvtbi -> \"xdvtbi\", printer.e = coord_t_and_c_th.xdrate -> \"xdrate\", printer.e = coord_t_and_c_th.xdtime -> \"xdtime\", printer.e = coord_t_and_c_th.xdinfusing -> \"xdinfusing\", printer.e = coord_t_and_c_th.xdalarm -> \"xdalarm\", printer.e = coord_t_and_c_th.xdkvo -> \"xdkvo\", printer.e = coord_t_and_c_th.xopen -> \"xopen\", printer.e = coord_t_and_c_th.xclosed -> \"xclosed\", printer.e = coord_t_and_c_th.xrte -> \"xrte\", printer.e = coord_t_and_c_th.xtme -> \"xtme\", printer.e = coord_t_and_c_th.xisconnected -> \"xisconnected\", printer.e = coord_t_and_c_th.xactive -> \"xactive\", printer.e = coord_t_and_c_th.xnumeral -> \"xnumeral\", printer.e = coord_t_and_c_th.xenumerated -> \"xenumerated\", printer.e = coord_t_and_c_th.xnilval -> \"xnilval\", printer.e = coord_t_and_c_th.xalarm -> \"xalarm\", printer.e = coord_t_and_c_th.xok -> \"xok\", printer.e = coord_t_and_c_th.xnovalue -> \"xnovalue\" ENDCOND"
+    "nil")))
+ (msghdr2string_TCC1 0
+  (msghdr2string_TCC1-1 nil 3817187072 ("" (cond-disjoint-tcc) nil nil)
+   nil nil
+   (msghdr2string disjointness
+    "COND printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].nomsg -> \"nomsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].tmmsg -> \"tmmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].pmmsg -> \"pmmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].mmmsg -> \"mmmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].updmsg -> \"updmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].actmsg -> \"actmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].cnstmsg -> \"cnstmsg\" ENDCOND"
+    "nil")))
+ (msghdr2string_TCC2 0
+  (msghdr2string_TCC2-1 nil 3817187072 ("" (cond-coverage-tcc) nil nil)
+   nil nil
+   (msghdr2string coverage
+    "COND printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].nomsg -> \"nomsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].tmmsg -> \"tmmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].pmmsg -> \"pmmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].mmmsg -> \"mmmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].updmsg -> \"updmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].actmsg -> \"actmsg\", printer.mh = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].cnstmsg -> \"cnstmsg\" ENDCOND"
+    "nil")))
+ (b_status2string_TCC1 0
+  (b_status2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (b_status2string disjointness
+    "COND printer.bs = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].full -> \"full\", printer.bs = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].empty -> \"empty\", printer.bs = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].functioning -> \"functioning\" ENDCOND"
+    "nil")))
+ (b_status2string_TCC2 0
+  (b_status2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (b_status2string coverage
+    "COND printer.bs = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].full -> \"full\", printer.bs = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].empty -> \"empty\", printer.bs = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].functioning -> \"functioning\" ENDCOND"
+    "nil")))
+ (nw_error_type2string_TCC1 0
+  (nw_error_type2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (nw_error_type2string disjointness
+    "COND printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].clear -> \"clear\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].not_connected -> \"not_connected\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].no_msg -> \"no_msg\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].empty_q -> \"empty_q\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].full_q -> \"full_q\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].spurious_action -> \"spurious_action\" ENDCOND"
+    "nil")))
+ (nw_error_type2string_TCC2 0
+  (nw_error_type2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (nw_error_type2string coverage
+    "COND printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].clear -> \"clear\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].not_connected -> \"not_connected\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].no_msg -> \"no_msg\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].empty_q -> \"empty_q\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].full_q -> \"full_q\", printer.ne = node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].spurious_action -> \"spurious_action\" ENDCOND"
+    "nil")))
+ (node_printer_bool_TCC1 0
+  (node_printer_bool_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nlimit const-decl "nat" printer nil))
+   nil
+   (node_printer_bool subtype "printer.n"
+    "naturalnumbers.upto(printer.nlimit)")))
+ (node_printer_bool_TCC2 0
+  (node_printer_bool_TCC2-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nlimit const-decl "nat" printer nil))
+   nil
+   (node_printer_bool subtype "printer.n"
+    "naturalnumbers.upto(printer.nlimit)")))
+ (node_printer_bool_TCC3 0
+  (node_printer_bool_TCC3-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (node_printer_bool subtype "(number_fields.-)(printer.n, 1)"
+    "node[maxrate, maxinfuse, maxtime]")))
+ (node_printer_bool_TCC4 0
+  (node_printer_bool_TCC4-1 nil 3817187072
+   ("" (termination-tcc) nil nil) nil nil
+   (node_printer_bool termination
+    "printer.node_printer_bool(printer.l, (number_fields.-)(printer.n, 1))"
+    "nil")))
+ (node_printer_bool_TCC5 0
+  (node_printer_bool_TCC5-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (node_printer_bool disjointness
+    "COND printer.n = 0 -> IF printer.l(printer.n) THEN stdstr.concat(stdstr.concat(\" node(\", stdstr.real2str(printer.n)), \")\") ELSE \"\" ENDIF, reals.>(printer.n, 0) -> IF printer.l(printer.n) THEN stdstr.concat(stdstr.concat(stdstr.concat(\" node(\", stdstr.real2str(printer.n)), \")\"), printer.node_printer_bool(printer.l, (number_fields.-)(printer.n, 1))) ELSE printer.node_printer_bool(printer.l, (number_fields.-)(printer.n, 1)) ENDIF ENDCOND"
+    "nil")))
+ (node_printer_bool_TCC6 0
+  (node_printer_bool_TCC6-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (node_printer_bool coverage
+    "COND printer.n = 0 -> IF printer.l(printer.n) THEN stdstr.concat(stdstr.concat(\" node(\", stdstr.real2str(printer.n)), \")\") ELSE \"\" ENDIF, reals.>(printer.n, 0) -> IF printer.l(printer.n) THEN stdstr.concat(stdstr.concat(stdstr.concat(\" node(\", stdstr.real2str(printer.n)), \")\"), printer.node_printer_bool(printer.l, (number_fields.-)(printer.n, 1))) ELSE printer.node_printer_bool(printer.l, (number_fields.-)(printer.n, 1)) ENDIF ENDCOND"
+    "nil")))
+ (device_printer_bool_TCC1 0
+  (device_printer_bool_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (device type-eq-decl nil devices_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (dlimit const-decl "nat" printer nil))
+   nil
+   (device_printer_bool subtype "printer.d"
+    "naturalnumbers.upto(printer.dlimit)")))
+ (device_printer_bool_TCC2 0
+  (device_printer_bool_TCC2-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (device type-eq-decl nil devices_th nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (dlimit const-decl "nat" printer nil))
+   nil
+   (device_printer_bool subtype "printer.d"
+    "naturalnumbers.upto(printer.dlimit)")))
+ (device_printer_bool_TCC3 0
+  (device_printer_bool_TCC3-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (device type-eq-decl nil devices_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (device_printer_bool subtype "(number_fields.-)(printer.d, 1)"
+    "device[maxrate, maxinfuse, maxtime]")))
+ (device_printer_bool_TCC4 0
+  (device_printer_bool_TCC4-1 nil 3817187072
+   ("" (termination-tcc) nil nil) nil nil
+   (device_printer_bool termination
+    "printer.device_printer_bool(printer.l, (number_fields.-)(printer.d, 1))"
+    "nil")))
+ (devs_printer_type_TCC1 0
+  (devs_printer_type_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (/= const-decl "boolean" notequal nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (devs_printer_type subtype "(number_fields.-)(printer.n, 1)"
+    "node[maxrate, maxinfuse, maxtime]")))
+ (devs_printer_type_TCC2 0
+  (devs_printer_type_TCC2-1 nil 3817187072
+   ("" (termination-tcc) nil nil)
+   ((/= const-decl "boolean" notequal nil)) nil
+   (devs_printer_type termination
+    "printer.devs_printer_type(printer.l, (number_fields.-)(printer.n, 1))"
+    "nil")))
+ (patient_printer_bool_TCC1 0
+  (patient_printer_bool_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (patient type-eq-decl nil patient_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (plimit const-decl "nat" printer nil))
+   nil
+   (patient_printer_bool subtype "printer.p"
+    "naturalnumbers.upto(printer.plimit)")))
+ (patient_printer_bool_TCC2 0
+  (patient_printer_bool_TCC2-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (patient type-eq-decl nil patient_th nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (plimit const-decl "nat" printer nil))
+   nil
+   (patient_printer_bool subtype "printer.p"
+    "naturalnumbers.upto(printer.plimit)")))
+ (patient_printer_bool_TCC3 0
+  (patient_printer_bool_TCC3-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (patient type-eq-decl nil patient_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (patient_printer_bool subtype "(number_fields.-)(printer.p, 1)"
+    "patient[maxrate, maxinfuse, maxtime]")))
+ (patient_printer_bool_TCC4 0
+  (patient_printer_bool_TCC4-1 nil 3817187072
+   ("" (termination-tcc) nil nil) nil nil
+   (patient_printer_bool termination
+    "printer.patient_printer_bool(printer.l, (number_fields.-)(printer.p, 1))"
+    "nil")))
+ (connected_printer_bool_TCC1 0
+  (connected_printer_bool_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nlimit const-decl "nat" printer nil))
+   nil
+   (connected_printer_bool subtype "printer.n2"
+    "naturalnumbers.upto(printer.nlimit)")))
+ (connected_printer_bool_TCC2 0
+  (connected_printer_bool_TCC2-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nlimit const-decl "nat" printer nil))
+   nil
+   (connected_printer_bool subtype "printer.n2"
+    "naturalnumbers.upto(printer.nlimit)")))
+ (connected_printer_bool_TCC3 0
+  (connected_printer_bool_TCC3-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (connected_printer_bool subtype "(number_fields.-)(printer.n1, 1)"
+    "node[maxrate, maxinfuse, maxtime]")))
+ (connected_printer_bool_TCC4 0
+  (connected_printer_bool_TCC4-1 nil 3817187072
+   ("" (termination-tcc) nil nil) nil nil
+   (connected_printer_bool termination
+    "printer.connected_printer_bool(printer.l, (number_fields.-)(printer.n1, 1), printer.n2)"
+    "nil")))
+ (nodes_link_printer_TCC1 0
+  (nodes_link_printer_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (node type-eq-decl nil node_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (nodes_link_printer subtype "(number_fields.-)(printer.n2, 1)"
+    "node[maxrate, maxinfuse, maxtime]")))
+ (nodes_link_printer_TCC2 0
+  (nodes_link_printer_TCC2-1 nil 3817187072
+   ("" (termination-tcc) nil nil) nil nil
+   (nodes_link_printer termination
+    "printer.nodes_link_printer(printer.l, printer.n1, (number_fields.-)(printer.n2, 1))"
+    "nil")))
+ (connected2string_TCC1 0
+  (connected2string_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nlimit const-decl "nat" printer nil))
+   nil
+   (connected2string subtype "printer.c"
+    "[[naturalnumbers.upto(printer.nlimit), naturalnumbers.upto(printer.nlimit)] -> booleans.bool]")))
+ (connected2string_TCC2 0
+  (connected2string_TCC2-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" printer nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (connected2string subtype "printer.nlimit"
+    "node[maxrate, maxinfuse, maxtime]")))
+ (act_buff_printer_TCC1 0
+  (act_buff_printer_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (mindex const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (index type-eq-decl nil node_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (mindex const-decl "nat" printer nil))
+   nil
+   (act_buff_printer subtype "printer.i"
+    "naturalnumbers.upto(printer.mindex)")))
+ (act_buff_printer_TCC2 0
+  (act_buff_printer_TCC2-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (mindex const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (index type-eq-decl nil node_th nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (mindex const-decl "nat" printer nil))
+   nil
+   (act_buff_printer subtype "printer.i"
+    "naturalnumbers.upto(printer.mindex)")))
+ (act_buff_printer_TCC3 0
+  (act_buff_printer_TCC3-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (index type-eq-decl nil node_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (/= const-decl "boolean" notequal nil)
+    (mindex const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (act_buff_printer subtype "(number_fields.-)(printer.i, 1)"
+    "index[maxrate, maxinfuse, maxtime]")))
+ (act_buff_printer_TCC4 0
+  (act_buff_printer_TCC4-1 nil 3817187072
+   ("" (termination-tcc) nil nil)
+   ((/= const-decl "boolean" notequal nil)) nil
+   (act_buff_printer termination
+    "printer.act_buff_printer(printer.l, (number_fields.-)(printer.i, 1))"
+    "nil")))
+ (act_buff_printer_TCC5 0
+  (act_buff_printer_TCC5-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (mindex const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (index type-eq-decl nil node_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (act_buff_printer disjointness
+    "COND printer.i = 0 -> IF printer.l(printer.i)`mhdr /= node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].nomsg THEN stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(\"index(\", stdstr.real2str(printer.i)), \") := \"), printer.act_msg_type2string(printer.l(printer.i))), stdstr.newline) ELSE \"\" ENDIF, reals.>(printer.i, 0) -> IF printer.l(printer.i)`mhdr /= node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].nomsg THEN stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(\"index(\", stdstr.real2str(printer.i)), \") := \"), printer.act_msg_type2string(printer.l(printer.i))), stdstr.space), printer.act_buff_printer(printer.l, (number_fields.-)(printer.i, 1))), stdstr.newline) ELSE printer.act_buff_printer(printer.l, (number_fields.-)(printer.i, 1)) ENDIF ENDCOND"
+    "nil")))
+ (act_buff_printer_TCC6 0
+  (act_buff_printer_TCC6-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (mindex const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (index type-eq-decl nil node_th nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (act_buff_printer coverage
+    "COND printer.i = 0 -> IF printer.l(printer.i)`mhdr /= node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].nomsg THEN stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(\"index(\", stdstr.real2str(printer.i)), \") := \"), printer.act_msg_type2string(printer.l(printer.i))), stdstr.newline) ELSE \"\" ENDIF, reals.>(printer.i, 0) -> IF printer.l(printer.i)`mhdr /= node_th[printer.maxrate, printer.maxinfuse, printer.maxtime].nomsg THEN stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(\"index(\", stdstr.real2str(printer.i)), \") := \"), printer.act_msg_type2string(printer.l(printer.i))), stdstr.space), printer.act_buff_printer(printer.l, (number_fields.-)(printer.i, 1))), stdstr.newline) ELSE printer.act_buff_printer(printer.l, (number_fields.-)(printer.i, 1)) ENDIF ENDCOND"
+    "nil")))
+ (pan_buff_printer_TCC1 0
+  (pan_buff_printer_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (index type-eq-decl nil node_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (/= const-decl "boolean" notequal nil)
+    (mindex const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (pan_buff_printer subtype "(number_fields.-)(printer.i, 1)"
+    "index[maxrate, maxinfuse, maxtime]")))
+ (pan_buff_printer_TCC2 0
+  (pan_buff_printer_TCC2-1 nil 3817187072
+   ("" (termination-tcc) nil nil)
+   ((/= const-decl "boolean" notequal nil)) nil
+   (pan_buff_printer termination
+    "printer.pan_buff_printer(printer.l, (number_fields.-)(printer.i, 1))"
+    "nil")))
+ (patient_pan_printer_TCC1 0
+  (patient_pan_printer_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (patient type-eq-decl nil patient_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (mindex const-decl "nat" printer nil))
+   nil
+   (patient_pan_printer subtype "printer.p"
+    "naturalnumbers.upto(printer.mindex)")))
+ (patient_pan_printer_TCC2 0
+  (patient_pan_printer_TCC2-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (maxrate formal-const-decl "posnat" printer nil)
+    (maxinfuse formal-const-decl "posnat" printer nil)
+    (maxtime formal-const-decl
+     "{maxtime: posnat | maxinfuse <= maxtime}" printer nil)
+    (patient type-eq-decl nil patient_th nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (mindex const-decl "nat" printer nil))
+   nil
+   (patient_pan_printer subtype "printer.p"
+    "naturalnumbers.upto(printer.mindex)")))
+ (patient_mode_type2string_TCC1 0
+  (patient_mode_type2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (patient_mode_type2string disjointness
+    "COND printer.m = coord_t_and_c_th.error -> \"error\", printer.m = coord_t_and_c_th.top -> \"top\", printer.m = coord_t_and_c_th.p_mode -> \"p_mode\", printer.m = coord_t_and_c_th.d_mode -> \"d_mode\", printer.m = coord_t_and_c_th.dc_mode -> \"dc_mode\" ENDCOND"
+    "nil")))
+ (patient_mode_type2string_TCC2 0
+  (patient_mode_type2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) (("" (postpone) nil nil)) nil) nil nil
+   (patient_mode_type2string coverage
+    "COND printer.m = coord_t_and_c_th.error -> \"error\", printer.m = coord_t_and_c_th.top -> \"top\", printer.m = coord_t_and_c_th.p_mode -> \"p_mode\", printer.m = coord_t_and_c_th.d_mode -> \"d_mode\", printer.m = coord_t_and_c_th.dc_mode -> \"dc_mode\" ENDCOND"
+    "nil")))
+ (patient_edit_type2string_TCC1 0
+  (patient_edit_type2string_TCC1-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil) nil nil
+   (patient_edit_type2string disjointness
+    "COND printer.m = coord_t_and_c_th.edit_none -> \"edit_none\", printer.m = coord_t_and_c_th.edit_top -> \"edit_top\", printer.m = coord_t_and_c_th.edit_patient -> \"edit_patient\", printer.m = coord_t_and_c_th.edit_device -> \"edit_device\", printer.m = coord_t_and_c_th.edit_rule -> \"edit_rule\", printer.m = coord_t_and_c_th.edit_constraint -> \"edit_constraint\" ENDCOND"
+    "nil")))
+ (patient_edit_type2string_TCC2 0
+  (patient_edit_type2string_TCC2-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil) nil nil
+   (patient_edit_type2string coverage
+    "COND printer.m = coord_t_and_c_th.edit_none -> \"edit_none\", printer.m = coord_t_and_c_th.edit_top -> \"edit_top\", printer.m = coord_t_and_c_th.edit_patient -> \"edit_patient\", printer.m = coord_t_and_c_th.edit_device -> \"edit_device\", printer.m = coord_t_and_c_th.edit_rule -> \"edit_rule\", printer.m = coord_t_and_c_th.edit_constraint -> \"edit_constraint\" ENDCOND"
+    "nil")))
+ (devices2string_TCC1 0
+  (devices2string_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)
+    (dlimit const-decl "nat" printer nil))
+   nil
+   (devices2string subtype "printer.ds"
+    "[naturalnumbers.upto(printer.dlimit) -> booleans.bool]")))
+ (devices2string_TCC2 0
+  (devices2string_TCC2-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((dlimit const-decl "nat" printer nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (devices2string subtype "printer.dlimit"
+    "device[maxrate, maxinfuse, maxtime]")))
+ (patients_type2string_TCC1 0
+  (patients_type2string_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)
+    (plimit const-decl "nat" printer nil))
+   nil
+   (patients_type2string subtype "printer.ps"
+    "[naturalnumbers.upto(printer.plimit) -> booleans.bool]")))
+ (patients_type2string_TCC2 0
+  (patients_type2string_TCC2-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((plimit const-decl "nat" printer nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (patients_type2string subtype "printer.plimit"
+    "patient[maxrate, maxinfuse, maxtime]")))
+ (act_buff_type2string_TCC1 0
+  (act_buff_type2string_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((mindex const-decl "nat" coord_t_and_c_th nil)
+    (mindex const-decl "nat" printer nil))
+   nil
+   (act_buff_type2string subtype "printer.ab"
+    "[naturalnumbers.upto(printer.mindex) -> act_message_type[maxrate, maxinfuse, maxtime]]")))
+ (act_buff_type2string_TCC2 0
+  (act_buff_type2string_TCC2-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((mindex const-decl "nat" printer nil)
+    (mindex const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (act_buff_type2string subtype "printer.mindex"
+    "index[maxrate, maxinfuse, maxtime]")))
+ (main_enum_par2string_TCC1 0
+  (main_enum_par2string_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)
+    (dlimit const-decl "nat" printer nil))
+   nil
+   (main_enum_par2string subtype "printer.mep"
+    "[naturalnumbers.upto(printer.dlimit) -> enum_parameter]")))
+ (action_error_type2string_TCC1 0
+  (action_error_type2string_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)
+    (plimit const-decl "nat" printer nil))
+   nil
+   (action_error_type2string subtype "printer.aet"
+    "[naturalnumbers.upto(printer.plimit) -> dev_act_type[maxrate, maxinfuse, maxtime]]")))
+ (top_enum_params2string_TCC1 0
+  (top_enum_params2string_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (top_enum_params2string subtype "6"
+    "patient[maxrate, maxinfuse, maxtime]")))
+ (coord_db_printer_TCC1 0
+  (coord_db_printer_TCC1-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)) nil
+   (coord_db_printer subtype "1"
+    "device[maxrate, maxinfuse, maxtime]")))
+ (coord_db_printer_TCC2 0
+  (coord_db_printer_TCC2-1 nil 3817187072 ("" (subtype-tcc) nil nil)
+   ((nlimit const-decl "nat" coord_t_and_c_th nil)) nil
+   (coord_db_printer subtype "1"
+    "device[maxrate, maxinfuse, maxtime]")))
+ (production_type_printer_TCC1 0
+  (production_type_printer_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (cindex type-eq-decl nil coord_t_and_c_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (/= const-decl "boolean" notequal nil)
+    (climit const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (production_type_printer subtype "(number_fields.-)(printer.c, 1)"
+    "cindex")))
+ (production_type_printer_TCC2 0
+  (production_type_printer_TCC2-1 nil 3817187072
+   ("" (termination-tcc) nil nil)
+   ((/= const-decl "boolean" notequal nil)) nil
+   (production_type_printer termination
+    "printer.production_type_printer(printer.l, (number_fields.-)(printer.c, 1))"
+    "nil")))
+ (production_type_printer_TCC3 0
+  (production_type_printer_TCC3-1 nil 3817187072
+   ("" (cond-disjoint-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (climit const-decl "nat" coord_t_and_c_th nil)
+    (cindex type-eq-decl nil coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (production_type_printer disjointness
+    "COND printer.c = 0 -> IF printer.l(printer.c)`vt /= coord_t_and_c_th.empty THEN stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(\"constraint(\", stdstr.real2str(printer.c)), \") := \"), printer.constraint_type2string(printer.l(printer.c))), stdstr.newline) ELSE \"\" ENDIF, reals.>(printer.c, 0) -> IF printer.l(printer.c)`vt /= coord_t_and_c_th.empty THEN stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(\"constraint(\", stdstr.real2str(printer.c)), \") := \"), printer.constraint_type2string(printer.l(printer.c))), stdstr.space), printer.production_type_printer(printer.l, (number_fields.-)(printer.c, 1))), stdstr.newline) ELSE printer.production_type_printer(printer.l, (number_fields.-)(printer.c, 1)) ENDIF ENDCOND"
+    "nil")))
+ (production_type_printer_TCC4 0
+  (production_type_printer_TCC4-1 nil 3817187072
+   ("" (cond-coverage-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (climit const-decl "nat" coord_t_and_c_th nil)
+    (cindex type-eq-decl nil coord_t_and_c_th nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (production_type_printer coverage
+    "COND printer.c = 0 -> IF printer.l(printer.c)`vt /= coord_t_and_c_th.empty THEN stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(\"constraint(\", stdstr.real2str(printer.c)), \") := \"), printer.constraint_type2string(printer.l(printer.c))), stdstr.newline) ELSE \"\" ENDIF, reals.>(printer.c, 0) -> IF printer.l(printer.c)`vt /= coord_t_and_c_th.empty THEN stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(stdstr.concat(\"constraint(\", stdstr.real2str(printer.c)), \") := \"), printer.constraint_type2string(printer.l(printer.c))), stdstr.space), printer.production_type_printer(printer.l, (number_fields.-)(printer.c, 1))), stdstr.newline) ELSE printer.production_type_printer(printer.l, (number_fields.-)(printer.c, 1)) ENDIF ENDCOND"
+    "nil")))
+ (production_type2string_TCC1 0
+  (production_type2string_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((climit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (production_type2string subtype "coord_t_and_c_th.climit"
+    "cindex")))
+ (patient_constraint_printer_TCC1 0
+  (patient_constraint_printer_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (cindex type-eq-decl nil coord_t_and_c_th nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (/= const-decl "boolean" notequal nil)
+    (climit const-decl "nat" coord_t_and_c_th nil))
+   nil
+   (patient_constraint_printer subtype
+    "(number_fields.-)(printer.c, 1)" "cindex")))
+ (patient_constraint_printer_TCC2 0
+  (patient_constraint_printer_TCC2-1 nil 3817187072
+   ("" (termination-tcc) nil nil)
+   ((/= const-decl "boolean" notequal nil)) nil
+   (patient_constraint_printer termination
+    "printer.patient_constraint_printer(printer.l, (number_fields.-)(printer.c, 1))"
+    "nil")))
+ (patient_device_connect_type2string_TCC1 0
+  (patient_device_connect_type2string_TCC1-1 nil 3817187072
+   ("" (subtype-tcc) nil nil)
+   ((last_patient const-decl "nat" printer nil)
+    (nlimit const-decl "nat" coord_t_and_c_th nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (patient_device_connect_type2string subtype "printer.last_patient"
+    "patient[maxrate, maxinfuse, maxtime]"))))
+

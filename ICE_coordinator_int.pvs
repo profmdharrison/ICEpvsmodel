@@ -1,0 +1,484 @@
+c_interface_th[maxrate: posnat, 
+          maxinfuse: posnat, 
+          maxtime: {maxtime: posnat | maxinfuse <= maxtime}]:
+THEORY
+  BEGIN
+   IMPORTING system_th[maxrate, maxinfuse, maxtime],
+             ICE_templates_th[maxrate, maxinfuse, maxtime]
+
+m_select_c_patient(xs: interface_st): interface_st =
+LET xs1 = coord_menu_act(select, xs)
+    IN coord_menu_act(patient_id, xs1)
+
+m_select_c_device(xs: interface_st): interface_st =
+LET xs1 = coord_menu_act(select, xs) IN
+      coord_menu_act(device, xs1)
+
+m_select_p_c_window(xs: interface_st): interface_st =
+LET xs1 = coord_menu_act(select, xs)
+    IN coord_menu_act(display, xs1)
+
+m_select_c_action(d: device, p: patient, xs: interface_st): interface_st =
+LET xs1 = coord_menu_act(select, xs),
+    xs2 = coord_menu_act(action, xs1) IN xs2
+
+m_select_p_focus(focus: disp_focus_type, xs: interface_st): interface_st =
+LET xs1 = coord_menu_act(cursor_down, xs),
+    xs2 = coord_menu_act(cursor_down, xs1),
+    xs3 = coord_menu_act(cursor_down, xs2) IN
+    COND
+      xs`ss`coord_st`disp_focus = focus -> xs,
+      xs1`ss`coord_st`disp_focus = focus -> xs1,
+      xs2`ss`coord_st`disp_focus = focus -> xs2,
+      ELSE -> xs3
+    ENDCOND
+
+m_select_c_display(xs: interface_st): interface_st =
+LET xs1 = coord_menu_act(select, xs) IN
+coord_menu_act(display, xs1)
+
+mx_select_patient_display(xs: interface_st): interface_st =
+LET xs1 = m_select_c_patient(xs),
+    xs2 = m_select_p_focus(patient_focus, xs1) IN
+    m_select_c_display(xs2)
+
+mx_select_device_display(xs: interface_st): interface_st =
+LET xs1 = m_select_c_device(xs),
+    xs2 = m_select_p_focus(device_focus, xs1) IN
+    m_select_c_display(xs2)
+
+% @QED coord_m_select_patient proved by nmdh4 on Wed, 29 Mar 2023 10:07:26 GMT
+coord_m_select_patient: LEMMA
+FORALL (p: patient, xs: interface_st):
+LET is = xs`ss`coord_st IN
+is`entry_window`ent_patient = p AND
+is`disp_top`patients(p)
+IMPLIES
+m_select_c_patient(xs)`ss`coord_st`disp_top`selected_patient = p
+
+% @QED coord_m_select_patient_display proved by nmdh4 on Thu, 30 Mar 2023 10:17:42 GMT
+coord_m_select_patient_display: LEMMA
+FORALL (p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = m_select_c_patient(xs),
+    xs2 = m_select_p_focus(patient_focus, xs),
+    xs3 = m_select_c_display(xs2) IN
+    is`entry_window`ent_patient = p AND
+    is`disp_top`selected_patient = p AND
+    is `disp_top`patients(p) IMPLIES
+    xs3`ss`coord_st`disp_patient`current_patient = p
+
+% @QED coord_gm_select_patient_display proved by nmdh4 on Mon, 17 Apr 2023 14:27:48 GMT
+coord_gm_select_patient_display: LEMMA
+FORALL (p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_patient_display(xs) IN
+    is`entry_window`ent_patient = p AND
+   % is`disp_top`selected_patient = p AND
+    is `disp_top`patients(p) IMPLIES
+    xs1`ss`coord_st`disp_patient`current_patient = p
+
+% QED xxx_gm_select_patient_display proved by nmdh4 on Tue, 18 Apr 2023 14:28:51 GMT
+% QED xxx_gm_select_patient_display proved by nmdh4 on Tue, 18 Apr 2023 14:51:22 GMT
+% QED xxx_gm_select_patient_display proved by nmdh4 on Mon, 24 Apr 2023 13:17:39 GMT
+% QED xxx_gm_select_patient_display proved by nmdh4 on Wed, 26 Apr 2023 14:30:02 GMT
+% QED xxx_gm_select_patient_display proved by nmdh4 on Wed, 26 Apr 2023 16:12:13 GMT
+% QED xxx_gm_select_patient_display proved by nmdh4 on Fri, 05 May 2023 13:27:24 GMT
+% QED xxx_gm_select_patient_display proved by nmdh4 on Fri, 05 May 2023 15:13:29 GMT
+% QED xxx_gm_select_patient_display proved by nmdh4 on Fri, 05 May 2023 15:29:38 GMT
+% @QED xxx_gm_select_patient_display proved by nmdh4 on Tue, 09 May 2023 11:08:23 GMT
+xxx_gm_select_patient_display: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_patient_display(xs),
+    st1 = xs1`ss,
+    is1 = st1`coord_st IN
+    is`entry_window`ent_patient = p AND
+    is`entry_window`ent_device = d AND
+    is`coord_db(p)`p_devices(d) /= no_device AND
+    is`disp_patient`devices(d) /= no_device AND
+   % is`disp_top`selected_patient = p AND
+    is`disp_top`patients(p) 
+   IMPLIES
+    is1`entry_window`ent_patient = p AND
+    is1`entry_window`ent_device = d AND
+    is1`disp_patient`current_patient = p AND
+    is1`coord_db(p)`p_devices(d) /= no_device AND
+    is1`disp_patient`devices(d) /= no_device AND
+    is1`disp_top`patients(p) AND
+    is1`mode = p_mode AND
+    is1`coord_db(p)`p_devices(d) = is`coord_db(p)`p_devices(d) AND
+    is1`disp_patient`devices(d) = is`coord_db(p)`p_devices(d) AND
+    is1`entry_window`ent_action = is`entry_window`ent_action AND
+    is1`disp_top`patients(p) =  is`disp_top`patients(p) 
+
+
+% @QED coord_gm_select_patient_device proved by nmdh4 on Tue, 18 Apr 2023 11:16:54 GMT
+coord_gm_select_patient_device: LEMMA
+FORALL (p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_patient_display(xs),
+    xs2 = mx_select_device_display(xs1) IN
+    is`entry_window`ent_patient = p AND
+   % is`entry_window`ent_device = d AND
+   % is`disp_top`selected_patient = p AND
+    is `disp_top`patients(p) IMPLIES
+    xs2`ss`coord_st`disp_patient`current_patient = p
+
+
+
+% @QED is_m_select_patient_display proved by nmdh4 on Tue, 04 Apr 2023 11:14:06 GMT
+is_m_select_patient_display: LEMMA
+FORALL (p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = m_select_c_patient(xs),
+    xs2 = m_select_p_focus(patient_focus, xs1),
+    xs3 = m_select_c_display(xs2),
+    is1 = is WITH [disp_focus := patient_focus,
+               disp_top := is`disp_top WITH [selected_patient := p]] IN
+    is`entry_window`ent_patient = p AND
+  %  is`disp_top`selected_patient = p AND
+    is `disp_top`patients(p) IMPLIES
+    xs3`ss`coord_st = i_select_p_mode(is1)
+
+% @QED is_mx_select_patient_display proved by nmdh4 on Wed, 05 Apr 2023 13:31:46 GMT
+is_mx_select_patient_display: LEMMA
+FORALL (p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = m_select_c_patient(xs),
+    xs2 = m_select_p_focus(patient_focus, xs1),
+    xs3 = m_select_c_display(xs2),
+    is1 = is WITH [disp_focus := patient_focus,
+               disp_top := is`disp_top WITH [selected_patient := p]] IN
+    is`entry_window`ent_patient = p AND
+  %  is`disp_top`selected_patient = p AND
+    is `disp_top`patients(p) IMPLIES
+    xs3 = (# ms := xs3`ms, ss := xs`ss WITH
+                              [coord_st := i_select_p_mode(is1)] #)
+
+% QED is_gmx_select_patient_display proved by nmdh4 on Fri, 14 Apr 2023 16:08:30 GMT
+is_gmx_select_patient_display: LEMMA
+FORALL (p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_patient_display(xs),
+    is1 = is WITH [disp_focus := patient_focus,
+               disp_top := is`disp_top WITH [selected_patient := p]] IN
+    is`entry_window`ent_patient = p AND
+  %  is`disp_top`selected_patient = p AND
+    is `disp_top`patients(p) IMPLIES
+    xs1 = (# ms := xs1`ms, ss := xs`ss WITH
+                              [coord_st := i_select_p_mode(is1)] #) AND
+    xs1`ss`coord_st`disp_top`selected_patient = p
+
+% @QED is_m_select_device_display proved by nmdh4 on Tue, 04 Apr 2023 15:17:00 GMT
+is_m_select_device_display: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = m_select_c_device(xs),
+    xs2 = m_select_p_focus(device_focus, xs1),
+    xs3 = m_select_c_display(xs2),
+    is1 = is WITH [disp_focus := device_focus,
+               disp_patient := is`disp_patient WITH [selected_device := d]] IN
+   % is`entry_window`ent_patient = p AND
+    is`entry_window`ent_device = d AND
+    is `disp_patient`devices(d) /= no_device AND
+    is`mode = p_mode AND
+    ((is`coord_db(disp_patient(is)`current_patient))`p_devices(d) /= no_device)
+    IMPLIES
+    xs3`ss`coord_st = i_select_d_mode(is1)
+
+% @QED is_gmx_select_device_display proved by nmdh4 on Mon, 17 Apr 2023 11:15:42 GMT
+is_gmx_select_device_display: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_device_display(xs),
+    is1 = is WITH [disp_focus := device_focus,
+               disp_patient := is`disp_patient WITH [selected_device := d]] IN
+   % is`entry_window`ent_patient = p AND
+    is`entry_window`ent_device = d AND
+    is `disp_patient`devices(d) /= no_device AND
+    is`mode = p_mode AND
+    ((is`coord_db(disp_patient(is)`current_patient))`p_devices(d) /= no_device)
+    IMPLIES
+    xs1`ss`coord_st = i_select_d_mode(is1)
+               
+           
+% @QED is_mx_select_device_display proved by nmdh4 on Thu, 06 Apr 2023 15:49:05 GMT
+is_mx_select_device_display: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = m_select_c_device(xs),
+    xs2 = m_select_p_focus(device_focus, xs1),
+    xs3 = m_select_c_display(xs2),
+    is1 = is WITH [disp_focus := device_focus,
+               disp_patient := is`disp_patient WITH [selected_device := d]] IN
+   % is`entry_window`ent_patient = p AND
+    d /= nil_device AND
+    is`entry_window`ent_device = d AND
+    is `disp_patient`devices(d) /= no_device AND
+    is`mode = p_mode AND
+    ((is`coord_db(disp_patient(is)`current_patient))`p_devices(d) /= no_device)
+    IMPLIES
+    xs3 = (# ms := xs3`ms, ss := xs`ss WITH
+                              [coord_st := i_select_d_mode(is1)] #)
+
+% @QED is_ggmx_select_device_display proved by nmdh4 on Mon, 17 Apr 2023 11:43:43 GMT
+is_ggmx_select_device_display: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_device_display(xs),
+    is1 = is WITH [disp_focus := device_focus,
+               disp_patient := is`disp_patient WITH [selected_device := d]] IN
+   % is`entry_window`ent_patient = p AND
+    d /= nil_device AND
+    is`entry_window`ent_device = d AND
+    is `disp_patient`devices(d) /= no_device AND
+    is`mode = p_mode AND
+    ((is`coord_db(disp_patient(is)`current_patient))`p_devices(d) /= no_device)
+    IMPLIES
+    xs1 = (# ms := xs1`ms, ss := xs`ss WITH
+                              [coord_st := i_select_d_mode(is1)] #)
+
+
+% @QED coord_m_select_device proved by nmdh4 on Fri, 31 Mar 2023 15:40:43 GMT
+coord_m_select_device: LEMMA
+FORALL (p: patient, d: device, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = m_select_c_device(xs),
+    xs2 = m_select_p_focus(device_focus, xs1),
+    xs3 = m_select_c_display(xs2) IN
+((is`mode = p_mode) OR (is`mode = d_mode) OR (is`mode = top)) AND
+is`entry_window`ent_device = d AND
+%is`entry_window`ent_patient = p AND
+is`disp_top`patients(p) AND
+is`disp_patient`current_patient = p AND
+is`disp_patient`devices(d) = infusion_pump AND
+(d /= nil_device) AND (p /= p_null) AND
+is`coord_db(p)`p_devices(d) = infusion_pump
+IMPLIES
+xs3`ss`coord_st`disp_device`current_device = d
+
+% QED coord_gm_select_device proved by nmdh4 on Mon, 17 Apr 2023 15:01:50 GMT
+% QED coord_gm_select_device proved by nmdh4 on Tue, 18 Apr 2023 11:31:40 GMT
+% QED coord_gm_select_device proved by nmdh4 on Tue, 18 Apr 2023 11:55:44 GMT
+% @QED coord_gm_select_device proved by nmdh4 on Tue, 18 Apr 2023 15:05:31 GMT
+coord_gm_select_device: LEMMA
+FORALL (p: patient, d: device, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_device_display(xs),
+    st1 = xs1`ss,
+    is1 = st1`coord_st IN
+((is`mode = p_mode) OR (is`mode = d_mode) OR (is`mode = top)) AND
+is`entry_window`ent_device = d AND
+%is`entry_window`ent_patient = p AND
+is`disp_top`patients(p) AND
+is`disp_patient`current_patient = p AND
+is`disp_patient`devices(d) /= no_device AND
+(d /= nil_device) AND (p /= p_null) AND
+is`coord_db(p)`p_devices(d) /= no_device
+IMPLIES
+is1`disp_device`current_device = d 
+
+% QED coord_xxx_select_device proved by nmdh4 on Wed, 26 Apr 2023 13:39:52 GMT
+% QED coord_xxx_select_device proved by nmdh4 on Fri, 05 May 2023 11:50:40 GMT
+% @QED coord_xxx_select_device proved by nmdh4 on Fri, 05 May 2023 16:21:51 GMT
+coord_xxx_select_device: LEMMA
+FORALL (p: patient, d: device, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_device_display(xs),
+    st1 = xs1`ss,
+    is1 = st1`coord_st IN
+((is`mode = p_mode) OR (is`mode = d_mode)) AND
+% OR (is`mode = top)) AND
+is`entry_window`ent_device = d AND
+%is`entry_window`ent_patient = p AND
+is`disp_top`patients(p) AND
+is`disp_top`selected_patient = p AND
+is`disp_patient`current_patient = p AND
+is`disp_patient`devices(d) /= no_device AND
+(d /= nil_device) AND (p /= p_null) AND
+is`coord_db(p)`p_devices(d) /= no_device
+IMPLIES
+is1`disp_device`current_device = d AND
+is1`disp_focus = device_focus AND
+is1`mode = d_mode AND 
+is1`disp_patient`selected_device = d AND
+is1`disp_top`selected_patient = is`disp_top`selected_patient AND
+is1`disp_patient`current_patient = is`disp_top`selected_patient AND
+is1`entry_window`ent_device = d AND
+is1`entry_window`ent_patient = is`entry_window`ent_patient AND
+is1`coord_db(p)`p_devices(d) = is`coord_db(p)`p_devices(d) AND
+is1`disp_patient`devices(d) = is`disp_patient`devices(d) AND
+is1`entry_window`ent_action = is`entry_window`ent_action AND
+is1`disp_top`patients(p) = is`disp_top`patients(p)
+
+
+% @QED coord_gmx_select_patient_display proved by nmdh4 on Tue, 18 Apr 2023 15:06:33 GMT
+coord_gmx_select_patient_display: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_patient_display(xs),
+    xs2 = mx_select_device_display(xs1) IN
+    is`entry_window`ent_device = d AND
+    is`entry_window`ent_patient = p AND
+   (d /= nil_device) AND (p /= p_null) AND
+   is`coord_db(p)`p_devices(d) /= no_device AND
+   is`disp_patient`devices(d) /= no_device AND
+    is `disp_top`patients(p) IMPLIES
+    xs2`ss`coord_st`disp_patient`current_patient = p AND
+    xs2`ss`coord_st`disp_device`current_device = d
+
+% QED coord_xxx_select_patient_display proved by nmdh4 on Thu, 04 May 2023 13:37:58 GMT
+% QED coord_xxx_select_patient_display proved by nmdh4 on Fri, 05 May 2023 13:34:00 GMT
+% @QED coord_xxx_select_patient_display proved by nmdh4 on Tue, 09 May 2023 09:36:57 GMT
+coord_xxx_select_patient_display: LEMMA
+FORALL (d: device, p: patient, xs: interface_st):
+LET is = xs`ss`coord_st,
+    xs1 = mx_select_patient_display(xs),
+    xs2 = mx_select_device_display(xs1),
+    st2 = xs2`ss,
+    is2 = st2`coord_st IN
+    is`entry_window`ent_device = d AND
+    is`entry_window`ent_patient = p AND
+   (d /= nil_device) AND (p /= p_null) AND
+   is`coord_db(p)`p_devices(d) /= no_device AND
+   is`disp_patient`devices(d) /= no_device AND
+   is`coord_db(p)`p_devices(d) = is`disp_patient`devices(d) AND
+    is`disp_top`patients(p) %AND
+    %((is`mode = p_mode) OR (is`mode = d_mode)) 
+    IMPLIES
+    is2`disp_patient`current_patient = p AND
+    is2`disp_device`current_device = d AND
+    is2`entry_window`ent_device = d AND
+    is2`entry_window`ent_patient = p AND
+    is2`entry_window`ent_action = is`entry_window`ent_action AND
+    is2`disp_focus = device_focus AND
+    is2`mode = d_mode AND
+    is2`coord_db(p)`p_devices(d) = is`coord_db(p)`p_devices(d) AND
+    is2`disp_patient`devices(d) = is`disp_patient`devices(d) AND
+    is2`disp_top`selected_patient = p AND
+    is2`disp_patient`selected_device = d AND
+    is2`disp_top`patients(p) = is`disp_top`patients(p)
+
+
+      
+
+% QED coord_show_patient_display_lemma proved by nmdh4 on Mon, 13 Mar 2023 12:43:37 GMT
+% QED coord_show_patient_display_lemma proved by nmdh4 on Fri, 17 Mar 2023 10:11:44 GMT
+% @QED coord_show_patient_display_lemma proved by nmdh4 on Fri, 31 Mar 2023 15:42:33 GMT
+coord_show_patient_display_lemma: LEMMA
+FORALL (p: patient, p: patient, xs: interface_st):
+LET xs1 = (# ss := coordinator_enter_patient(p, xs`ss), ms := xs`ms #),
+    xs2 = m_select_c_patient(xs1),
+    xs3 = m_select_p_c_window(xs2) IN
+p /= p_null  AND  
+xs`ss`coord_st`mode = p_mode AND
+xs`ss`coord_st`disp_focus = patient_focus AND
+xs`ss`coord_st`disp_top`patients(p)
+
+IMPLIES
+xs3`ss`coord_st = i_select_p_mode(i_select_patient(xs1)`ss`coord_st)
+
+% @QED is_mx_show_patient_display_lemma proved by nmdh4 on Wed, 12 Apr 2023 10:16:19 GMT
+is_mx_show_patient_display_lemma: LEMMA
+FORALL (p: patient, p: patient, xs: interface_st):
+LET xs1 = (# ss := coordinator_enter_patient(p, xs`ss), ms := xs`ms #),
+    xs2 = m_select_c_patient(xs1),
+    xs3 = m_select_p_c_window(xs2) IN
+p /= p_null  AND  
+xs`ss`coord_st`mode = p_mode AND
+xs`ss`coord_st`disp_focus = patient_focus AND
+xs`ss`coord_st`disp_top`patients(p)
+
+IMPLIES
+xs3 = (# ms := xs3`ms, ss := xs`ss WITH
+                              [coord_st := i_select_p_mode(i_select_patient(xs1)`ss`coord_st)] #)
+
+% QED invoke_c_action proved by nmdh4 on Mon, 13 Mar 2023 15:10:30 GMT
+% QED invoke_c_action proved by nmdh4 on Fri, 17 Mar 2023 10:12:08 GMT
+% QED invoke_c_action proved by nmdh4 on Fri, 31 Mar 2023 15:43:19 GMT
+% QED invoke_c_action proved by nmdh4 on Thu, 04 May 2023 15:19:17 GMT
+% QED invoke_c_action proved by nmdh4 on Fri, 05 May 2023 10:59:34 GMT
+% QED invoke_c_action proved by nmdh4 on Fri, 05 May 2023 14:33:50 GMT
+% @QED invoke_c_action proved by nmdh4 on Tue, 09 May 2023 09:37:58 GMT
+invoke_c_action: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET is = xs`ss`coord_st IN
+p /= p_null AND d /= nil_device AND
+%xs`ss`pdb(p)`emode = edit_none AND
+is`mode = d_mode AND
+is`entry_window`ent_action = a AND
+%is`disp_top`patients(p) AND
+(is`disp_patient)`current_patient = p AND
+(((is`disp_focus = patient_focus) AND (is`disp_patient`selected_device = d)) OR
+((is`disp_focus = device_focus) AND (is`disp_device`current_device = d)))% AND
+%c_d_per_action(a, is) %AND
+%xs`ss`pdb(p)`p_disp_top`devs(d) /= no_device AND
+%xs`ms`patient_mn(p)`visible_menu = edit_none_menu 
+IMPLIES
+m_select_c_action(d, p, xs)`ss = coord_act_mono(xs`ss)
+
+% @QED mx_select_c_action proved by nmdh4 on Tue, 09 May 2023 11:18:55 GMT
+mx_select_c_action: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, is = st`coord_st,
+    ps = st`pdb(p),
+   % ds = 
+    xs1 = mx_select_patient_display(xs),
+    xs2 = mx_select_device_display(xs1) 
+IN
+ (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+     is`entry_window`ent_action = a AND
+     is`entry_window`ent_patient = p AND
+    is`entry_window`ent_device = d AND
+    is`coord_db(p)`p_devices(d) /= no_device AND
+   is`disp_patient`devices(d) /= no_device AND
+   is`coord_db(p)`p_devices(d) = is`disp_patient`devices(d) AND
+    is`disp_top`patients(p)   
+IMPLIES
+m_select_c_action(d, p, xs2)`ss = coord_act_mono(xs2`ss)
+
+% @QED coord_enter_action_lemma proved by nmdh4 on Tue, 09 May 2023 13:26:21 GMT
+coord_enter_action_lemma: LEMMA
+FORALL (a: action_id, xs: interface_st):
+LET st = xs`ss, is = st`coord_st IN
+ is`entry_window`ent_action = a AND
+ is`mode = d_mode IMPLIES
+ coordinator_enter_action(a, st) = st
+
+% @QED menu_coord_action_lemma proved by nmdh4 on Tue, 09 May 2023 14:08:49 GMT
+menu_coord_action_lemma: LEMMA
+FORALL (a: action_id, d: device, p: patient, xs: interface_st):
+LET st = xs`ss, is = st`coord_st,
+%ps = st`pdb(p), 
+ %   ds = ps`ip_state(d),
+ %   pnde = nde(ps), 
+   % d = ((ps`p_disp_top)`sel_device)`dv,
+%    dnde = IF ps`p_disp_top`devs(d) = infusion_pump THEN ps`ip_state(d)`nde
+%           ELSE ps`vital_signs`nde ENDIF, 
+xs1 = mx_select_patient_display(xs),
+xs2 = mx_select_device_display(xs1),
+xs3 = m_select_c_action(d, p, xs2),
+xs4s = tick_act_patient(p, xs3`ss),
+xs5s = tick_act_device(d, p, xs4s),
+xs6s = tick_pan_device(d, p, xs5s),
+xs7s = tick_pan_patient(p, xs6s),
+xs8s = tick_pan_coordinator(xs7s)   
+    IN  
+    % patient known to the system
+     (p /= p_null) AND st`ps(p) AND (d /= nil_device) AND
+     (a /= nil_action) AND (a /= powr) AND
+      is`entry_window`ent_action = a AND
+     is`entry_window`ent_patient = p AND
+    is`entry_window`ent_device = d AND
+    is`coord_db(p)`p_devices(d) /= no_device AND
+   is`disp_patient`devices(d) /= no_device AND
+   is`coord_db(p)`p_devices(d) = is`disp_patient`devices(d) AND
+    is`disp_top`patients(p)   
+IMPLIES
+xs8s = c_d_fun_action(a, xs2`ss) 
+
+
+
+END c_interface_th

@@ -1,0 +1,57 @@
+
+Context changed to ~/Documents/projects/ICE/pvsICEwithmenusv4/
+Parsing main
+main parsed in 0.44 seconds
+Typechecking main
+Parsing printer
+printer parsed in 0.81 seconds
+printer is already parsed
+Typechecking printer
+Parsing ICEsystem
+ICEsystem parsed in 0.21 seconds
+ICEsystem is already parsed
+Typechecking ICEsystem
+Parsing ICEpatients
+ICEpatients parsed in 0.16 seconds
+ICEpatients is already parsed
+Typechecking ICEpatients
+Parsing ICEinfusionpumps
+ICEinfusionpumps parsed in 0.10 seconds
+ICEinfusionpumps is already parsed
+Typechecking ICEinfusionpumps
+Parsing ICEtypes
+ICEtypes parsed in 0.01 seconds
+ICEtypes is already parsed
+Typechecking ICEtypes
+coord_t_and_c_th typechecked in 0.53s: 1 TCC, 0 proved, 0 subsumed, 1 unproved
+Parsing ICEmessages
+ICEmessages parsed in 0.07 seconds
+ICEmessages is already parsed
+Typechecking ICEmessages
+node_th typechecked in 0.34s: 14 TCCs, 0 proved, 5 subsumed, 9 unproved; 14 msgs
+Parsing ICEdevices
+ICEdevices parsed in 0.01 seconds
+ICEdevices is already parsed
+Typechecking ICEdevices
+devices_th typechecked in 0.04s: 2 TCCs, 0 proved, 0 subsumed, 2 unproved
+infusion_pumps_th typechecked in 2.20s: 31 TCCs, 0 proved, 1 subsumed, 28 unproved, 2 trivial; 1 msg
+Parsing ICEvital_signs
+ICEvital_signs parsed in 0.02 seconds
+ICEvital_signs is already parsed
+Typechecking ICEvital_signs
+vital_signs_th typechecked in 0.29s: 7 TCCs, 0 proved, 1 subsumed, 6 unproved; 1 msg
+patient_th typechecked in 4.90s: 46 TCCs, 0 proved, 7 subsumed, 39 unproved; 48 msgs
+Parsing ICEcoordinator
+ICEcoordinator parsed in 0.14 seconds
+ICEcoordinator is already parsed
+Typechecking ICEcoordinator
+coordinator_th typechecked in 1.92s: 7 TCCs, 0 proved, 1 subsumed, 6 unproved; 41 msgs
+Parsing ICEmenu
+ICEmenu parsed in 0.00 seconds
+ICEmenu is already parsed
+Typechecking ICEmenu
+menu_th typechecked in 0.00s: No TCCs generated
+system_th typechecked in 12.42s: 18 TCCs, 0 proved, 0 subsumed, 16 unproved, 2 trivial; 145 msgs;;; GC:;;; Finished GC
+
+printer typechecked in 26.45s: 295 TCCs, 0 proved, 208 subsumed, 87 unproved; 186 conversions; 109 msgs
+main typechecked in 38.39s: 206 TCCs, 0 proved, 203 subsumed, 3 unproved; 355 msgs
